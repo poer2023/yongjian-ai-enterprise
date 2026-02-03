@@ -132,13 +132,14 @@ const handleSubmit = () => {
             <span class="required">*</span> 上传待解读文档
             <span class="upload-count">（{{ uploadedFiles.length }}/{{ maxFiles }}）</span>
           </label>
-          <div class="upload-wrapper">
-            <label class="upload-area">
-              <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden multiple />
-              <Upload :size="20" class="upload-icon" />
-              <span class="upload-text">点击上传招标文件（PDF/Word），最多上传 {{ maxFiles }} 份</span>
-            </label>
-          </div>
+          <label class="upload-area">
+            <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden multiple />
+            <Upload :size="32" />
+            <div class="upload-text">
+              <span class="upload-main">点击上传招标文件</span>
+              <span class="upload-hint">支持 PDF、Word 格式，最多上传 {{ maxFiles }} 份</span>
+            </div>
+          </label>
           <!-- Uploaded files list -->
           <div v-if="uploadedFiles.length > 0" class="uploaded-files-list">
             <div v-for="(file, index) in uploadedFiles" :key="index" class="uploaded-file-item">
@@ -391,33 +392,41 @@ const handleSubmit = () => {
 }
 
 /* Upload Area */
-.upload-wrapper {
-  width: 100%;
-}
-
 .upload-area {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
+  justify-content: center;
+  padding: 32px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  text-align: center;
+  color: #64748b;
 }
 
 .upload-area:hover {
   border-color: #2563eb;
-}
-
-.upload-icon {
-  color: #94a3b8;
+  background: #eff6ff;
 }
 
 .upload-text {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.upload-main {
   font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.upload-hint {
+  font-size: 12px;
   color: #94a3b8;
+  margin-top: 4px;
 }
 
 .upload-count {
