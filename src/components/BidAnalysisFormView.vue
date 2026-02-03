@@ -6,69 +6,79 @@ import {
   Bell,
   FileText,
   Search,
-  Upload
+  Upload,
+  Flame,
+  X
 } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 
-const focusPoints = ref<string[]>(['资质要求']);
-const uploadedFile = ref<File | null>(null);
+// Get project info from query params if coming from bid list
+const projectTitle = ref(route.query.title as string || '');
+const preloadedFileName = ref(route.query.fileName as string || '');
 
-const focusOptions = [
-  { value: '资质要求', label: '资质要求' },
-  { value: '评分标准', label: '评分标准' },
-  { value: '时间节点', label: '时间节点' },
-  { value: '技术要求', label: '技术要求' },
-  { value: '商务条款', label: '商务条款' },
-  { value: '投标保证金', label: '投标保证金' },
-];
+// Support multiple files (batch upload)
+const uploadedFiles = ref<File[]>([]);
+const maxFiles = 50;
+const additionalInfo = ref('');
+const maxLength = 5000;
 
 const templateTypes = [
   { icon: FileSearch, label: '标讯解读', active: true },
   { icon: Bell, label: '标讯订阅' },
-  { icon: FileText, label: '标书生成' },
+  { icon: FileText, label: 'AI标书生成' },
+];
+
+const recentTools = [
+  { icon: FileSearch, label: '标讯解读' },
+  { icon: FileText, label: 'AI标书生成' },
+  { icon: Bell, label: '标讯订阅' },
 ];
 
 const features = [
   '招标文件智能解析',
-  '资质要求自动提取',
-  '评分标准结构化展示',
-  '时间节点自动汇总',
-  '我方匹配度快速分析',
+  '九大模块结构化提取',
+  '企业素材库自动匹配',
+  '投标可行性评估',
+  '下一步行动计划生成',
 ];
 
 const goBack = () => {
-  router.push({ name: 'bid-center' });
+  router.push({ name: 'agents' });
 };
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    uploadedFile.value = target.files[0];
+  if (target.files && target.files.length > 0) {
+    const newFiles = Array.from(target.files);
+    const remainingSlots = maxFiles - uploadedFiles.value.length;
+    const filesToAdd = newFiles.slice(0, remainingSlots);
+    uploadedFiles.value = [...uploadedFiles.value, ...filesToAdd];
+    target.value = ''; // Reset input for re-upload
   }
 };
 
-const toggleFocus = (value: string) => {
-  const index = focusPoints.value.indexOf(value);
-  if (index > -1) {
-    focusPoints.value.splice(index, 1);
-  } else {
-    focusPoints.value.push(value);
-  }
+const removeFile = (index: number) => {
+  uploadedFiles.value.splice(index, 1);
+};
+
+const clearAdditionalInfo = () => {
+  additionalInfo.value = '';
 };
 
 const handleSubmit = () => {
   const formData = {
-    focusPoints: focusPoints.value,
-    file: uploadedFile.value?.name
+    additionalInfo: additionalInfo.value,
+    fileCount: uploadedFiles.value.length
   };
   console.log('Submitting:', formData);
 
   router.push({
     name: 'bid-analysis-result',
     query: {
-      file: uploadedFile.value?.name
+      fileCount: uploadedFiles.value.length
     }
   });
 };
@@ -80,7 +90,7 @@ const handleSubmit = () => {
     <aside class="template-sidebar">
       <button class="back-btn" @click="goBack">
         <ChevronLeft :size="16" />
-        <span>返回标讯中心</span>
+        <span>返回应用市场</span>
       </button>
 
       <div class="search-box">
@@ -89,15 +99,16 @@ const handleSubmit = () => {
       </div>
 
       <div class="template-section">
-        <div class="section-title">投标工具</div>
+        <div class="section-title">最近使用</div>
         <div
-          v-for="(item, index) in templateTypes"
+          v-for="(item, index) in recentTools"
           :key="index"
           class="template-item"
-          :class="{ active: item.active }"
+          :class="{ active: index === 0 }"
         >
           <component :is="item.icon" :size="16" class="item-icon" />
           <span>{{ item.label }}</span>
+          <Flame v-if="index === 0" :size="14" class="hot-icon" />
         </div>
       </div>
     </aside>
@@ -118,61 +129,65 @@ const handleSubmit = () => {
         <!-- File Upload -->
         <div class="form-group">
           <label class="form-label">
-            <span class="required">*</span> 上传招标文件
+            <span class="required">*</span> 上传待解读文档
+            <span class="upload-count">（{{ uploadedFiles.length }}/{{ maxFiles }}）</span>
           </label>
-          <div class="template-upload-cards">
-            <label class="upload-card">
-              <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden />
-              <div class="card-icon upload-icon">
-                <Upload :size="24" />
-              </div>
-              <div class="card-title">点击上传招标文件</div>
-              <div class="card-subtitle">支持PDF、Word格式</div>
-              <span v-if="uploadedFile" class="uploaded-file-name">{{ uploadedFile.name }}</span>
+          <div class="upload-wrapper">
+            <label class="upload-area">
+              <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden multiple />
+              <Upload :size="20" class="upload-icon" />
+              <span class="upload-text">点击上传招标文件（PDF/Word），最多上传 {{ maxFiles }} 份</span>
             </label>
+          </div>
+          <!-- Uploaded files list -->
+          <div v-if="uploadedFiles.length > 0" class="uploaded-files-list">
+            <div v-for="(file, index) in uploadedFiles" :key="index" class="uploaded-file-item">
+              <FileText :size="14" />
+              <span class="file-name">{{ file.name }}</span>
+              <button class="remove-file-btn" @click="removeFile(index)">
+                <X :size="14" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Focus Points -->
+        <!-- Additional Info -->
         <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 关注重点（可多选）
-          </label>
-          <div class="option-selector three-col">
-            <button
-              v-for="option in focusOptions"
-              :key="option.value"
-              class="option-btn"
-              :class="{ active: focusPoints.includes(option.value) }"
-              @click="toggleFocus(option.value)"
-            >
-              {{ option.label }}
-            </button>
+          <label class="form-label">辅助信息</label>
+          <div class="textarea-wrapper">
+            <textarea
+              v-model="additionalInfo"
+              class="info-textarea"
+              :maxlength="maxLength"
+              placeholder="建议输入清晰准确的审查要求，如：企业资质情况、重点关注条款、投标预算范围、竞争对手信息等（非必填）"
+            ></textarea>
+            <button v-if="additionalInfo" class="clear-btn" @click="clearAdditionalInfo">清空</button>
+            <span class="char-count">{{ additionalInfo.length }} / {{ maxLength }}</span>
           </div>
         </div>
 
         <!-- Submit Button -->
         <div class="submit-container">
           <button class="submit-btn" @click="handleSubmit">
-            开始解读
+            提交
           </button>
         </div>
       </div>
     </main>
 
-    <!-- Right Info Card -->
+    <!-- Right Info Area -->
     <aside class="info-sidebar">
-      <div class="info-card">
-        <div class="info-icon">📋</div>
-        <h3 class="info-title">标讯解读</h3>
-        <p class="info-desc">AI快速解析招标文件，助您精准把握投标要点</p>
-        <ul class="feature-list">
-          <li v-for="(feature, index) in features" :key="index">
-            <span class="bullet">●</span>
-            {{ feature }}
-          </li>
-        </ul>
+      <div class="info-icon-wrapper">
+        <FileSearch :size="28" class="info-main-icon" />
       </div>
+      <h3 class="info-title">标讯解读</h3>
+      <p class="info-desc">AI快速解析招标文件，助您精准把握投标要点</p>
+      <ul class="feature-list">
+        <li v-for="(feature, index) in features" :key="index">
+          <span class="bullet">●</span>
+          {{ feature }}
+        </li>
+      </ul>
     </aside>
   </div>
 </template>
@@ -188,7 +203,7 @@ const handleSubmit = () => {
   width: 200px;
   background: white;
   border-right: 1px solid #e2e8f0;
-  padding: 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -197,11 +212,11 @@ const handleSubmit = () => {
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 10px 14px;
   background: #eff6ff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #2563eb;
   font-size: 13px;
   cursor: pointer;
@@ -216,10 +231,10 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: #f8fafc;
+  padding: 10px 12px;
+  background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .search-icon {
@@ -231,8 +246,12 @@ const handleSubmit = () => {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 12px;
+  font-size: 13px;
   color: #475569;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
 }
 
 .template-section {
@@ -244,29 +263,38 @@ const handleSubmit = () => {
 .section-title {
   font-size: 12px;
   color: #94a3b8;
-  padding: 8px 0 4px 0;
+  padding: 12px 0 8px 0;
 }
 
 .template-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #475569;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .template-item:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 
 .template-item.active {
   background: #eff6ff;
   color: #2563eb;
   font-weight: 500;
+}
+
+.template-item.active .item-icon {
+  color: #2563eb;
+}
+
+.hot-icon {
+  color: #f97316;
+  margin-left: auto;
 }
 
 .form-main {
@@ -279,7 +307,9 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 32px;
+  margin: -24px -32px 32px -32px;
+  padding: 20px 32px;
+  background: #eff6ff;
 }
 
 .form-icon {
@@ -296,7 +326,7 @@ const handleSubmit = () => {
 .form-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1e293b;
+  color: #2563eb;
   margin: 0;
 }
 
@@ -312,7 +342,7 @@ const handleSubmit = () => {
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   position: relative;
 }
 
@@ -325,19 +355,26 @@ const handleSubmit = () => {
 }
 
 .required {
-  color: #2563eb;
+  color: #ef4444;
   margin-right: 2px;
+}
+
+.upload-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  line-height: 1.6;
 }
 
 .submit-container {
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 40px;
   padding-bottom: 40px;
 }
 
 .submit-btn {
-  width: 200px;
+  width: 280px;
   padding: 14px 48px;
   background: #2563eb;
   border: none;
@@ -353,116 +390,163 @@ const handleSubmit = () => {
   background: #1d4ed8;
 }
 
-.option-selector {
-  display: flex;
-  gap: 12px;
+/* Upload Area */
+.upload-wrapper {
+  width: 100%;
 }
 
-.option-selector.three-col {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.option-btn {
+.upload-area {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 14px 16px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: white;
-  font-size: 14px;
-  color: #475569;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.option-btn:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-}
-
-.option-btn.active {
+.upload-area:hover {
   border-color: #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.template-upload-cards {
-  display: flex;
-  gap: 16px;
-}
-
-.upload-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 24px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  min-height: 140px;
-}
-
-.upload-card:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
-}
-
-.card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
 }
 
 .upload-icon {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.card-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 4px;
-}
-
-.card-subtitle {
-  font-size: 12px;
   color: #94a3b8;
 }
 
-.uploaded-file-name {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #22c55e;
+.upload-text {
+  font-size: 14px;
+  color: #94a3b8;
 }
 
-.info-sidebar {
-  width: 280px;
-  padding: 24px;
+.upload-count {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 13px;
 }
 
-.info-card {
+/* Uploaded files list */
+.uploaded-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.uploaded-file-item .file-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.textarea-wrapper {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.info-icon {
-  font-size: 48px;
+.info-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  padding-bottom: 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+
+.info-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.textarea-wrapper:focus-within {
+  border-color: #2563eb;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 50px;
+  bottom: 8px;
+  padding: 2px 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clear-btn:hover {
+  color: #2563eb;
+}
+
+.char-count {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* Right Info Sidebar */
+.info-sidebar {
+  width: 260px;
+  padding: 40px 24px;
+  background: transparent;
+  border-left: 1px solid #e2e8f0;
+}
+
+.info-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 16px;
+}
+
+.info-main-icon {
+  color: white;
 }
 
 .info-title {
@@ -476,6 +560,7 @@ const handleSubmit = () => {
   font-size: 13px;
   color: #64748b;
   margin: 0 0 20px 0;
+  line-height: 1.5;
 }
 
 .feature-list {
@@ -486,15 +571,17 @@ const handleSubmit = () => {
 
 .feature-list li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 13px;
   color: #475569;
   padding: 6px 0;
+  line-height: 1.4;
 }
 
 .bullet {
   color: #2563eb;
   font-size: 8px;
+  margin-top: 5px;
 }
 </style>

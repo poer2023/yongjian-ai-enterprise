@@ -30,9 +30,9 @@ const isActive = (routeName: string) => {
   return route.name === routeName;
 };
 
-// 检查标讯中心是否处于激活状态
-const isBidCenterActive = computed(() => {
-  const bidRoutes = ['bid-center', 'bid-info-form', 'bid-info-daily', 'bid-analysis-form', 'bid-analysis-result', 'bid-doc-form', 'bid-doc-result'];
+// 检查标讯搜索是否处于激活状态
+const isBidSearchActive = computed(() => {
+  const bidRoutes = ['enterprise-search', 'bid-center', 'bid-info-form', 'bid-info-daily', 'bid-analysis-form', 'bid-analysis-result', 'bid-doc-form', 'bid-doc-result'];
   return bidRoutes.includes(route.name as string);
 });
 </script>
@@ -61,6 +61,16 @@ const isBidCenterActive = computed(() => {
         <span class="nav-label">首页</span>
       </div>
 
+      <!-- 标讯搜索 -->
+      <div
+        class="nav-item"
+        :class="{ active: isBidSearchActive }"
+        @click="handleItemClick('enterprise-search')"
+      >
+        <Newspaper :size="18" class="nav-icon" />
+        <span class="nav-label">标讯搜索</span>
+      </div>
+
       <!-- AI对话 -->
       <div
         class="nav-item"
@@ -71,16 +81,6 @@ const isBidCenterActive = computed(() => {
         <span class="nav-label">AI对话</span>
       </div>
 
-      <!-- 标讯中心 -->
-      <div
-        class="nav-item"
-        :class="{ active: isBidCenterActive }"
-        @click="handleItemClick('bid-center')"
-      >
-        <Newspaper :size="18" class="nav-icon" />
-        <span class="nav-label">标讯中心</span>
-      </div>
-
       <!-- 智能体 -->
       <div
         class="nav-item"
@@ -89,6 +89,7 @@ const isBidCenterActive = computed(() => {
       >
         <Bot :size="18" class="nav-icon" />
         <span class="nav-label">智能体</span>
+        <span class="hot-dot"></span>
       </div>
 
       <!-- 知识库 -->
@@ -99,16 +100,6 @@ const isBidCenterActive = computed(() => {
       >
         <Brain :size="18" class="nav-icon" />
         <span class="nav-label">知识库</span>
-      </div>
-
-      <!-- 企业搜索 -->
-      <div
-        class="nav-item"
-        :class="{ active: isActive('enterprise-search') }"
-        @click="handleItemClick('enterprise-search')"
-      >
-        <Building2 :size="18" class="nav-icon" />
-        <span class="nav-label">企业搜索</span>
       </div>
     </nav>
 
@@ -129,12 +120,12 @@ const isBidCenterActive = computed(() => {
 
 <style scoped>
 .sidebar {
-  width: 180px;
-  background: linear-gradient(180deg, #e8f4fd 0%, #dbeafe 100%);
+  width: 200px;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
+  padding: 16px 12px;
   flex-shrink: 0;
 }
 
@@ -150,8 +141,8 @@ const isBidCenterActive = computed(() => {
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border-radius: 10px;
   display: flex;
@@ -171,9 +162,9 @@ const isBidCenterActive = computed(() => {
 }
 
 .logo-brand {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2563eb;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
   letter-spacing: 0.3px;
 }
 
@@ -187,14 +178,15 @@ const isBidCenterActive = computed(() => {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-bottom: 4px;
-  font-size: 14px;
+  font-size: 15px;
   position: relative;
   font-weight: 500;
+  min-height: 44px;
 }
 
 .nav-item:hover {
@@ -203,10 +195,9 @@ const isBidCenterActive = computed(() => {
 }
 
 .nav-item.active {
-  background-color: white;
+  background-color: #dbeafe;
   color: #2563eb;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .nav-icon {
@@ -226,6 +217,14 @@ const isBidCenterActive = computed(() => {
 
 .hot-badge {
   font-size: 12px;
+  margin-left: auto;
+}
+
+.hot-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
   margin-left: auto;
 }
 

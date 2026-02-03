@@ -26,15 +26,16 @@ const searchQuery = ref('');
   align-items: center;
   gap: 8px;
   background: white;
-  border-radius: 6px;
-  padding: 4px;
-  height: 48px;
+  border-radius: 12px;
+  padding: 6px;
+  height: 52px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 16px;
   width: 320px;
   height: 100%;
 }
@@ -48,8 +49,8 @@ const searchQuery = ref('');
   flex: 1;
   border: none;
   outline: none;
-  padding: 0 10px;
-  font-size: 14px;
+  padding: 0 12px;
+  font-size: 15px;
   color: #334155;
   background: transparent;
 }
@@ -61,10 +62,10 @@ const searchQuery = ref('');
 .search-btn {
   background: #3366ff;
   color: white;
-  padding: 0 20px;
-  height: 100%;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 0 24px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;

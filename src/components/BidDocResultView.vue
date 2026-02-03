@@ -2,734 +2,853 @@
 import { ref } from 'vue';
 import {
   ChevronLeft,
+  Type,
+  Undo2,
+  Redo2,
+  Bold,
+  Italic,
+  Underline,
+  Grid3X3,
+  Code,
+  Image,
+  BarChart3,
+  Table2,
+  Search,
   FileText,
-  Download,
-  Save,
-  CheckCircle,
-  AlertCircle,
-  AlertTriangle,
-  ChevronRight,
-  Edit3,
-  Stamp
+  LayoutGrid,
+  Sparkles,
+  Zap,
+  Clock,
+  Presentation,
+  Edit3
 } from 'lucide-vue-next';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const route = useRoute();
 
-// 目录结构
-const chapters = ref([
-  { id: 1, title: '封面', level: 0, active: true },
-  { id: 2, title: '投标函', level: 0 },
-  { id: 3, title: '法定代表人授权书', level: 0 },
-  { id: 4, title: '投标报价', level: 0 },
-  { id: 5, title: '技术标', level: 0, children: [
-    { id: 51, title: '项目理解', level: 1 },
-    { id: 52, title: '技术方案', level: 1 },
-    { id: 53, title: '实施计划', level: 1 },
-    { id: 54, title: '质量保证', level: 1 },
+// Outline data - bid document structure
+const outlineItems = ref([
+  { id: '1', title: '第一章 投标函', level: 1, children: [] },
+  { id: '2', title: '第二章 法定代表人身份证明', level: 1, children: [] },
+  { id: '3', title: '第三章 投标人基本情况', level: 1, children: [
+    { id: '3.1', title: '3.1 企业概况', level: 2 },
+    { id: '3.2', title: '3.2 资质证书', level: 2 },
+    { id: '3.3', title: '3.3 财务状况', level: 2 },
   ]},
-  { id: 6, title: '商务标', level: 0, children: [
-    { id: 61, title: '企业介绍', level: 1 },
-    { id: 62, title: '项目业绩', level: 1 },
-    { id: 63, title: '团队配置', level: 1 },
+  { id: '4', title: '第四章 技术方案', level: 1, children: [
+    { id: '4.1', title: '4.1 项目理解与需求分析', level: 2 },
+    { id: '4.2', title: '4.2 总体技术方案', level: 2 },
+    { id: '4.3', title: '4.3 系统架构设计', level: 2 },
+    { id: '4.4', title: '4.4 功能模块设计', level: 2 },
   ]},
-  { id: 7, title: '资格证明', level: 0, children: [
-    { id: 71, title: '营业执照', level: 1 },
-    { id: 72, title: '资质证书', level: 1 },
-    { id: 73, title: '人员证书', level: 1 },
+  { id: '5', title: '第五章 项目实施方案', level: 1, children: [
+    { id: '5.1', title: '5.1 项目组织架构', level: 2 },
+    { id: '5.2', title: '5.2 实施计划与进度', level: 2 },
+    { id: '5.3', title: '5.3 质量保障措施', level: 2 },
   ]},
+  { id: '6', title: '第六章 售后服务方案', level: 1, children: [
+    { id: '6.1', title: '6.1 服务承诺', level: 2 },
+    { id: '6.2', title: '6.2 培训方案', level: 2 },
+    { id: '6.3', title: '6.3 运维支持', level: 2 },
+  ]},
+  { id: '7', title: '第七章 商务报价', level: 1, children: [] },
+  { id: '8', title: '第八章 业绩案例', level: 1, children: [] },
+  { id: '9', title: '第九章 项目团队', level: 1, children: [] },
 ]);
 
-// 废标项检查
-const disqualificationChecks = ref([
-  { id: 1, item: '投标保证金', status: 'pass', detail: '金额：5万元' },
-  { id: 2, item: '法人授权书', status: 'warning', detail: '需上传扫描件' },
-  { id: 3, item: '营业执照副本', status: 'pass', detail: '已关联' },
-  { id: 4, item: '资质证书', status: 'pass', detail: '共5项' },
-  { id: 5, item: '投标报价单', status: 'pass', detail: '已填写' },
-  { id: 6, item: '技术方案', status: 'pass', detail: '已生成' },
-]);
-
-// 评分点响应检查
-const scoreChecks = ref([
-  { item: '技术方案', score: 40, status: 'pass', suggestion: '内容完整' },
-  { item: '项目业绩', score: 25, status: 'warning', suggestion: '建议补充2个案例' },
-  { item: '团队配置', score: 20, status: 'pass', suggestion: '已配置8人团队' },
-  { item: '企业资质', score: 10, status: 'pass', suggestion: '资质齐全' },
-  { item: '报价', score: 5, status: 'pass', suggestion: '价格合理' },
-]);
-
-// 签章提醒
-const signatureReminders = ref([
-  { position: '封面', page: 1 },
-  { position: '投标函', page: 2 },
-  { position: '报价单', page: 5 },
-  { position: '法人授权书', page: 3 },
-  { position: '技术方案末页', page: 28 },
-]);
-
-// 当前编辑章节
-const activeChapter = ref(chapters.value[0]);
+const activeOutlineId = ref('1');
 
 const goBack = () => {
   router.push({ name: 'bid-doc-form' });
 };
 
-const selectChapter = (chapter: any) => {
-  activeChapter.value = chapter;
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'pass': return CheckCircle;
-    case 'warning': return AlertTriangle;
-    case 'error': return AlertCircle;
-    default: return CheckCircle;
-  }
-};
-
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case 'pass': return 'status-pass';
-    case 'warning': return 'status-warning';
-    case 'error': return 'status-error';
-    default: return '';
-  }
+const selectOutline = (id: string) => {
+  activeOutlineId.value = id;
 };
 
 const exportWord = () => {
-  console.log('导出Word');
   alert('Word文档已导出');
 };
-
-const exportPdf = () => {
-  console.log('导出PDF');
-  alert('PDF文档已导出');
-};
-
-const saveDraft = () => {
-  console.log('保存草稿');
-  alert('草稿已保存');
-};
-
-const passCount = ref(disqualificationChecks.value.filter(c => c.status === 'pass').length);
-const totalCount = ref(disqualificationChecks.value.length);
 </script>
 
 <template>
-  <div class="result-page">
+  <div class="result-page-fullscreen">
     <!-- Header -->
-    <div class="result-header">
-      <button class="back-btn" @click="goBack">
-        <ChevronLeft :size="16" />
-        <span>返回</span>
-      </button>
-      <div class="header-title">
-        <FileText :size="20" />
-        <h1>标书预览与编辑</h1>
-      </div>
-      <div class="header-actions">
-        <button class="action-btn tertiary" @click="saveDraft">
-          <Save :size="16" />
-          保存草稿
+    <header class="result-header">
+      <!-- Left blue section -->
+      <div class="header-left">
+        <button class="back-btn" @click="goBack">
+          <ChevronLeft :size="18" />
         </button>
-        <button class="action-btn secondary" @click="exportWord">
-          <Download :size="16" />
+        <div class="header-tag">AI标书生成</div>
+        <div class="header-title">智慧城市数据中台建设项目投标文件</div>
+        <div class="header-status">已保存</div>
+      </div>
+
+      <!-- Right white section -->
+      <div class="header-right">
+        <div class="format-toolbar">
+          <button class="toolbar-btn"><Type :size="16" /></button>
+          <button class="toolbar-btn"><Undo2 :size="16" /></button>
+          <button class="toolbar-btn"><Redo2 :size="16" /></button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn text-btn">H1</button>
+          <button class="toolbar-btn text-btn">H2</button>
+          <button class="toolbar-btn text-btn">H3</button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn"><Bold :size="16" /></button>
+          <button class="toolbar-btn"><Italic :size="16" /></button>
+          <button class="toolbar-btn"><Underline :size="16" /></button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn"><Grid3X3 :size="16" /></button>
+          <button class="toolbar-btn"><Code :size="16" /></button>
+        </div>
+        <button class="export-btn" @click="exportWord">
           导出Word
         </button>
-        <button class="action-btn primary" @click="exportPdf">
-          <Download :size="16" />
-          导出PDF
-        </button>
       </div>
-    </div>
+    </header>
 
-    <div class="result-content">
-      <!-- 左侧：目录导航 -->
-      <div class="nav-panel">
-        <div class="nav-header">
-          <h3>目录</h3>
-        </div>
-        <div class="chapter-list">
-          <template v-for="chapter in chapters" :key="chapter.id">
+    <div class="result-body">
+      <!-- Left Outline Panel -->
+      <aside class="outline-panel">
+        <h3 class="outline-title">大纲</h3>
+        <div class="outline-list">
+          <template v-for="item in outlineItems" :key="item.id">
             <div
-              class="chapter-item"
-              :class="{ active: activeChapter.id === chapter.id }"
-              @click="selectChapter(chapter)"
+              class="outline-item level-1"
+              :class="{ active: activeOutlineId === item.id }"
+              @click="selectOutline(item.id)"
             >
-              <span class="chapter-title">{{ chapter.title }}</span>
-              <ChevronRight v-if="chapter.children" :size="14" />
+              {{ item.title }}
             </div>
-            <template v-if="chapter.children">
+            <template v-if="item.children">
               <div
-                v-for="sub in chapter.children"
+                v-for="sub in item.children"
                 :key="sub.id"
-                class="chapter-item sub"
-                :class="{ active: activeChapter.id === sub.id }"
-                @click="selectChapter(sub)"
+                class="outline-item level-2"
+                :class="{ active: activeOutlineId === sub.id }"
+                @click="selectOutline(sub.id)"
               >
-                <span class="chapter-title">{{ sub.title }}</span>
+                {{ sub.title }}
               </div>
             </template>
           </template>
         </div>
-      </div>
+      </aside>
 
-      <!-- 中间：内容预览 -->
-      <div class="content-panel">
-        <div class="content-header">
-          <h2>{{ activeChapter.title }}</h2>
-          <button class="edit-btn">
-            <Edit3 :size="14" />
-            编辑
+      <!-- Center Content Panel -->
+      <main class="content-panel">
+        <div class="document-container">
+          <div class="document-wrapper">
+            <article class="document-content">
+              <h1 class="doc-title">智慧城市数据中台建设项目<br/>投标文件（技术标）</h1>
+
+              <div class="doc-meta">
+                <div class="meta-row">
+                  <span class="meta-label">项目名称：</span>
+                  <span>XX市智慧城市数据中台建设项目</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">项目编号：</span>
+                  <span>XXZC-2026-0128</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">投标人：</span>
+                  <span>深圳市智云科技有限公司</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">投标日期：</span>
+                  <span>2026年2月15日</span>
+                </div>
+              </div>
+
+              <h2 class="doc-heading">第一章 投标函</h2>
+
+              <p class="doc-paragraph">
+                致：XX市公共资源交易中心
+              </p>
+
+              <p class="doc-paragraph">
+                根据贵方发布的《XX市智慧城市数据中台建设项目》（项目编号：XXZC-2026-0128）招标文件，我方经认真研究招标文件的全部内容，决定参加本项目的投标。
+              </p>
+
+              <p class="doc-paragraph">
+                一、我方愿意按照招标文件规定的各项要求，以人民币（大写）壹仟贰佰捌拾万元整（小写：¥12,800,000.00元）的投标总价，承担本项目的全部工作内容，并在合同签订后180个日历日内完成项目交付。
+              </p>
+
+              <p class="doc-paragraph">
+                二、我方承诺：如中标，将严格按照招标文件要求和投标文件承诺的内容履行合同义务，确保项目质量、进度和服务水平达到招标文件规定的标准。
+              </p>
+
+              <p class="doc-paragraph">
+                三、我方同意所递交的投标文件在投标有效期（90天）内有效，在此期间如中标，我方将受此约束。
+              </p>
+
+              <p class="doc-paragraph">
+                四、我方理解：贵方不一定接受最低报价的投标或收到的任何投标。
+              </p>
+
+              <div class="doc-signature">
+                <p>投标人（盖章）：深圳市智云科技有限公司</p>
+                <p>法定代表人或授权代表（签字）：___________</p>
+                <p>日期：2026年2月15日</p>
+              </div>
+
+              <h2 class="doc-heading">第四章 技术方案</h2>
+
+              <h3 class="doc-subheading">4.1 项目理解与需求分析</h3>
+
+              <p class="doc-paragraph">
+                本项目旨在建设XX市智慧城市数据中台，实现全市政务数据的统一汇聚、治理、共享和开放，为各委办局业务系统提供标准化的数据服务能力，支撑城市精细化治理和公共服务智能化升级。
+              </p>
+
+              <p class="doc-paragraph">
+                通过深入分析招标文件，我方认为项目建设的核心目标包括：（1）构建统一的数据资源池，打破部门间数据壁垒；（2）建立数据标准规范体系，提升数据质量和可用性；（3）搭建数据服务平台，支撑跨部门业务协同；（4）强化数据安全保障，确保数据合规使用。
+              </p>
+
+              <h3 class="doc-subheading">4.2 总体技术方案</h3>
+
+              <p class="doc-paragraph">
+                我方采用"平台+应用+服务"的总体架构设计，以云原生技术为底座，构建弹性可扩展的数据中台体系。整体方案分为基础设施层、数据服务层、应用支撑层和业务应用层四个层次，同时配套建设安全保障体系和运维管理体系。
+              </p>
+
+              <p class="doc-paragraph">
+                技术选型方面，数据存储采用分布式数据库集群，支持PB级数据存储和高并发访问；数据计算采用Spark+Flink混合计算引擎，满足批处理和实时计算双重需求；数据治理采用自研的智能数据治理平台，提供数据质量检测、血缘分析、标签管理等核心能力。
+              </p>
+
+              <h3 class="doc-subheading">4.3 系统架构设计</h3>
+
+              <p class="doc-paragraph">
+                系统采用微服务架构，基于Kubernetes容器编排平台实现服务的弹性伸缩和高可用部署。核心服务包括数据接入服务、数据存储服务、数据计算服务、数据治理服务、数据服务网关、统一门户等模块，各服务之间通过API网关进行统一管理和调度。
+              </p>
+
+              <p class="doc-paragraph">
+                在高可用设计方面，采用主备双活架构，RPO≤0，RTO≤30分钟；关键组件均采用集群部署，单点故障自动切换；数据存储采用多副本机制，确保数据持久性和一致性。
+              </p>
+            </article>
+
+            <!-- Edit icon -->
+            <button class="doc-edit-btn">
+              <Edit3 :size="14" />
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right AI Tools Panel -->
+      <aside class="ai-tools-panel">
+        <!-- AI Text Edit -->
+        <div class="tool-section">
+          <div class="section-header">
+            <Edit3 :size="16" class="section-icon blue" />
+            <span class="section-title">AI文本编辑</span>
+          </div>
+          <p class="section-desc">选中文字后，点击对应文本编辑工具</p>
+          <div class="ai-edit-grid">
+            <button class="ai-edit-btn">改写</button>
+            <button class="ai-edit-btn">扩写</button>
+            <button class="ai-edit-btn">缩写</button>
+            <button class="ai-edit-btn">翻译</button>
+          </div>
+        </div>
+
+        <!-- Multi-modal AI Generation -->
+        <div class="tool-section">
+          <div class="section-header">
+            <Sparkles :size="16" class="section-icon purple" />
+            <span class="section-title">多模态AI生成</span>
+          </div>
+          <p class="section-desc">选中文字后，点击对应多模态生成工具</p>
+          <div class="multimodal-grid">
+            <button class="multimodal-btn">
+              <BarChart3 :size="24" />
+              <span>示意图</span>
+            </button>
+            <button class="multimodal-btn">
+              <LayoutGrid :size="24" />
+              <span>图表</span>
+            </button>
+            <button class="multimodal-btn">
+              <Image :size="24" />
+              <span>图片</span>
+            </button>
+            <button class="multimodal-btn">
+              <Table2 :size="24" />
+              <span>表格</span>
+            </button>
+            <button class="multimodal-btn">
+              <Code :size="24" />
+              <span>公式</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Academic Optimization -->
+        <div class="tool-section">
+          <div class="section-header">
+            <FileText :size="16" class="section-icon green" />
+            <span class="section-title">学术优化</span>
+          </div>
+          <div class="academic-grid">
+            <button class="academic-btn">
+              <Search :size="20" />
+              <span>学术搜索</span>
+            </button>
+            <button class="academic-btn active">
+              <FileText :size="20" />
+              <span>文献格式</span>
+            </button>
+            <button class="academic-btn">
+              <BarChart3 :size="20" />
+              <span>图表排序</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document to PPT -->
+        <div class="tool-section ppt-section">
+          <div class="section-header">
+            <Presentation :size="16" class="section-icon orange" />
+            <span class="section-title">文档转PPT</span>
+          </div>
+          <div class="ppt-features">
+            <div class="ppt-feature">
+              <Zap :size="14" class="feature-icon green" />
+              <span class="feature-label">智能匹配</span>
+              <span class="feature-tag green">100%忠于原文内容生成</span>
+            </div>
+            <div class="ppt-feature">
+              <Sparkles :size="14" class="feature-icon red" />
+              <span class="feature-label">专业排版</span>
+              <span class="feature-desc">海量模版选择，专业图示效果</span>
+            </div>
+            <div class="ppt-feature">
+              <Clock :size="14" class="feature-icon yellow" />
+              <span class="feature-label">省时省力</span>
+              <span class="feature-desc">只需几分钟，演讲、汇报轻松搞定</span>
+            </div>
+          </div>
+          <button class="ppt-generate-btn">
+            立即生成专业PPT
+            <Presentation :size="18" />
           </button>
         </div>
-        <div class="content-body">
-          <div class="doc-preview">
-            <div class="preview-page">
-              <div v-if="activeChapter.id === 1" class="cover-page">
-                <h1>投标文件</h1>
-                <div class="cover-info">
-                  <p class="project-name">XX市政府信息系统安全等级保护测评服务项目</p>
-                  <div class="cover-divider"></div>
-                  <p class="company-name">XX科技有限公司</p>
-                  <p class="date">2024年2月</p>
-                </div>
-                <div class="stamp-placeholder">
-                  <Stamp :size="24" />
-                  <span>公章位置</span>
-                </div>
-              </div>
-              <div v-else class="content-placeholder">
-                <FileText :size="48" />
-                <p>{{ activeChapter.title }} 内容预览</p>
-                <span>点击"编辑"按钮可修改内容</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧：AI辅助面板 -->
-      <div class="ai-panel">
-        <!-- 废标项检查 -->
-        <div class="check-section">
-          <div class="section-header">
-            <h3>废标项检查</h3>
-            <span class="check-summary">{{ passCount }}/{{ totalCount }}</span>
-          </div>
-          <div class="check-list">
-            <div
-              v-for="check in disqualificationChecks"
-              :key="check.id"
-              class="check-item"
-              :class="getStatusClass(check.status)"
-            >
-              <component :is="getStatusIcon(check.status)" :size="14" class="check-icon" />
-              <span class="check-name">{{ check.item }}</span>
-              <span class="check-detail">{{ check.detail }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 评分点响应 -->
-        <div class="check-section">
-          <div class="section-header">
-            <h3>评分点响应检查</h3>
-          </div>
-          <div class="score-list">
-            <div
-              v-for="check in scoreChecks"
-              :key="check.item"
-              class="score-item"
-              :class="getStatusClass(check.status)"
-            >
-              <div class="score-header">
-                <component :is="getStatusIcon(check.status)" :size="14" class="check-icon" />
-                <span class="score-name">{{ check.item }}</span>
-                <span class="score-value">{{ check.score }}分</span>
-              </div>
-              <span class="score-suggestion">{{ check.suggestion }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 签章提醒 -->
-        <div class="check-section">
-          <div class="section-header">
-            <h3>签章提醒</h3>
-            <span class="stamp-count">{{ signatureReminders.length }}处</span>
-          </div>
-          <div class="stamp-list">
-            <div v-for="stamp in signatureReminders" :key="stamp.position" class="stamp-item">
-              <Stamp :size="14" />
-              <span class="stamp-position">{{ stamp.position }}</span>
-              <span class="stamp-page">第{{ stamp.page }}页</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      </aside>
     </div>
   </div>
 </template>
 
 <style scoped>
-.result-page {
-  height: 100%;
+.result-page-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  background: #f8fafc;
+  background: #f5f7fa;
+  z-index: 100;
 }
 
+/* Header */
 .result-header {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 16px 24px;
+  height: 54px;
   background: white;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e8ecf1;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: #eef4ff;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 10px 20px;
+  background: #eef4ff;
 }
 
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  background: #ecfdf5;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #eef4ff;
   border: none;
-  border-radius: 6px;
-  color: #10b981;
-  font-size: 13px;
+  border-radius: 10px;
+  color: #4b83f0;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .back-btn:hover {
-  background: #d1fae5;
+  background: #dde9ff;
 }
 
-.header-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #10b981;
-}
-
-.header-title h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.header-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 12px;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: none;
+.header-tag {
+  padding: 6px 14px;
+  background: white;
+  color: #4b83f0;
+  border: 1px solid #4b83f0;
   border-radius: 6px;
   font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.action-btn.primary {
-  background: #10b981;
-  color: white;
-}
-
-.action-btn.primary:hover {
-  background: #059669;
-}
-
-.action-btn.secondary {
-  background: white;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-}
-
-.action-btn.secondary:hover {
-  background: #f8fafc;
-}
-
-.action-btn.tertiary {
-  background: #f8fafc;
-  color: #475569;
-}
-
-.action-btn.tertiary:hover {
-  background: #f1f5f9;
-}
-
-.result-content {
-  flex: 1;
-  display: flex;
-  gap: 0;
-  overflow: hidden;
-}
-
-.nav-panel {
-  width: 220px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.nav-header h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.chapter-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-.chapter-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.chapter-item:hover {
-  background: #f8fafc;
-}
-
-.chapter-item.active {
-  background: #ecfdf5;
-  color: #10b981;
   font-weight: 500;
 }
 
-.chapter-item.sub {
-  padding-left: 28px;
-  font-size: 12px;
+.header-title {
+  font-size: 14px;
+  color: #1a1a1a;
+  font-weight: 400;
 }
 
-.chapter-item svg {
-  color: #94a3b8;
+.header-status {
+  color: #999;
+  font-size: 13px;
 }
 
-.content-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #f1f5f9;
-}
-
-.content-header {
+.format-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 2px;
+  margin-left: auto;
 }
 
-.content-header h2 {
-  font-size: 15px;
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toolbar-btn.text-btn {
+  font-size: 13px;
   font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+  width: auto;
+  padding: 0 8px;
 }
 
-.edit-btn {
+.toolbar-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 16px;
+  background: #e0e0e0;
+  margin: 0 6px;
+}
+
+.export-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  background: #eff6ff;
+  padding: 8px 20px;
+  background: #4b83f0;
   border: none;
   border-radius: 6px;
-  color: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 16px;
+}
+
+.export-btn:hover {
+  background: #3a6fd8;
+}
+
+/* Body Layout */
+.result-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Outline Panel */
+.outline-panel {
+  width: 340px;
+  background: white;
+  border-right: 1px solid #e8ecf1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.outline-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  padding: 20px 24px 16px;
+  margin: 0;
+}
+
+.outline-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 20px;
+}
+
+.outline-item {
+  padding: 12px 12px;
+  border-radius: 6px;
   font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1.6;
+  margin-bottom: 2px;
+}
+
+.outline-item:hover {
+  background: #f8f9fb;
+}
+
+.outline-item.active {
+  background: #eef4ff;
+  color: #4b83f0;
+}
+
+.outline-item.level-1 {
+  font-weight: 500;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.outline-item.level-2 {
+  padding-left: 28px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* Content Panel */
+.content-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px;
+  background: #f5f7fa;
+}
+
+.document-container {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.document-wrapper {
+  position: relative;
+}
+
+.document-content {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  padding: 48px 56px;
+  min-height: 800px;
+}
+
+.doc-edit-btn {
+  position: absolute;
+  top: 48px;
+  right: -40px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #999;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.edit-btn:hover {
-  background: #dbeafe;
+.doc-edit-btn:hover {
+  color: #4b83f0;
+  border-color: #4b83f0;
 }
 
-.content-body {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
-}
-
-.doc-preview {
-  width: 100%;
-  max-width: 800px;
-}
-
-.preview-page {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  min-height: 500px;
-  padding: 48px;
-}
-
-.cover-page {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-}
-
-.cover-page h1 {
-  font-size: 32px;
+.doc-title {
+  font-size: 22px;
   font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 48px 0;
-}
-
-.cover-info {
-  margin-bottom: 48px;
-}
-
-.project-name {
-  font-size: 20px;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 24px 0;
-}
-
-.cover-divider {
-  width: 120px;
-  height: 2px;
-  background: #10b981;
-  margin: 0 auto 24px;
-}
-
-.company-name {
-  font-size: 18px;
-  color: #475569;
-  margin: 0 0 12px 0;
-}
-
-.date {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0;
-}
-
-.stamp-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 24px;
-  border: 2px dashed #fbbf24;
-  border-radius: 8px;
-  color: #d97706;
-  font-size: 13px;
-}
-
-.content-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  color: #94a3b8;
+  color: #1a1a1a;
   text-align: center;
+  margin: 0 0 28px 0;
+  line-height: 1.5;
 }
 
-.content-placeholder svg {
-  margin-bottom: 16px;
+.doc-meta {
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 24px;
 }
 
-.content-placeholder p {
-  font-size: 16px;
-  margin: 0 0 8px 0;
+.doc-paragraph {
+  font-size: 15px;
+  color: #333;
+  line-height: 2;
+  margin: 0 0 20px 0;
+  text-align: justify;
+  text-indent: 2em;
 }
 
-.content-placeholder span {
-  font-size: 13px;
+.doc-heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 36px 0 20px 0;
 }
 
-.ai-panel {
+.doc-subheading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 28px 0 16px 0;
+}
+
+/* AI Tools Panel */
+.ai-tools-panel {
   width: 300px;
   background: white;
-  border-left: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
+  border-left: 1px solid #e8ecf1;
   overflow-y: auto;
+  padding: 20px;
 }
 
-.check-section {
-  padding: 16px;
-  border-bottom: 1px solid #f1f5f9;
+.tool-section {
+  margin-bottom: 28px;
 }
 
-.check-section:last-child {
-  border-bottom: none;
+.tool-section:last-child {
+  margin-bottom: 0;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.section-header h3 {
+.section-icon {
+  flex-shrink: 0;
+}
+
+.section-icon.blue {
+  color: #4b83f0;
+}
+
+.section-icon.purple {
+  color: #9b59b6;
+}
+
+.section-icon.green {
+  color: #27ae60;
+}
+
+.section-icon.orange {
+  color: #e74c3c;
+}
+
+.section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+  color: #1a1a1a;
 }
 
-.check-summary {
-  font-size: 13px;
-  font-weight: 500;
-  color: #22c55e;
-}
-
-.stamp-count {
+.section-desc {
   font-size: 12px;
-  color: #64748b;
+  color: #999;
+  margin: 0 0 14px 0;
 }
 
-.check-list,
-.score-list,
-.stamp-list {
+/* AI Edit Buttons */
+.ai-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.ai-edit-btn {
+  padding: 12px 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-edit-btn:hover {
+  border-color: #4b83f0;
+  color: #4b83f0;
+  background: #f8fbff;
+}
+
+/* Multi-modal Grid */
+.multimodal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.multimodal-btn {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
+  padding: 18px 10px;
+  background: #f8f9fb;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.check-item {
+.multimodal-btn:hover {
+  background: #eef4ff;
+  border-color: #4b83f0;
+  color: #4b83f0;
+}
+
+/* Academic Grid */
+.academic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.academic-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 10px;
+  background: #f8f9fb;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.academic-btn:hover {
+  background: #eef4ff;
+  border-color: #4b83f0;
+  color: #4b83f0;
+}
+
+.academic-btn.active {
+  background: #eef4ff;
+  border-color: #4b83f0;
+  color: #4b83f0;
+}
+
+/* PPT Section */
+.ppt-section {
+  background: #fff;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.ppt-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ppt-feature {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.check-item.status-pass {
-  background: #f0fdf4;
-}
-
-.check-item.status-pass .check-icon {
-  color: #22c55e;
-}
-
-.check-item.status-warning {
-  background: #fefce8;
-}
-
-.check-item.status-warning .check-icon {
-  color: #eab308;
-}
-
-.check-item.status-error {
-  background: #fef2f2;
-}
-
-.check-item.status-error .check-icon {
-  color: #ef4444;
-}
-
-.check-name {
-  flex: 1;
-  color: #334155;
-}
-
-.check-detail {
+  gap: 10px;
   font-size: 12px;
-  color: #64748b;
 }
 
-.score-item {
-  padding: 10px 12px;
-  border-radius: 6px;
+.feature-icon {
+  flex-shrink: 0;
 }
 
-.score-item.status-pass {
-  background: #f0fdf4;
+.feature-icon.green {
+  color: #27ae60;
 }
 
-.score-item.status-warning {
-  background: #fefce8;
+.feature-icon.red {
+  color: #e74c3c;
 }
 
-.score-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+.feature-icon.yellow {
+  color: #f39c12;
 }
 
-.score-name {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 500;
-  color: #334155;
-}
-
-.score-value {
-  font-size: 12px;
+.feature-label {
   font-weight: 600;
-  color: #10b981;
+  color: #333;
+  white-space: nowrap;
 }
 
-.score-suggestion {
-  font-size: 12px;
-  color: #64748b;
-  margin-left: 20px;
+.feature-tag {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
 }
 
-.stamp-item {
+.feature-tag.green {
+  background: #e8f8ef;
+  color: #27ae60;
+}
+
+.feature-desc {
+  color: #999;
+  font-size: 11px;
+}
+
+.ppt-generate-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: #fef3c7;
-  border-radius: 6px;
-  font-size: 13px;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #f5a623, #e8852e);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.stamp-item svg {
-  color: #d97706;
-}
-
-.stamp-position {
-  flex: 1;
-  color: #92400e;
-}
-
-.stamp-page {
-  font-size: 12px;
-  color: #b45309;
+.ppt-generate-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
 }
 </style>

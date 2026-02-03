@@ -25,8 +25,8 @@ const tools = [
   },
   {
     id: 3,
-    name: '标书生成',
-    description: '一键生成投标文件，智能匹配素材库',
+    name: 'AI标书生成',
+    description: '一键生成专业标书，智能匹配素材库',
     icon: FileText,
     color: '#10b981',
     bgColor: '#ecfdf5',

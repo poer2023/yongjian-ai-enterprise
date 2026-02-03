@@ -6,30 +6,25 @@ import {
   UserCheck,
   DollarSign,
   Search,
-  Upload
+  Upload,
+  Flame,
+  X
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+// Form data - support multiple resumes (max 50)
+const uploadedResumes = ref<File[]>([]);
+const maxResumes = 50;
 const selectedPosition = ref('');
 const positionRequirements = ref('');
-const uploadedResume = ref<File | null>(null);
+const requirementsMaxLength = 1000;
 
-const positionOptions = [
-  '项目经理',
-  '技术负责人',
-  '质量工程师',
-  '安全工程师',
-  '造价工程师',
-  '资料员',
-  '其他'
-];
-
-const templateTypes = [
-  { icon: FileUser, label: '简历分析', active: true },
-  { icon: DollarSign, label: '薪酬调查' },
+const recentTools = [
   { icon: UserCheck, label: 'Boss招聘' },
+  { icon: FileUser, label: '简历分析' },
+  { icon: DollarSign, label: '薪酬调查' },
 ];
 
 const features = [
@@ -41,29 +36,30 @@ const features = [
 ];
 
 const goBack = () => {
-  router.push({ name: 'home' });
+  router.push({ name: 'agents' });
 };
 
 const handleResumeUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    uploadedResume.value = target.files[0];
+  if (target.files && target.files.length > 0) {
+    const newFiles = Array.from(target.files);
+    const remainingSlots = maxResumes - uploadedResumes.value.length;
+    const filesToAdd = newFiles.slice(0, remainingSlots);
+    uploadedResumes.value = [...uploadedResumes.value, ...filesToAdd];
+    target.value = ''; // Reset input for re-upload
   }
 };
 
-const handleSubmit = () => {
-  const formData = {
-    position: selectedPosition.value,
-    requirements: positionRequirements.value,
-    resume: uploadedResume.value?.name
-  };
-  console.log('Submitting:', formData);
+const removeResume = (index: number) => {
+  uploadedResumes.value.splice(index, 1);
+};
 
+const handleSubmit = () => {
   router.push({
     name: 'resume-analysis-result',
     query: {
       position: selectedPosition.value,
-      file: uploadedResume.value?.name
+      fileCount: uploadedResumes.value.length
     }
   });
 };
@@ -71,28 +67,29 @@ const handleSubmit = () => {
 
 <template>
   <div class="review-form-page">
-    <!-- Left Sidebar: Template Types -->
+    <!-- Left Sidebar -->
     <aside class="template-sidebar">
       <button class="back-btn" @click="goBack">
         <ChevronLeft :size="16" />
-        <span>返回首页</span>
+        <span>返回智能体应用市场</span>
       </button>
 
       <div class="search-box">
         <Search :size="14" class="search-icon" />
-        <input type="text" placeholder="搜索HR工具" class="search-input" />
+        <input type="text" placeholder="搜索其他智能体" class="search-input" />
       </div>
 
       <div class="template-section">
-        <div class="section-title">HR工具</div>
+        <div class="section-title">最近使用</div>
         <div
-          v-for="(item, index) in templateTypes"
+          v-for="(item, index) in recentTools"
           :key="index"
           class="template-item"
-          :class="{ active: item.active }"
+          :class="{ active: index === 1 }"
         >
           <component :is="item.icon" :size="16" class="item-icon" />
           <span>{{ item.label }}</span>
+          <Flame v-if="index === 1" :size="14" class="hot-icon" />
         </div>
       </div>
     </aside>
@@ -110,70 +107,63 @@ const handleSubmit = () => {
       </div>
 
       <div class="form-content">
-        <!-- Resume Upload -->
+        <!-- 上传简历 -->
         <div class="form-group">
           <label class="form-label">
             <span class="required">*</span> 上传简历
+            <span class="upload-count">（{{ uploadedResumes.length }}/{{ maxResumes }}）</span>
           </label>
-          <div class="template-upload-cards">
-            <label class="upload-card">
-              <input type="file" @change="handleResumeUpload" accept=".pdf,.doc,.docx" hidden />
-              <div class="card-icon upload-icon">
-                <Upload :size="24" />
-              </div>
-              <div class="card-title">点击上传候选人简历</div>
-              <div class="card-subtitle">支持PDF、Word格式</div>
-              <span v-if="uploadedResume" class="uploaded-file-name">{{ uploadedResume.name }}</span>
-            </label>
+          <label class="upload-area" :class="{ 'has-files': uploadedResumes.length > 0 }">
+            <input type="file" @change="handleResumeUpload" accept=".pdf,.doc,.docx" hidden multiple />
+            <Upload :size="32" />
+            <div class="upload-text">
+              <span class="upload-main">点击上传候选人简历</span>
+              <span class="upload-hint">支持 PDF、Word 格式，最多上传 {{ maxResumes }} 份</span>
+            </div>
+          </label>
+          <!-- Uploaded files list -->
+          <div v-if="uploadedResumes.length > 0" class="uploaded-files-list">
+            <div v-for="(file, index) in uploadedResumes" :key="index" class="uploaded-file-item">
+              <FileUser :size="14" />
+              <span class="file-name">{{ file.name }}</span>
+              <button class="remove-file-btn" @click="removeResume(index)">
+                <X :size="14" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Target Position -->
+        <!-- 目标岗位 -->
         <div class="form-group">
           <label class="form-label">
             <span class="required">*</span> 目标岗位
           </label>
-          <div class="option-selector four-col">
-            <button
-              v-for="position in positionOptions.slice(0, 4)"
-              :key="position"
-              class="option-btn"
-              :class="{ active: selectedPosition === position }"
-              @click="selectedPosition = position"
-            >
-              {{ position }}
-            </button>
-          </div>
-          <div class="option-selector three-col" style="margin-top: 12px;">
-            <button
-              v-for="position in positionOptions.slice(4)"
-              :key="position"
-              class="option-btn"
-              :class="{ active: selectedPosition === position }"
-              @click="selectedPosition = position"
-            >
-              {{ position }}
-            </button>
-          </div>
+          <input
+            v-model="selectedPosition"
+            type="text"
+            class="position-input"
+            placeholder="请输入目标岗位名称，如：项目经理、安全工程师等"
+          />
         </div>
 
-        <!-- Position Requirements -->
+        <!-- 岗位要求描述 -->
         <div class="form-group">
           <label class="form-label">岗位要求描述</label>
-          <textarea
-            v-model="positionRequirements"
-            class="form-textarea"
-            placeholder="请输入该岗位的具体要求，如：学历要求、工作经验、专业技能、证书要求等"
-            maxlength="1000"
-            rows="6"
-          ></textarea>
-          <span class="char-count textarea-count">{{ positionRequirements.length }} / 1000</span>
+          <div class="textarea-wrapper">
+            <textarea
+              v-model="positionRequirements"
+              class="info-textarea"
+              :maxlength="requirementsMaxLength"
+              placeholder="请输入该岗位的具体要求，如：学历要求、工作经验、专业技能、证书要求等"
+            ></textarea>
+            <span class="char-count">{{ positionRequirements.length }} / {{ requirementsMaxLength }}</span>
+          </div>
         </div>
 
         <!-- Submit Button -->
         <div class="submit-container">
           <button class="submit-btn" @click="handleSubmit">
-            开始分析
+            提交
           </button>
         </div>
       </div>
@@ -181,17 +171,17 @@ const handleSubmit = () => {
 
     <!-- Right Info Card -->
     <aside class="info-sidebar">
-      <div class="info-card">
-        <div class="info-icon">📄</div>
-        <h3 class="info-title">简历分析</h3>
-        <p class="info-desc">AI智能解析简历，快速评估候选人与岗位的匹配度</p>
-        <ul class="feature-list">
-          <li v-for="(feature, index) in features" :key="index">
-            <span class="bullet">●</span>
-            {{ feature }}
-          </li>
-        </ul>
+      <div class="info-icon-wrapper">
+        <FileUser :size="28" class="info-main-icon" />
       </div>
+      <h3 class="info-title">简历分析</h3>
+      <p class="info-desc">AI智能解析简历，快速评估候选人与岗位的匹配度</p>
+      <ul class="feature-list">
+        <li v-for="(feature, index) in features" :key="index">
+          <span class="bullet">●</span>
+          {{ feature }}
+        </li>
+      </ul>
     </aside>
   </div>
 </template>
@@ -207,7 +197,7 @@ const handleSubmit = () => {
   width: 200px;
   background: white;
   border-right: 1px solid #e2e8f0;
-  padding: 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -216,11 +206,11 @@ const handleSubmit = () => {
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 10px 14px;
   background: #eff6ff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #2563eb;
   font-size: 13px;
   cursor: pointer;
@@ -235,10 +225,10 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: #f8fafc;
+  padding: 10px 12px;
+  background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .search-icon {
@@ -250,8 +240,12 @@ const handleSubmit = () => {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 12px;
+  font-size: 13px;
   color: #475569;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
 }
 
 .template-section {
@@ -263,29 +257,38 @@ const handleSubmit = () => {
 .section-title {
   font-size: 12px;
   color: #94a3b8;
-  padding: 8px 0 4px 0;
+  padding: 12px 0 8px 0;
 }
 
 .template-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #475569;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .template-item:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 
 .template-item.active {
   background: #eff6ff;
   color: #2563eb;
   font-weight: 500;
+}
+
+.template-item.active .item-icon {
+  color: #2563eb;
+}
+
+.hot-icon {
+  color: #f97316;
+  margin-left: auto;
 }
 
 .form-main {
@@ -298,7 +301,9 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 32px;
+  margin: -24px -32px 32px -32px;
+  padding: 20px 32px;
+  background: #eff6ff;
 }
 
 .form-icon {
@@ -315,7 +320,7 @@ const handleSubmit = () => {
 .form-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1e293b;
+  color: #2563eb;
   margin: 0;
 }
 
@@ -331,12 +336,14 @@ const handleSubmit = () => {
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   position: relative;
 }
 
 .form-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
   font-weight: 500;
   color: #334155;
@@ -344,11 +351,110 @@ const handleSubmit = () => {
 }
 
 .required {
-  color: #2563eb;
-  margin-right: 2px;
+  color: #ef4444;
 }
 
-.form-textarea {
+/* Upload Area */
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  color: #64748b;
+}
+
+.upload-area:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.upload-text {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.upload-main {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.upload-file {
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.upload-count {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Uploaded files list */
+.uploaded-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.uploaded-file-item .file-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Position Input */
+.position-input {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #e2e8f0;
@@ -356,34 +462,122 @@ const handleSubmit = () => {
   font-size: 14px;
   color: #334155;
   outline: none;
-  resize: none;
-  font-family: inherit;
-  line-height: 1.5;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
 }
 
-.form-textarea:focus {
+.position-input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.position-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Textarea */
+.textarea-wrapper {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+.info-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  padding-bottom: 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+
+.info-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.textarea-wrapper:focus-within {
+  border-color: #2563eb;
 }
 
 .char-count {
   position: absolute;
   right: 12px;
   bottom: 8px;
-  font-size: 12px;
+  font-size: 13px;
   color: #94a3b8;
 }
 
+/* Length Cards (for position selections) */
+.length-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.length-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.length-card:hover:not(.active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.length-card.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.len-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.length-card.active .len-icon {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.len-label {
+  font-size: 14px;
+  color: #475569;
+}
+
+.length-card.active .len-label {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* Submit */
 .submit-container {
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 40px;
   padding-bottom: 40px;
 }
 
 .submit-btn {
-  width: 200px;
+  width: 280px;
   padding: 14px 48px;
   background: #2563eb;
   border: none;
@@ -396,123 +590,30 @@ const handleSubmit = () => {
 }
 
 .submit-btn:hover {
-  background: #1e40af;
+  background: #1d4ed8;
 }
 
-.option-selector {
-  display: flex;
-  gap: 12px;
-}
-
-.option-selector.three-col {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.option-selector.four-col {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.option-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  font-size: 14px;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.option-btn:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-}
-
-.option-btn.active {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.template-upload-cards {
-  display: flex;
-  gap: 16px;
-}
-
-.upload-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 24px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  min-height: 140px;
-}
-
-.upload-card:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
-}
-
-.card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.upload-icon {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.card-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 4px;
-}
-
-.card-subtitle {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.uploaded-file-name {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #22c55e;
-}
-
+/* Right Info Sidebar */
 .info-sidebar {
-  width: 280px;
-  padding: 24px;
+  width: 260px;
+  padding: 40px 24px;
+  background: transparent;
+  border-left: 1px solid #e2e8f0;
 }
 
-.info-card {
-  background: white;
+.info-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-.info-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+.info-main-icon {
+  color: white;
 }
 
 .info-title {
@@ -526,6 +627,7 @@ const handleSubmit = () => {
   font-size: 13px;
   color: #64748b;
   margin: 0 0 20px 0;
+  line-height: 1.5;
 }
 
 .feature-list {
@@ -536,15 +638,17 @@ const handleSubmit = () => {
 
 .feature-list li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 13px;
   color: #475569;
   padding: 6px 0;
+  line-height: 1.4;
 }
 
 .bullet {
   color: #2563eb;
   font-size: 8px;
+  margin-top: 5px;
 }
 </style>

@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import {
   ChevronLeft,
+  ChevronDown,
+  ChevronRight,
   Bell,
   FileSearch,
   FileText,
@@ -25,6 +27,39 @@ const newKeyword = ref('');
 
 // 地区配置
 const selectedRegions = ref<string[]>(['全国']);
+const regionExpanded = ref(false);
+
+// 所有可选地区（全部省份）
+const allRegions = [
+  '全国', '北京', '上海', '天津', '重庆',
+  '江苏', '浙江', '广东', '山东', '四川',
+  '湖北', '湖南', '河南', '河北', '福建',
+  '安徽', '江西', '陕西', '山西', '辽宁',
+  '吉林', '黑龙江', '云南', '贵州', '甘肃',
+  '海南', '青海', '内蒙古', '广西', '西藏',
+  '宁夏', '新疆'
+];
+
+const toggleRegion = (region: string) => {
+  if (region === '全国') {
+    selectedRegions.value = ['全国'];
+  } else {
+    const nationIndex = selectedRegions.value.indexOf('全国');
+    if (nationIndex > -1) {
+      selectedRegions.value.splice(nationIndex, 1);
+    }
+
+    const index = selectedRegions.value.indexOf(region);
+    if (index > -1) {
+      selectedRegions.value.splice(index, 1);
+      if (selectedRegions.value.length === 0) {
+        selectedRegions.value = ['全国'];
+      }
+    } else {
+      selectedRegions.value.push(region);
+    }
+  }
+};
 
 // 项目类型
 const selectedTypes = ref<string[]>(['服务类']);
@@ -36,17 +71,6 @@ const budgetMax = ref('');
 // 推送设置
 const pushTimes = ref<string[]>(['09:00']);
 const pushMethods = ref<string[]>(['site']);
-
-const regionOptions = [
-  { value: '全国', label: '全国' },
-  { value: '北京', label: '北京' },
-  { value: '上海', label: '上海' },
-  { value: '江苏', label: '江苏' },
-  { value: '浙江', label: '浙江' },
-  { value: '广东', label: '广东' },
-  { value: '四川', label: '四川' },
-  { value: '湖北', label: '湖北' },
-];
 
 const typeOptions = [
   { value: '货物类', label: '货物类' },
@@ -69,7 +93,7 @@ const methodOptions = [
 const templateTypes = [
   { icon: Bell, label: '标讯订阅', active: true, routeName: 'bid-info-form' },
   { icon: FileSearch, label: '标讯解读', routeName: 'bid-analysis-form' },
-  { icon: FileText, label: '标书生成', routeName: 'bid-doc-form' },
+  { icon: FileText, label: 'AI标书生成', routeName: 'bid-doc-form' },
 ];
 
 const features = [
@@ -81,7 +105,7 @@ const features = [
 ];
 
 const goBack = () => {
-  router.push({ name: 'bid-center' });
+  router.push({ name: 'agents' });
 };
 
 const navigateTo = (routeName: string) => {
@@ -99,15 +123,6 @@ const removeKeyword = (keyword: string) => {
   const index = keywords.value.indexOf(keyword);
   if (index > -1) {
     keywords.value.splice(index, 1);
-  }
-};
-
-const toggleRegion = (value: string) => {
-  const index = selectedRegions.value.indexOf(value);
-  if (index > -1) {
-    selectedRegions.value.splice(index, 1);
-  } else {
-    selectedRegions.value.push(value);
   }
 };
 
@@ -161,7 +176,7 @@ const viewDaily = () => {
     <aside class="template-sidebar">
       <button class="back-btn" @click="goBack">
         <ChevronLeft :size="16" />
-        <span>返回标讯中心</span>
+        <span>返回应用市场</span>
       </button>
 
       <div class="search-box">
@@ -233,103 +248,100 @@ const viewDaily = () => {
         <div class="form-section">
           <div class="section-header">
             <MapPin :size="16" />
-            <span>地区配置</span>
+            <span>监控配置</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label">监控地区（可多选）</label>
-            <div class="option-selector four-col">
-              <button
-                v-for="region in regionOptions"
-                :key="region.value"
-                class="option-btn"
-                :class="{ active: selectedRegions.includes(region.value) }"
-                @click="toggleRegion(region.value)"
-              >
-                {{ region.label }}
-              </button>
-            </div>
-          </div>
-        </div>
+            <div class="config-row">
+              <label class="config-label">监控地区</label>
+              <div class="config-options">
+                <!-- 收起状态：只显示已选中的 + 展开按钮 -->
+                <template v-if="!regionExpanded">
+                  <button
+                    v-for="region in selectedRegions"
+                    :key="region"
+                    class="option-tag active"
+                    @click="toggleRegion(region)"
+                  >
+                    {{ region }}
+                  </button>
+                  <button class="expand-btn" @click="regionExpanded = true">
+                    <ChevronDown :size="14" />
+                  </button>
+                </template>
 
-        <!-- 项目类型 -->
-        <div class="form-section">
-          <div class="section-header">
-            <FileText :size="16" />
-            <span>项目类型</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">项目类型（可多选）</label>
-            <div class="option-selector three-col">
-              <button
-                v-for="type in typeOptions"
-                :key="type.value"
-                class="option-btn"
-                :class="{ active: selectedTypes.includes(type.value) }"
-                @click="toggleType(type.value)"
-              >
-                {{ type.label }}
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">预算范围（万元）</label>
-            <div class="range-input">
-              <input
-                v-model="budgetMin"
-                type="text"
-                class="form-input range-field"
-                placeholder="最低"
-              />
-              <span class="range-separator">-</span>
-              <input
-                v-model="budgetMax"
-                type="text"
-                class="form-input range-field"
-                placeholder="最高"
-              />
-              <span class="range-unit">万元</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 推送设置 -->
-        <div class="form-section">
-          <div class="section-header">
-            <Clock :size="16" />
-            <span>推送设置</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">推送时间（可多选）</label>
-            <div class="option-selector three-col">
-              <button
-                v-for="time in timeOptions"
-                :key="time.value"
-                class="option-btn"
-                :class="{ active: pushTimes.includes(time.value) }"
-                @click="toggleTime(time.value)"
-              >
-                {{ time.label }}
-              </button>
+                <!-- 展开状态：显示全部选项 + 收起按钮 -->
+                <template v-else>
+                  <button
+                    v-for="region in allRegions"
+                    :key="region"
+                    class="option-tag"
+                    :class="{ active: selectedRegions.includes(region) }"
+                    @click="toggleRegion(region)"
+                  >
+                    {{ region }}
+                  </button>
+                  <button class="expand-btn" @click="regionExpanded = false">
+                    <ChevronRight :size="14" />
+                  </button>
+                </template>
+              </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">推送方式（可多选）</label>
-            <div class="option-selector three-col">
-              <button
-                v-for="method in methodOptions"
-                :key="method.value"
-                class="option-btn method-btn"
-                :class="{ active: pushMethods.includes(method.value) }"
-                @click="toggleMethod(method.value)"
-              >
-                <component :is="method.icon" :size="16" />
-                {{ method.label }}
-              </button>
+            <div class="config-row">
+              <label class="config-label">项目类型</label>
+              <div class="config-options">
+                <button
+                  v-for="type in typeOptions"
+                  :key="type.value"
+                  class="option-tag"
+                  :class="{ active: selectedTypes.includes(type.value) }"
+                  @click="toggleType(type.value)"
+                >
+                  {{ type.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="config-row">
+              <label class="config-label">预算范围</label>
+              <div class="budget-inputs">
+                <input
+                  v-model="budgetMin"
+                  type="text"
+                  class="budget-input"
+                  placeholder="最低"
+                />
+                <span class="budget-separator">-</span>
+                <input
+                  v-model="budgetMax"
+                  type="text"
+                  class="budget-input"
+                  placeholder="最高"
+                />
+                <span class="budget-unit">万元</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="config-row">
+              <label class="config-label">推送时间</label>
+              <div class="config-options">
+                <button
+                  v-for="time in timeOptions"
+                  :key="time.value"
+                  class="option-tag"
+                  :class="{ active: pushTimes.includes(time.value) }"
+                  @click="toggleTime(time.value)"
+                >
+                  {{ time.label }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -676,6 +688,82 @@ const viewDaily = () => {
 }
 
 .range-unit {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* 监控配置行样式 */
+.config-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.config-label {
+  font-size: 14px;
+  color: #64748b;
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.config-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option-tag {
+  padding: 6px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-tag:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.option-tag.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.budget-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budget-input {
+  width: 80px;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  text-align: center;
+}
+
+.budget-input:focus {
+  border-color: #3b82f6;
+}
+
+.budget-input::placeholder {
+  color: #cbd5e1;
+}
+
+.budget-separator {
+  color: #94a3b8;
+}
+
+.budget-unit {
   color: #64748b;
   font-size: 14px;
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UserCheck, FileUser, DollarSign, Bell, FileSearch, FileText } from 'lucide-vue-next';
+import { UserCheck, FileUser, DollarSign, FileSearch, FileText } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -36,15 +36,6 @@ const agents = [
   // 投标业务模块
   {
     id: 4,
-    name: '标讯订阅',
-    description: '关键词智能监控，每日推送招标信息',
-    icon: Bell,
-    color: '#10b981',
-    bgColor: '#ecfdf5',
-    routeName: 'bid-info-form'
-  },
-  {
-    id: 5,
     name: '标讯解读',
     description: '招标文件智能解析，快速提取关键信息',
     icon: FileSearch,
@@ -54,8 +45,8 @@ const agents = [
   },
   {
     id: 6,
-    name: '标书生成',
-    description: '一键生成投标文件，智能匹配素材库',
+    name: 'AI标书生成',
+    description: '一键生成专业标书，智能匹配素材库',
     icon: FileText,
     color: '#10b981',
     bgColor: '#ecfdf5',
@@ -72,20 +63,24 @@ const handleCardClick = (agent: any) => {
 
 <template>
   <div class="app-grid">
-    <div 
-      v-for="agent in agents" 
+    <div
+      v-for="agent in agents"
       :key="agent.id"
       class="app-card"
       :class="{ clickable: agent.routeName }"
       @click="handleCardClick(agent)"
     >
-      <div class="card-header">
-        <div class="app-icon" :style="{ backgroundColor: agent.bgColor }">
-          <component :is="agent.icon" :size="22" :style="{ color: agent.color }" />
-        </div>
-        <h3 class="app-name">{{ agent.name }}</h3>
+      <div class="app-icon" :style="{ backgroundColor: agent.bgColor }">
+        <component :is="agent.icon" :size="28" :style="{ color: agent.color }" />
       </div>
-      <p class="app-description">{{ agent.description }}</p>
+      <span class="app-name">{{ agent.name }}</span>
+    </div>
+    <!-- 更多应用 -->
+    <div class="app-card more-card" @click="$router.push({ name: 'agents' })">
+      <div class="more-icon">
+        <span class="more-count">6+</span>
+      </div>
+      <span class="app-name">更多应用</span>
     </div>
   </div>
 </template>
@@ -93,73 +88,91 @@ const handleCardClick = (agent: any) => {
 <style scoped>
 .app-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .app-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .app-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 640px) {
   .app-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 .app-card {
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px 12px;
   cursor: pointer;
   transition: all 0.25s ease;
-  border: 1px solid #f1f5f9;
-  position: relative;
-  overflow: hidden;
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .app-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.08); /* Blue-tinted shadow */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   border-color: #dbeafe;
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
 .app-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
 .app-name {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: #1e293b;
-  margin: 0;
+  line-height: 1.3;
 }
 
-.app-description {
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.6;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.more-card {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+}
+
+.more-card:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.more-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.more-count {
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
 }
 </style>

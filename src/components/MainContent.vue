@@ -9,7 +9,7 @@ import QuickActions from './QuickActions.vue';
       <!-- Big Center Title -->
       <div class="center-title-area">
         <h1 class="main-title">
-          涌见 AI <span class="highlight">法律版</span>
+          涌见 AI <span class="highlight">企业版</span>
         </h1>
       </div>
 

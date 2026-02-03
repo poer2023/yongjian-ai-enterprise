@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // Added router import
-import { 
-  MessageSquare, 
-  Map, 
-  BookOpen, 
-  Plus, 
-  History, 
-  Copy, 
-  Trash2, 
-  Globe, 
-  Database, 
-  GraduationCap, 
+import {
+  MessageSquare,
+  Map,
+  BookOpen,
+  Plus,
+  History,
+  Copy,
+  Trash2,
+  Globe,
+  Database,
+  GraduationCap,
   ChevronRight,
   Image as ImageIcon,
   Paperclip,
   Send,
   ExternalLink,
   BrainCircuit,
-  Scale,
+  Briefcase,
   ChevronDown,
   Check
 } from 'lucide-vue-next';
@@ -26,19 +26,20 @@ import {
 const router = useRouter(); // Init router
 
 // Mock Data
-const questionTitle = ref('如何认定竞业限制协议的效力？');
-const questionTime = ref('2024-12-30 14:30');
+const questionTitle = ref('帮我查找最近有哪些等保测评相关的招标项目');
+const questionTime = ref('2026-02-03 10:30');
 
 // Chat Input Logic
 const inputValue = ref('');
 const showSearchDropdown = ref(false);
-const enabledSearchModes = ref<Set<string>>(new Set(['legal']));
+// 标讯搜索 enabled by default, others disabled
+const enabledSearchModes = ref<Set<string>>(new Set(['enterprise']));
 
 const searchModes = [
-  { id: 'legal', label: '法律搜索', icon: Scale },
+  { id: 'enterprise', label: '标讯搜索', icon: Briefcase },
   { id: 'web', label: '联网搜索', icon: Globe },
-  { id: 'academic', label: '学术搜索', icon: GraduationCap },
   { id: 'knowledge', label: '知识库搜索', icon: BrainCircuit },
+  { id: 'academic', label: '学术搜索', icon: GraduationCap },
 ];
 
 const toggleSearchMode = (modeId: string) => {
@@ -61,81 +62,89 @@ const closeDropdown = () => {
   showSearchDropdown.value = false;
 };
 
-// References Data - Updated with Legal Search
+// References Data - Updated with Bid Search
 const references = [
   {
-    type: 'kb',
-    title: '劳动合同法第二十三条、第二十四条释义',
-    content: '《中华人民共和国劳动合同法》第二十三条：用人单位与劳动者可以在劳动合同中约定保守用人单位的商业秘密和与知识产权相关的保密事项...',
+    type: 'enterprise',
+    title: 'XX市政府信息系统安全等级保护测评服务项目',
+    content: '预算：50万元 | 截止：2024-02-15 | 发布单位：XX市政务服务中心。要求投标单位具备等保测评资质，与公司资质高度匹配。',
     id: 1
   },
   {
-    type: 'legal',
-    title: '（2023）京01民终1234号：张某与北京某科技公司竞业限制纠纷案',
-    content: '本院认为，劳动者离职后，用人单位已按月支付竞业限制补偿金，劳动者应当履行竞业限制义务。张某入职竞争对手公司，违反了竞业限制协议...',
-    id: 5 // Corresponds to mockup case
-  },
-  {
-    type: 'web',
-    title: '最高人民法院关于审理劳动争议案件适用法律问题的解释（一）',
-    content: '第三十六条 当事人在劳动合同或者保密协议中约定了竞业限制条款，但未约定解除或者终止劳动合同后给予劳动者经济补偿，劳动者履行了竞业限制义务...',
+    type: 'enterprise',
+    title: 'XX区卫生健康委员会等保测评项目',
+    content: '预算：38万元 | 截止：2024-02-27 | 发布单位：XX区卫生健康委员会。政府医疗系统客户，资质要求明确。',
     id: 2
   },
   {
-    type: 'legal',
-    title: '《中华人民共和国劳动合同法》第二十四条',
-    content: '竞业限制的人员限于用人单位的高级管理人员、高级技术人员和其他负有保密义务的人员。竞业限制的范围、地域、期限由用人单位与劳动者约定...',
-    id: 105 // Corresponds to mockup law
-  },
-  {
-    type: 'kb',
-    title: '竞业限制纠纷典型案例：张某诉某科技公司案',
-    content: '...法院认为，虽然双方签订了竞业限制协议，但公司未按照约定支付经济补偿金超过三个月，劳动者有权请求解除竞业限制协议...',
+    type: 'enterprise',
+    title: 'XX省电力公司网络安全评估服务',
+    content: '预算：120万元 | 截止：2024-02-25 | 发布单位：XX省电力有限公司。电力行业大客户，预算充足。',
     id: 3
   },
   {
-    type: 'web',
-    title: '竞业限制协议效力的司法审查要点',
-    content: '司法实践中，审查竞业限制协议效力主要关注：主体资格是否适格、限制范围是否合理、经济补偿是否到位...',
+    type: 'kb',
+    title: '等保测评业务投标指南',
+    content: '等保测评项目投标需准备：等保测评机构资质证书、项目团队配置方案、测评方法论说明、典型案例介绍...',
     id: 4
+  },
+  {
+    type: 'web',
+    title: '2024年等保测评市场趋势分析',
+    content: '根据最新数据，2024年等保测评市场规模预计达到150亿元，同比增长25%。政府、金融、医疗行业需求最为旺盛...',
+    id: 5
+  },
+  {
+    type: 'enterprise',
+    title: 'XX集团密码应用安全性评估项目',
+    content: '预算：45万元 | 截止：2024-02-20 | 发布单位：XX集团有限公司。大型国企客户，项目质量有保障。',
+    id: 6
   }
 ];
 
 const handleRefClick = (refItem: any) => {
-  if (refItem.type === 'legal') {
+  if (refItem.type === 'enterprise') {
     router.push({
-      name: 'legal-document-detail',
-      params: { id: refItem.id },
-      query: { highlight: refItem.content } // Pass content for highlighting
+      name: 'bid-detail',
+      query: { id: refItem.id }
     });
   }
 };
 
 const steps = [
-  { icon: Database, text: '知识库搜索', detail: '竞业限制 效力认定' },
-  { icon: GraduationCap, text: '学术搜索', detail: '竞业限制协议 司法解释' },
-  { icon: Globe, text: '联网搜索', detail: '最高法 竞业限制 典型案例' }
+  { icon: Briefcase, text: '标讯搜索', detail: '等保测评 招标项目' },
+  { icon: Database, text: '知识库搜索', detail: '等保测评 投标指南' },
+  { icon: Globe, text: '联网搜索', detail: '等保测评 市场趋势' }
 ];
 
 const answerContent = `
-<p>竞业限制协议的效力认定主要依据《中华人民共和国劳动合同法》及相关司法解释。以下是认定其效力的核心要点：</p>
+<p>根据您的查询，我为您从标讯库中筛选出了近期与<strong>等保测评</strong>相关的招标项目。以下是匹配度较高的项目汇总：</p>
 
-<h3>1. 主体资格适格 (Article 24)</h3>
-<p>竞业限制的人员限于用人单位的<strong>高级管理人员、高级技术人员和其他负有保密义务的人员</strong>。对于普通员工，若不掌握核心商业秘密，即便签订了竞业限制协议，也可能因主体不适格而被认定无效。</p>
-
-<h3>2. 经济补偿的约定与履行 (Article 23)</h3>
-<p>用人单位在竞业限制期限内必须按月给予劳动者经济补偿。若协议未约定经济补偿，或者用人单位未按约定支付补偿金达到一定期限（通常为3个月），劳动者有权请求解除竞业限制协议。</p>
-
-<h3>3. 限制范围与期限的合理性 (Article 24)</h3>
+<h3>1. 高匹配项目推荐</h3>
+<p>共发现 <strong>4个高匹配度</strong> 等保测评相关项目，总预算约 <strong>253万元</strong>：</p>
 <ul>
-  <li><strong>范围：</strong> 竞业限制的范围、地域、期限由用人单位与劳动者约定，不得违反法律、法规的规定。</li>
-  <li><strong>期限：</strong> 竞业限制期限不得超过<strong>二年</strong>。超过二年的部分无效。</li>
+  <li><strong>XX市政府信息系统安全等级保护测评服务项目</strong> - 预算50万，截止2月15日，与公司等保测评资质高度匹配</li>
+  <li><strong>XX省电力公司网络安全评估服务</strong> - 预算120万，截止2月25日，电力行业大客户</li>
+  <li><strong>XX集团密码应用安全性评估项目</strong> - 预算45万，截止2月20日，大型国企客户</li>
+  <li><strong>XX区卫生健康委员会等保测评项目</strong> - 预算38万，截止2月27日，政府医疗系统</li>
 </ul>
 
-<h3>4. 深度思考</h3>
-<p>实践中，常出现"隐性竞业限制"或"霸王条款"的情况。法院在审理时，会基于<strong>公平原则</strong>平衡用人单位的商业秘密保护与劳动者的就业权。例如，若协议约定的违约金过高，法院有权予以调整。</p>
+<h3>2. 投标建议</h3>
+<ul>
+  <li><strong>优先跟进：</strong>XX市政府项目资质匹配度最高（92%），且截止时间较近，建议优先准备投标材料</li>
+  <li><strong>重点关注：</strong>XX省电力公司项目预算充足（120万），虽然竞争可能较激烈，但项目含金量高</li>
+  <li><strong>资源评估：</strong>建议根据团队当前工作负荷，选择2-3个项目重点投标</li>
+</ul>
 
-<p>综上所述，一份有效的竞业限制协议必须同时满足主体适格、约定明确、补偿到位且期限合法等条件。</p>
+<h3>3. 市场洞察</h3>
+<p>根据近期标讯数据分析，等保测评类项目呈现以下趋势：</p>
+<ul>
+  <li>政府和医疗行业需求持续增长，占比达65%</li>
+  <li>项目平均预算较去年同期上涨15%</li>
+  <li>等保2.0相关项目数量明显增加</li>
+</ul>
+
+<p>如需查看项目详情或生成投标方案，请点击右侧参考来源中的具体项目，或使用<strong>AI标书生成</strong>功能快速生成投标文件。</p>
 `;
 </script>
 
@@ -226,11 +235,6 @@ const answerContent = `
              <div class="input-actions">
                 <!-- Left Actions -->
                 <div class="left-actions">
-                   <div class="action-pill">
-                      <span class="pill-text">深度思考(R1)</span>
-                      <div class="pill-dot"></div>
-                   </div>
-
                     <!-- Search Mode Selector -->
                     <div class="search-mode-selector" @click.stop="toggleSearchDropdown">
                         <div class="selected-icons">
@@ -283,21 +287,21 @@ const answerContent = `
       </div>
 
       <div class="ref-list">
-         <div 
-           v-for="ref in references" 
-           :key="ref.id" 
+         <div
+           v-for="ref in references"
+           :key="ref.id"
            class="ref-card"
-           :class="{ 'clickable': ref.type === 'legal' }"
+           :class="{ 'clickable': ref.type === 'enterprise' }"
            @click="handleRefClick(ref)"
          >
             <div class="ref-card-header">
                <span class="ref-icon">
                   <Database v-if="ref.type === 'kb'" :size="14" color="#2563eb" />
-                  <Scale v-else-if="ref.type === 'legal'" :size="14" color="#7c3aed" />
+                  <Briefcase v-else-if="ref.type === 'enterprise'" :size="14" color="#16a34a" />
                   <Globe v-else :size="14" color="#0ea5e9" />
                </span>
                <span class="ref-source-name">
-                 {{ ref.type === 'kb' ? '知识库' : ref.type === 'legal' ? '法律搜索' : '互联网' }}
+                 {{ ref.type === 'kb' ? '知识库' : ref.type === 'enterprise' ? '标讯搜索' : '互联网' }}
                </span>
             </div>
             <h4 class="ref-card-title">{{ ref.title }}</h4>
@@ -377,10 +381,13 @@ const answerContent = `
 .chat-container {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 40px 240px 40px; 
+  padding: 20px 80px 240px 80px;
   display: flex;
   flex-direction: column;
   gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .message-row {
@@ -560,7 +567,7 @@ const answerContent = `
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 20px 40px;
+  padding: 20px 80px;
   background: linear-gradient(180deg, rgba(248,250,252,0) 0%, #f8fafc 40%);
   pointer-events: none;
 }
@@ -577,6 +584,9 @@ const answerContent = `
   height: 200px;
   position: relative;
   transition: all 0.3s ease;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .input-box:focus-within {

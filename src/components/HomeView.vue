@@ -14,19 +14,21 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
         </h1>
       </div>
 
-      <!-- Chat Input Area -->
+      <!-- Chat Input Area with Knowledge Base Button -->
       <div class="chat-area">
-        <div class="knowledge-base-btn">
-          <BrainCircuit :size="16" class="kb-icon" />
-          <span class="kb-text">知识库</span>
-          <ChevronRight :size="14" class="kb-chevron" />
+        <!-- Knowledge Base Button - positioned relative to chat area -->
+        <div class="kb-container">
+          <div class="knowledge-base-btn">
+            <BrainCircuit :size="16" class="kb-icon" />
+            <span class="kb-text">知识库</span>
+            <ChevronRight :size="14" class="kb-chevron" />
+          </div>
         </div>
         <ChatInput />
       </div>
 
-      <!-- App Grid -->
+      <!-- App Grid - 无标题 -->
       <div class="apps-section">
-        <h2 class="section-title">智能应用</h2>
         <AppGrid />
       </div>
     </div>
@@ -38,7 +40,11 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
   flex: 1;
   height: 100%;
   overflow-y: auto;
-  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  background: #f8fafc;
 }
 
 .content-wrapper {
@@ -49,12 +55,12 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
 
 .center-title-area {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .main-title {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   color: #1e293b;
   letter-spacing: 0.5px;
 }
@@ -67,20 +73,23 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
 
 .highlight {
   color: #3b82f6;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .chat-area {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto 48px;
+  max-width: 100%;
+  margin: 0 auto 40px;
   position: relative;
 }
 
-.knowledge-base-btn {
+.kb-container {
   position: absolute;
-  top: -50px;
+  top: -48px;
   right: 0;
+}
+
+.knowledge-base-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -113,15 +122,6 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
 }
 
 .apps-section {
-  margin-top: 24px;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 20px 0;
-  padding-left: 12px;
-  border-left: 3px solid #3b82f6;
+  margin-top: 0;
 }
 </style>

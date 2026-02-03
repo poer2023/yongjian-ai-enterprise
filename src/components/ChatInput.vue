@@ -19,13 +19,14 @@ const inputValue = ref('');
 const showSearchDropdown = ref(false);
 
 // Multi-select mode: users can enable multiple search modes
-const enabledSearchModes = ref<Set<string>>(new Set(['web']));
+// 标讯搜索 enabled by default, others disabled
+const enabledSearchModes = ref<Set<string>>(new Set(['enterprise']));
 
 const searchModes = [
+  { id: 'enterprise', label: '标讯搜索', icon: Briefcase },
   { id: 'web', label: '联网搜索', icon: Globe },
-  { id: 'academic', label: '学术搜索', icon: GraduationCap },
   { id: 'knowledge', label: '知识库搜索', icon: BrainCircuit },
-  { id: 'enterprise', label: '企业搜索', icon: Briefcase },
+  { id: 'academic', label: '学术搜索', icon: GraduationCap },
 ];
 
 const toggleSearchMode = (modeId: string) => {
@@ -108,18 +109,19 @@ const closeDropdown = () => {
 .chat-input-container {
   background: white;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   position: relative;
   transition: all 0.3s ease;
-  min-height: 140px;
+  min-height: 180px;
   display: flex;
   flex-direction: column;
 }
 
 .chat-input-container:focus-within {
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
 }
 
 .chat-textarea {
@@ -127,7 +129,7 @@ const closeDropdown = () => {
   flex: 1;
   border: none;
   resize: none;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
   color: #334155;
   outline: none;
@@ -161,10 +163,11 @@ const closeDropdown = () => {
   gap: 8px;
   background: white;
   border: 1px solid #e2e8f0;
-  padding: 8px 12px;
-  border-radius: 20px;
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
 }
 
 .search-mode-selector:hover {
@@ -244,7 +247,7 @@ const closeDropdown = () => {
 
 .dropdown-label {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
   color: #334155;
 }
 
@@ -274,10 +277,10 @@ const closeDropdown = () => {
 }
 
 .send-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: #c4b5fd;
+  background: #e2e8f0;
   color: white;
   border: none;
   display: flex;
@@ -288,11 +291,11 @@ const closeDropdown = () => {
 }
 
 .send-btn.active {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   cursor: pointer;
 }
 
 .send-btn.active:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 </style>

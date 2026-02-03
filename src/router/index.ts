@@ -3,12 +3,14 @@ import HomeView from '../components/HomeView.vue';
 import AiQnaView from '../components/AiQnaView.vue';
 import AgentsView from '../components/AgentsView.vue';
 import EnterpriseSearchView from '../components/EnterpriseSearchView.vue';
+import TeamManageView from '../components/TeamManageView.vue';
 
 // 素材库模块
 import CompanyInfoView from '../components/CompanyInfoView.vue';
 import CertificateManageView from '../components/CertificateManageView.vue';
 import TeamMemberView from '../components/TeamMemberView.vue';
 import ProjectCaseView from '../components/ProjectCaseView.vue';
+import AssetUploadView from '../components/assets/AssetUploadView.vue';
 
 // HR模块
 import BossRecruitFormView from '../components/BossRecruitFormView.vue';
@@ -19,13 +21,15 @@ import SalarySurveyFormView from '../components/SalarySurveyFormView.vue';
 import SalarySurveyResultView from '../components/SalarySurveyResultView.vue';
 
 // 投标模块
-import BidCenterView from '../components/BidCenterView.vue';
 import BidInfoFormView from '../components/BidInfoFormView.vue';
 import BidInfoDailyView from '../components/BidInfoDailyView.vue';
 import BidAnalysisFormView from '../components/BidAnalysisFormView.vue';
 import BidAnalysisResultView from '../components/BidAnalysisResultView.vue';
 import BidDocFormView from '../components/BidDocFormView.vue';
+import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
+import BidDetailView from '../components/BidDetailView.vue';
+import BidDailyReportView from '../components/BidDailyReportView.vue';
 
 // Placeholder views - can be replaced with actual components later
 const PlaceholderView = {
@@ -67,7 +71,7 @@ const routes = [
     path: '/enterprise-search',
     name: 'enterprise-search',
     component: EnterpriseSearchView,
-    meta: { title: '企业搜索' }
+    meta: { title: '标讯搜索' }
   },
 
   // HR助手模块
@@ -93,7 +97,7 @@ const routes = [
     path: '/hr/resume-analysis/result',
     name: 'resume-analysis-result',
     component: ResumeAnalysisResultView,
-    meta: { title: '简历分析结果' }
+    meta: { title: '简历分析结果', fullScreen: true }
   },
   {
     path: '/hr/salary-survey',
@@ -105,21 +109,18 @@ const routes = [
     path: '/hr/salary-survey/result',
     name: 'salary-survey-result',
     component: SalarySurveyResultView,
-    meta: { title: '薪酬调查结果' }
+    meta: { title: '薪酬调查结果', fullScreen: true }
   },
 
   // 投标助手模块
   {
     path: '/bid/center',
-    name: 'bid-center',
-    component: BidCenterView,
-    meta: { title: '标讯中心' }
+    redirect: '/enterprise-search'
   },
   {
     path: '/bid/info',
     name: 'bid-info-form',
-    component: BidInfoFormView,
-    meta: { title: '标讯订阅' }
+    redirect: { name: 'team', query: { menu: 'bid-subscription' } }
   },
   {
     path: '/bid/info/daily',
@@ -143,13 +144,31 @@ const routes = [
     path: '/bid/doc',
     name: 'bid-doc-form',
     component: BidDocFormView,
-    meta: { title: '标书生成' }
+    meta: { title: 'AI标书生成' }
+  },
+  {
+    path: '/bid/doc/generating',
+    name: 'bid-doc-generating',
+    component: BidDocGeneratingView,
+    meta: { title: 'AI标书生成中' }
   },
   {
     path: '/bid/doc/result',
     name: 'bid-doc-result',
     component: BidDocResultView,
     meta: { title: '标书预览' }
+  },
+  {
+    path: '/bid/detail',
+    name: 'bid-detail',
+    component: BidDetailView,
+    meta: { title: '标讯详情' }
+  },
+  {
+    path: '/bid/daily-report',
+    name: 'bid-daily-report',
+    component: BidDailyReportView,
+    meta: { title: '每日标讯报告', fullScreen: true }
   },
 
   // 素材库模块
@@ -177,12 +196,18 @@ const routes = [
     component: ProjectCaseView,
     meta: { title: '业绩案例' }
   },
+  {
+    path: '/material/upload',
+    name: 'asset-upload',
+    component: AssetUploadView,
+    meta: { title: '添加素材' }
+  },
 
   // 系统管理
   {
     path: '/team',
     name: 'team',
-    component: PlaceholderView,
+    component: TeamManageView,
     meta: { title: '团队管理' }
   },
   {
