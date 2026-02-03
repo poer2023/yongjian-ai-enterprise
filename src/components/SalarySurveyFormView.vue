@@ -7,7 +7,9 @@ import {
   UserCheck,
   Search,
   Upload,
-  Flame
+  Flame,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
@@ -22,6 +24,10 @@ const selectedRegions = ref<string[]>([]);
 const selectedSources = ref<string[]>([]);
 const benchmarkMode = ref('upload');
 const uploadedFile = ref<File | null>(null);
+const regionExpanded = ref(false);
+
+const allRegions = ['北京', '上海', '深圳', '广州', '杭州', '成都', '南京', '武汉', '西安', '苏州', '天津', '重庆'];
+const defaultRegions = allRegions.slice(0, 6);
 
 const recentTools = [
   { icon: UserCheck, label: 'Boss招聘' },
@@ -41,15 +47,6 @@ const experienceOptions = [
   { key: '3-5', icon: '3-5', label: '3-5年' },
   { key: '5-10', icon: '5+', label: '5-10年' },
   { key: '10+', icon: '10+', label: '10年以上' },
-];
-
-const regionOptions = [
-  { key: 'beijing', icon: '京', label: '北京' },
-  { key: 'shanghai', icon: '沪', label: '上海' },
-  { key: 'shenzhen', icon: '深', label: '深圳' },
-  { key: 'guangzhou', icon: '广', label: '广州' },
-  { key: 'hangzhou', icon: '杭', label: '杭州' },
-  { key: 'chengdu', icon: '蓉', label: '成都' },
 ];
 
 const sourceOptions = [
@@ -173,7 +170,7 @@ const handleSubmit = () => {
           <label class="form-label">
             <span class="required">*</span> 岗位类型
           </label>
-          <div class="language-cards">
+          <div class="four-col-cards">
             <div
               v-for="opt in jobTypeOptions"
               :key="opt.key"
@@ -190,7 +187,7 @@ const handleSubmit = () => {
         <!-- 工作年限 -->
         <div class="form-group">
           <label class="form-label">工作年限范围</label>
-          <div class="language-cards">
+          <div class="four-col-cards">
             <div
               v-for="exp in experienceOptions"
               :key="exp.key"
@@ -209,16 +206,21 @@ const handleSubmit = () => {
           <label class="form-label">
             <span class="required">*</span> 地区选择（可多选）
           </label>
-          <div class="length-cards">
-            <div
-              v-for="region in regionOptions"
-              :key="region.key"
-              class="length-card"
-              :class="{ active: selectedRegions.includes(region.key) }"
-              @click="toggleRegion(region.key)"
-            >
-              <span class="len-icon">{{ region.icon }}</span>
-              <span class="len-label">{{ region.label }}</span>
+          <div class="region-selector">
+            <div class="region-btns">
+              <button
+                v-for="region in (regionExpanded ? allRegions : defaultRegions)"
+                :key="region"
+                class="region-btn"
+                :class="{ active: selectedRegions.includes(region) }"
+                @click="toggleRegion(region)"
+              >
+                {{ region }}
+              </button>
+              <button class="region-btn expand-btn" @click="regionExpanded = !regionExpanded">
+                <ChevronDown v-if="!regionExpanded" :size="14" />
+                <ChevronUp v-else :size="14" />
+              </button>
             </div>
           </div>
         </div>
@@ -544,6 +546,58 @@ const handleSubmit = () => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+}
+
+/* Four Column Cards */
+.four-col-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Region Selector */
+.region-selector {
+  width: 100%;
+}
+
+.region-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.region-btn {
+  padding: 10px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.region-btn:hover:not(.active):not(.expand-btn) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.region-btn.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.region-btn.expand-btn {
+  padding: 10px 14px;
+  border-style: dashed;
+  color: #94a3b8;
+}
+
+.region-btn.expand-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
 }
 
 .language-card {
