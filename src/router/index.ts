@@ -30,6 +30,7 @@ import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
 import BidDetailView from '../components/BidDetailView.vue';
 import BidDailyReportView from '../components/BidDailyReportView.vue';
+import BidSubscriptionView from '../components/BidSubscriptionView.vue';
 
 // Placeholder views - can be replaced with actual components later
 const PlaceholderView = {
@@ -169,6 +170,12 @@ const routes = [
     name: 'bid-daily-report',
     component: BidDailyReportView,
     meta: { title: '每日标讯报告', fullScreen: true }
+  },
+  {
+    path: '/bid/subscription',
+    name: 'bid-subscription',
+    component: BidSubscriptionView,
+    meta: { title: '标讯订阅' }
   },
 
   // 素材库模块

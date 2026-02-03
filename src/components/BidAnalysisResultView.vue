@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import {
   ChevronLeft,
   FileSearch,
@@ -251,6 +251,37 @@ const generateBidDoc = () => {
     query: { bidId: route.query.bidId, title: bidTitle },
   });
 };
+
+// Resizable panels
+const leftPanelWidth = ref(50); // percentage
+const isDragging = ref(false);
+const containerRef = ref<HTMLElement | null>(null);
+
+const startDrag = (e: MouseEvent) => {
+  isDragging.value = true;
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+  e.preventDefault();
+};
+
+const onDrag = (e: MouseEvent) => {
+  if (!isDragging.value || !containerRef.value) return;
+  const rect = containerRef.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const percentage = (x / rect.width) * 100;
+  leftPanelWidth.value = Math.min(Math.max(percentage, 30), 70);
+};
+
+const stopDrag = () => {
+  isDragging.value = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+};
+
+onUnmounted(() => {
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+});
 </script>
 
 <template>
@@ -277,10 +308,9 @@ const generateBidDoc = () => {
       </div>
     </div>
 
-    <div class="result-content">
+    <div class="result-content" ref="containerRef">
       <!-- 左侧：招标文件预览 -->
-      <div class="preview-wrapper">
-        <div class="preview-panel">
+      <div class="preview-panel" :style="{ width: leftPanelWidth + '%' }">
         <div class="panel-header">
           <h2>招标文件</h2>
           <span class="file-name">招标文件.pdf</span>
@@ -301,11 +331,15 @@ const generateBidDoc = () => {
             </div>
           </div>
         </div>
-        </div>
+      </div>
+
+      <!-- 拖动分隔条 -->
+      <div class="resizer" @mousedown="startDrag" :class="{ dragging: isDragging }">
+        <div class="resizer-line"></div>
       </div>
 
       <!-- 右侧：AI解读报告 -->
-      <div class="analysis-panel">
+      <div class="analysis-panel" :style="{ width: (100 - leftPanelWidth) + '%' }">
         <div class="panel-header">
           <h2>AI解读报告</h2>
         </div>
@@ -623,21 +657,12 @@ const generateBidDoc = () => {
 .result-content {
   flex: 1;
   display: flex;
-  gap: 24px;
   padding: 24px;
   overflow: hidden;
-}
-
-/* Left side wrapper for centering */
-.preview-wrapper {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
+  gap: 0;
 }
 
 .preview-panel {
-  width: 840px;
   flex-shrink: 0;
   background: white;
   border-radius: 12px;
@@ -645,6 +670,36 @@ const generateBidDoc = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Resizer */
+.resizer {
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.resizer:hover,
+.resizer.dragging {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.resizer-line {
+  width: 4px;
+  height: 40px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.resizer:hover .resizer-line,
+.resizer.dragging .resizer-line {
+  background: #3b82f6;
+  height: 60px;
 }
 
 .panel-header {
@@ -773,7 +828,6 @@ const generateBidDoc = () => {
 }
 
 .analysis-panel {
-  width: 520px;
   flex-shrink: 0;
   background: white;
   border-radius: 12px;
@@ -787,6 +841,28 @@ const generateBidDoc = () => {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+}
+
+/* Subtle scrollbar styling */
+.preview-content::-webkit-scrollbar,
+.analysis-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-content::-webkit-scrollbar-track,
+.analysis-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-content::-webkit-scrollbar-thumb,
+.analysis-content::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover,
+.analysis-content::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 
 .report-section {

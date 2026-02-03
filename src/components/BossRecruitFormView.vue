@@ -1,28 +1,63 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import {
   ChevronLeft,
   UserCheck,
   FileUser,
   DollarSign,
   Search,
-  HelpCircle,
-  Flame
+  Flame,
+  QrCode,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Briefcase,
+  MapPin,
+  Clock,
+  Users,
+  Eye,
+  Play,
+  RefreshCw
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// Form data
-const accountName = ref('');
-const accountNameMaxLength = 50;
-const selectedJdSource = ref('library');
-const selectedJd = ref('');
-const manualJobRequirements = ref('');
-const greetingTemplate = ref('');
-const greetingMaxLength = 200;
-const experienceRange = ref('');
-const dailyLimit = ref(50);
+// Authentication state
+type AuthStatus = 'idle' | 'scanning' | 'success' | 'error';
+const authStatus = ref<AuthStatus>('idle');
+const accountInfo = ref({
+  name: '',
+  company: '',
+  avatar: ''
+});
+
+// JD list from Boss
+interface BossJD {
+  id: number;
+  jobName: string;
+  salaryRange: string;
+  location: string;
+  experience: string;
+  education: string;
+  publishDate: string;
+  viewCount: number;
+  resumeCount: number;
+  isMonitoring: boolean;
+}
+
+const jdList = ref<BossJD[]>([]);
+const selectedJdIds = ref<number[]>([]);
+
+// Mock JD data
+const mockJdList: BossJD[] = [
+  { id: 1, jobName: 'Java开发工程师', salaryRange: '25K-35K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-02-01', viewCount: 156, resumeCount: 23, isMonitoring: false },
+  { id: 2, jobName: '前端开发工程师', salaryRange: '20K-30K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-02-02', viewCount: 98, resumeCount: 15, isMonitoring: false },
+  { id: 3, jobName: '产品经理', salaryRange: '30K-45K', location: '上海', experience: '5年以上', education: '本科', publishDate: '2026-01-28', viewCount: 234, resumeCount: 42, isMonitoring: true },
+  { id: 4, jobName: '网络安全工程师', salaryRange: '25K-40K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-01-25', viewCount: 87, resumeCount: 12, isMonitoring: false },
+  { id: 5, jobName: 'UI设计师', salaryRange: '15K-25K', location: '上海', experience: '2-3年', education: '大专', publishDate: '2026-02-03', viewCount: 145, resumeCount: 31, isMonitoring: true },
+  { id: 6, jobName: '测试工程师', salaryRange: '18K-28K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-01-30', viewCount: 76, resumeCount: 18, isMonitoring: false },
+];
 
 const recentTools = [
   { icon: UserCheck, label: 'Boss招聘' },
@@ -30,50 +65,68 @@ const recentTools = [
   { icon: DollarSign, label: '薪酬调查' },
 ];
 
-const jdSourceOptions = [
-  { key: 'library', icon: 'JD', label: '从JD知识库选择' },
-  { key: 'manual', icon: '手', label: '手动输入要求' },
-];
-
-const jdOptions = [
-  { value: 'java-dev', label: 'Java开发工程师' },
-  { value: 'frontend-dev', label: '前端开发工程师' },
-  { value: 'project-manager', label: '项目经理' },
-  { value: 'security-engineer', label: '安全工程师' },
-  { value: 'test-engineer', label: '测试工程师' },
-];
-
-const experienceOptions = [
-  { key: '0-1', icon: '初', label: '0-1年' },
-  { key: '1-3', icon: '1-3', label: '1-3年' },
-  { key: '3-5', icon: '3-5', label: '3-5年' },
-  { key: '5-10', icon: '5+', label: '5-10年' },
-  { key: '10+', icon: '10+', label: '10年以上' },
-];
-
-const dailyLimitOptions = [
-  { key: 30, icon: '30', label: '30次/天' },
-  { key: 50, icon: '50', label: '50次/天（推荐）' },
-];
-
 const features = [
-  'RPA自动化批量打招呼',
-  '智能筛选条件精准匹配',
-  'AI分析候选人匹配度',
-  '简历自动收集整理',
-  '账号风控智能监测',
+  'Boss直聘账号一键授权',
+  '自动同步已发布岗位信息',
+  '批量开启智能招聘监控',
+  'AI自动筛选候选人打招呼',
+  '简历自动收集整理分析',
 ];
 
 const goBack = () => {
   router.push({ name: 'agents' });
 };
 
+// Start authentication
+const startAuth = () => {
+  authStatus.value = 'scanning';
+  // Simulate QR code scanning
+  setTimeout(() => {
+    authStatus.value = 'success';
+    accountInfo.value = {
+      name: '张招聘',
+      company: 'XX科技有限公司',
+      avatar: ''
+    };
+    // Load JD list after auth
+    jdList.value = [...mockJdList];
+  }, 2000);
+};
+
+// Refresh JD list
+const refreshJdList = () => {
+  jdList.value = [...mockJdList];
+};
+
+// Toggle JD selection
+const toggleJdSelection = (id: number) => {
+  const index = selectedJdIds.value.indexOf(id);
+  if (index > -1) {
+    selectedJdIds.value.splice(index, 1);
+  } else {
+    selectedJdIds.value.push(id);
+  }
+};
+
+// Select all
+const selectAll = () => {
+  if (selectedJdIds.value.length === jdList.value.length) {
+    selectedJdIds.value = [];
+  } else {
+    selectedJdIds.value = jdList.value.map(jd => jd.id);
+  }
+};
+
+const isAllSelected = computed(() => {
+  return jdList.value.length > 0 && selectedJdIds.value.length === jdList.value.length;
+});
+
+// Submit and start monitoring
 const handleSubmit = () => {
   router.push({
     name: 'boss-recruit-result',
     query: {
-      account: accountName.value,
-      job: selectedJd.value || '自定义岗位',
+      jdIds: selectedJdIds.value.join(','),
     },
   });
 };
@@ -116,131 +169,151 @@ const handleSubmit = () => {
         </div>
         <div class="form-title-area">
           <h1 class="form-title">Boss直聘招聘</h1>
-          <p class="form-subtitle">智能RPA招聘助手，自动筛选简历打招呼</p>
+          <p class="form-subtitle">授权账号后自动获取岗位，开启智能招聘监控</p>
         </div>
       </div>
 
       <div class="form-content">
-        <!-- 账号名称 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 账号名称
-          </label>
-          <div class="input-wrapper">
-            <input
-              v-model="accountName"
-              type="text"
-              class="form-input"
-              :maxlength="accountNameMaxLength"
-              placeholder="请输入Boss直聘账号名称"
-            />
+        <!-- Step 1: Authentication -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span class="step-number">1</span>
+              账号授权
+            </h3>
+            <span v-if="authStatus === 'success'" class="auth-status success">
+              <CheckCircle :size="14" />
+              已授权
+            </span>
           </div>
-        </div>
 
-        <!-- 岗位来源 -->
-        <div class="form-group">
-          <label class="form-label">岗位来源</label>
-          <div class="language-cards">
-            <div
-              v-for="opt in jdSourceOptions"
-              :key="opt.key"
-              class="language-card"
-              :class="{ active: selectedJdSource === opt.key }"
-              @click="selectedJdSource = opt.key"
-            >
-              <span class="lang-icon">{{ opt.icon }}</span>
-              <span class="lang-label">{{ opt.label }}</span>
+          <!-- Not authenticated -->
+          <div v-if="authStatus === 'idle'" class="auth-area">
+            <div class="qr-placeholder">
+              <QrCode :size="48" />
+            </div>
+            <div class="auth-text">
+              <p class="auth-main">使用Boss直聘APP扫码授权</p>
+              <p class="auth-hint">授权后将自动获取您发布的岗位信息</p>
+            </div>
+            <button class="auth-btn" @click="startAuth">
+              开始授权
+            </button>
+          </div>
+
+          <!-- Scanning -->
+          <div v-else-if="authStatus === 'scanning'" class="auth-area scanning">
+            <div class="qr-code-box">
+              <div class="qr-code-inner">
+                <QrCode :size="120" />
+              </div>
+              <div class="scanning-indicator">
+                <Loader2 :size="16" class="spin" />
+                等待扫码...
+              </div>
+            </div>
+            <div class="auth-text">
+              <p class="auth-main">请使用Boss直聘APP扫描二维码</p>
+              <p class="auth-hint">扫码后在APP中确认授权</p>
             </div>
           </div>
-        </div>
 
-        <!-- 选择岗位 -->
-        <div v-if="selectedJdSource === 'library'" class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 选择岗位
-          </label>
-          <div class="select-wrapper">
-            <select v-model="selectedJd" class="form-select">
-              <option value="">请选择目标岗位</option>
-              <option v-for="jd in jdOptions" :key="jd.value" :value="jd.value">
-                {{ jd.label }}
-              </option>
-            </select>
+          <!-- Authenticated -->
+          <div v-else-if="authStatus === 'success'" class="auth-area authenticated">
+            <div class="account-info">
+              <div class="account-avatar">
+                <UserCheck :size="24" />
+              </div>
+              <div class="account-details">
+                <span class="account-name">{{ accountInfo.name }}</span>
+                <span class="account-company">{{ accountInfo.company }}</span>
+              </div>
+            </div>
+            <button class="change-account-btn" @click="authStatus = 'idle'">
+              切换账号
+            </button>
           </div>
         </div>
 
-        <!-- 手动输入岗位要求 -->
-        <div v-else class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 岗位要求
-          </label>
-          <div class="textarea-wrapper">
-            <textarea
-              v-model="manualJobRequirements"
-              class="info-textarea"
-              placeholder="请输入岗位的具体要求，包括技能要求、职责描述等"
-            ></textarea>
-          </div>
-        </div>
-
-        <!-- 打招呼话术模板 -->
-        <div class="form-group">
-          <label class="form-label">打招呼话术模板</label>
-          <div class="textarea-wrapper">
-            <textarea
-              v-model="greetingTemplate"
-              class="info-textarea"
-              :maxlength="greetingMaxLength"
-              placeholder="您好{候选人姓名}，我们正在招聘{岗位名称}，您的背景很符合，方便聊聊吗？"
-            ></textarea>
-            <span class="char-count">{{ greetingTemplate.length }} / {{ greetingMaxLength }}</span>
-          </div>
-          <div class="form-hint">支持变量：{候选人姓名}、{岗位名称}</div>
-        </div>
-
-        <!-- 工作年限要求 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 工作年限要求
-          </label>
-          <div class="length-cards">
-            <div
-              v-for="exp in experienceOptions"
-              :key="exp.key"
-              class="length-card"
-              :class="{ active: experienceRange === exp.key }"
-              @click="experienceRange = exp.key"
-            >
-              <span class="len-icon">{{ exp.icon }}</span>
-              <span class="len-label">{{ exp.label }}</span>
+        <!-- Step 2: JD List -->
+        <div v-if="authStatus === 'success'" class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span class="step-number">2</span>
+              选择监控岗位
+            </h3>
+            <div class="section-actions">
+              <button class="refresh-btn" @click="refreshJdList">
+                <RefreshCw :size="14" />
+                刷新列表
+              </button>
             </div>
           </div>
-        </div>
+          <p class="section-hint">选择需要开启智能招聘监控的岗位，系统将自动筛选候选人并打招呼</p>
 
-        <!-- 每日打招呼上限 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 每日打招呼上限
-          </label>
-          <div class="language-cards">
-            <div
-              v-for="opt in dailyLimitOptions"
-              :key="opt.key"
-              class="language-card"
-              :class="{ active: dailyLimit === opt.key }"
-              @click="dailyLimit = opt.key"
-            >
-              <span class="lang-icon">{{ opt.icon }}</span>
-              <span class="lang-label">{{ opt.label }}</span>
+          <div class="jd-table">
+            <div class="jd-table-header">
+              <span class="col-select">
+                <div class="checkbox" :class="{ checked: isAllSelected }" @click="selectAll">
+                  <CheckCircle v-if="isAllSelected" :size="12" />
+                </div>
+              </span>
+              <span class="col-name">岗位名称</span>
+              <span class="col-salary">薪资</span>
+              <span class="col-location">地点</span>
+              <span class="col-exp">经验</span>
+              <span class="col-stats">浏览/简历</span>
+              <span class="col-status">状态</span>
+            </div>
+            <div class="jd-table-body">
+              <div
+                v-for="jd in jdList"
+                :key="jd.id"
+                class="jd-table-row"
+                :class="{ selected: selectedJdIds.includes(jd.id) }"
+                @click="toggleJdSelection(jd.id)"
+              >
+                <span class="col-select">
+                  <div class="checkbox" :class="{ checked: selectedJdIds.includes(jd.id) }">
+                    <CheckCircle v-if="selectedJdIds.includes(jd.id)" :size="12" />
+                  </div>
+                </span>
+                <span class="col-name">
+                  <Briefcase :size="14" class="name-icon" />
+                  {{ jd.jobName }}
+                </span>
+                <span class="col-salary">{{ jd.salaryRange }}</span>
+                <span class="col-location">{{ jd.location }}</span>
+                <span class="col-exp">{{ jd.experience }}</span>
+                <span class="col-stats">
+                  <Eye :size="12" /> {{ jd.viewCount }}
+                  <span class="stats-divider">/</span>
+                  <FileUser :size="12" /> {{ jd.resumeCount }}
+                </span>
+                <span class="col-status">
+                  <span v-if="jd.isMonitoring" class="monitoring-badge">
+                    <Play :size="10" />
+                    监控中
+                  </span>
+                  <span v-else class="idle-badge">未监控</span>
+                </span>
+              </div>
             </div>
           </div>
-          <div class="form-hint warning">建议不超过50次/天，防止账号风控</div>
+
+          <div class="selection-summary">
+            已选择 <strong>{{ selectedJdIds.length }}</strong> 个岗位
+          </div>
         </div>
 
         <!-- Submit Button -->
-        <div class="submit-container">
-          <button class="submit-btn" @click="handleSubmit">
-            提交
+        <div v-if="authStatus === 'success'" class="submit-container">
+          <button
+            class="submit-btn"
+            :disabled="selectedJdIds.length === 0"
+            @click="handleSubmit"
+          >
+            开启智能招聘监控
           </button>
         </div>
       </div>
@@ -252,7 +325,7 @@ const handleSubmit = () => {
         <UserCheck :size="28" class="info-main-icon" />
       </div>
       <h3 class="info-title">Boss直聘招聘</h3>
-      <p class="info-desc">RPA自动化招聘助手，批量打招呼收简历</p>
+      <p class="info-desc">智能RPA招聘助手，自动筛选简历打招呼</p>
       <ul class="feature-list">
         <li v-for="(feature, index) in features" :key="index">
           <span class="bullet">●</span>
@@ -331,7 +404,7 @@ const handleSubmit = () => {
   gap: 4px;
 }
 
-.section-title {
+.template-section .section-title {
   font-size: 12px;
   color: #94a3b8;
   padding: 12px 0 8px 0;
@@ -409,249 +482,386 @@ const handleSubmit = () => {
 
 .form-content {
   max-width: 100%;
-  padding-right: 40px;
 }
 
-.form-group {
-  margin-bottom: 28px;
-  position: relative;
+/* Form Sections */
+.form-section {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
-.form-label {
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.section-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.auth-status {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 8px;
-}
-
-.required {
-  color: #ef4444;
-}
-
-.form-hint {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 8px;
-}
-
-.form-hint.warning {
-  color: #f59e0b;
-}
-
-/* Input wrapper */
-.input-wrapper {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-
-.form-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-}
-
-.form-input::placeholder {
-  color: #94a3b8;
-}
-
-.input-wrapper:focus-within {
-  border-color: #2563eb;
-}
-
-/* Select wrapper */
-.select-wrapper {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-
-.form-select {
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-  background: transparent;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-}
-
-.select-wrapper:focus-within {
-  border-color: #2563eb;
-}
-
-/* Textarea */
-.textarea-wrapper {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-
-.info-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px 16px;
-  padding-bottom: 32px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  resize: vertical;
-  outline: none;
-  font-family: inherit;
-}
-
-.info-textarea::placeholder {
-  color: #94a3b8;
-}
-
-.textarea-wrapper:focus-within {
-  border-color: #2563eb;
-}
-
-.char-count {
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
   font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.auth-status.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Auth Area */
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.auth-area.scanning {
+  flex-direction: column;
+  padding: 32px;
+}
+
+.auth-area.authenticated {
+  justify-content: space-between;
+}
+
+.qr-placeholder {
+  width: 80px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #94a3b8;
 }
 
-/* Language Cards (for 2-col selections) */
-.language-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.qr-code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
 }
 
-.language-card {
+.qr-code-inner {
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.scanning-indicator {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.auth-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-main {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.auth-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.auth-btn {
+  padding: 10px 24px;
+  background: #2563eb;
+  border: none;
   border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.auth-btn:hover {
+  background: #1d4ed8;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.account-company {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.change-account-btn {
+  padding: 8px 16px;
   background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #64748b;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.language-card:hover:not(.active) {
+.change-account-btn:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
 
-.language-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
+/* Section Actions */
+.section-actions {
+  display: flex;
+  gap: 8px;
 }
 
-.lang-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f1f5f9;
+.refresh-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.language-card.active .lang-icon {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.lang-label {
-  font-size: 14px;
-  color: #475569;
-}
-
-.language-card.active .lang-label {
-  color: #2563eb;
-  font-weight: 500;
-}
-
-/* Length Cards (for 3-col or 5-col selections) */
-.length-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.length-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 6px 12px;
   background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #64748b;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.length-card:hover:not(.active) {
+.refresh-btn:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
 
-.length-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
+/* JD Table */
+.jd-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.len-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
+.jd-table-header {
+  display: grid;
+  grid-template-columns: 40px 1.5fr 0.8fr 0.6fr 0.7fr 0.9fr 0.7fr;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
   color: #64748b;
 }
 
-.length-card.active .len-icon {
-  background: #dbeafe;
-  color: #2563eb;
+.jd-table-body {
+  max-height: 320px;
+  overflow-y: auto;
 }
 
-.len-label {
-  font-size: 14px;
-  color: #475569;
+.jd-table-row {
+  display: grid;
+  grid-template-columns: 40px 1.5fr 0.8fr 0.6fr 0.7fr 0.9fr 0.7fr;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.length-card.active .len-label {
-  color: #2563eb;
+.jd-table-row:last-child {
+  border-bottom: none;
+}
+
+.jd-table-row:hover {
+  background: #f8fafc;
+}
+
+.jd-table-row.selected {
+  background: #eff6ff;
+}
+
+.col-select {
+  display: flex;
+  justify-content: center;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.checkbox.checked {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.col-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 500;
+  color: #1e293b;
+}
+
+.name-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.col-salary {
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.col-location,
+.col-exp {
+  color: #64748b;
+}
+
+.col-stats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.stats-divider {
+  margin: 0 4px;
+  color: #cbd5e1;
+}
+
+.col-status {
+  display: flex;
+}
+
+.monitoring-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.idle-badge {
+  padding: 3px 8px;
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.selection-summary {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #64748b;
+  text-align: right;
+}
+
+.selection-summary strong {
+  color: #2563eb;
 }
 
 /* Submit */
 .submit-container {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 32px;
   padding-bottom: 40px;
 }
 
@@ -668,8 +878,31 @@ const handleSubmit = () => {
   transition: all 0.2s;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: #1d4ed8;
+}
+
+.submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Scrollbar */
+.jd-table-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jd-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.jd-table-body::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.jd-table-body::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 
 /* Right Info Sidebar */

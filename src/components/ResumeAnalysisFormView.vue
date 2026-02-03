@@ -8,18 +8,103 @@ import {
   Search,
   Upload,
   Flame,
-  X
+  X,
+  Plus,
+  Trash2,
+  FileText,
+  Briefcase,
+  MapPin,
+  GraduationCap,
+  Clock,
+  Check
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+// JD Library data structure
+interface JobDescription {
+  id: number;
+  jobName: string;
+  salaryRange: string;
+  location: string;
+  education: string;
+  experience: string;
+  skills: string[];
+  createdAt: string;
+}
+
 // Form data - support multiple resumes (max 50)
 const uploadedResumes = ref<File[]>([]);
 const maxResumes = 50;
-const selectedPosition = ref('');
-const positionRequirements = ref('');
-const requirementsMaxLength = 1000;
+const selectedJdId = ref<number | null>(null);
+
+// JD Library with mock data
+const jdLibrary = ref<JobDescription[]>([
+  {
+    id: 1,
+    jobName: 'Java开发工程师',
+    salaryRange: '25K-35K',
+    location: '上海',
+    education: '本科及以上',
+    experience: '3-5年',
+    skills: ['Java', 'Spring Boot', 'MySQL', '微服务'],
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 2,
+    jobName: '产品经理',
+    salaryRange: '30K-45K',
+    location: '上海',
+    education: '本科及以上',
+    experience: '5年以上',
+    skills: ['需求分析', '产品规划', '数据分析', 'Axure'],
+    createdAt: '2026-01-18'
+  },
+  {
+    id: 3,
+    jobName: '前端开发工程师',
+    salaryRange: '20K-30K',
+    location: '上海',
+    education: '本科及以上',
+    experience: '2-4年',
+    skills: ['Vue.js', 'React', 'TypeScript', 'CSS'],
+    createdAt: '2026-01-20'
+  },
+  {
+    id: 4,
+    jobName: '网络安全工程师',
+    salaryRange: '25K-40K',
+    location: '上海',
+    education: '本科及以上',
+    experience: '3-5年',
+    skills: ['渗透测试', '安全审计', 'CISP', '等保测评'],
+    createdAt: '2026-01-25'
+  },
+  {
+    id: 5,
+    jobName: 'UI设计师',
+    salaryRange: '15K-25K',
+    location: '上海',
+    education: '大专及以上',
+    experience: '2-3年',
+    skills: ['Figma', 'Sketch', '视觉设计', '交互设计'],
+    createdAt: '2026-02-01'
+  }
+]);
+
+// Add JD form data
+const showAddJdModal = ref(false);
+const addMode = ref<'manual' | 'paste'>('manual');
+const pasteContent = ref('');
+const newJd = ref({
+  jobName: '',
+  salaryRange: '',
+  location: '',
+  education: '',
+  experience: '',
+  skills: ''
+});
 
 const recentTools = [
   { icon: UserCheck, label: 'Boss招聘' },
@@ -35,6 +120,9 @@ const features = [
   '多维度人才画像呈现',
 ];
 
+const educationOptions = ['大专及以上', '本科及以上', '硕士及以上', '博士及以上'];
+const experienceOptions = ['不限', '1年以下', '1-3年', '2-4年', '3-5年', '5年以上', '10年以上'];
+
 const goBack = () => {
   router.push({ name: 'agents' });
 };
@@ -46,7 +134,7 @@ const handleResumeUpload = (event: Event) => {
     const remainingSlots = maxResumes - uploadedResumes.value.length;
     const filesToAdd = newFiles.slice(0, remainingSlots);
     uploadedResumes.value = [...uploadedResumes.value, ...filesToAdd];
-    target.value = ''; // Reset input for re-upload
+    target.value = '';
   }
 };
 
@@ -54,11 +142,92 @@ const removeResume = (index: number) => {
   uploadedResumes.value.splice(index, 1);
 };
 
+const openAddJdModal = () => {
+  showAddJdModal.value = true;
+  addMode.value = 'manual';
+  resetNewJdForm();
+};
+
+const closeAddJdModal = () => {
+  showAddJdModal.value = false;
+  resetNewJdForm();
+};
+
+const resetNewJdForm = () => {
+  newJd.value = {
+    jobName: '',
+    salaryRange: '',
+    location: '',
+    education: '',
+    experience: '',
+    skills: ''
+  };
+  pasteContent.value = '';
+};
+
+const parseJdFromText = () => {
+  if (!pasteContent.value.trim()) return;
+
+  // Mock parsing - in real implementation, this would use AI to parse
+  const text = pasteContent.value;
+
+  // Simple pattern matching for demo
+  const jobNameMatch = text.match(/岗位[名称]*[:：]\s*(.+?)[\n,，]/);
+  const salaryMatch = text.match(/薪[资酬][范围]*[:：]\s*(.+?)[\n,，]/);
+  const locationMatch = text.match(/[工作]*地[点址][:：]\s*(.+?)[\n,，]/);
+  const educationMatch = text.match(/学历[要求]*[:：]\s*(.+?)[\n,，]/);
+  const experienceMatch = text.match(/[工作]*经验[要求]*[:：]\s*(.+?)[\n,，]/);
+
+  newJd.value.jobName = jobNameMatch?.[1]?.trim() || '';
+  newJd.value.salaryRange = salaryMatch?.[1]?.trim() || '';
+  newJd.value.location = locationMatch?.[1]?.trim() || '上海';
+  newJd.value.education = educationMatch?.[1]?.trim() || '';
+  newJd.value.experience = experienceMatch?.[1]?.trim() || '';
+
+  // Extract skills from keywords
+  const skillKeywords = ['Java', 'Python', 'Vue', 'React', 'Spring', 'MySQL', 'AI', '大数据', '产品', '设计', '安全', '测试'];
+  const foundSkills = skillKeywords.filter(skill => text.includes(skill));
+  newJd.value.skills = foundSkills.join('、');
+
+  addMode.value = 'manual';
+};
+
+const addJdToLibrary = () => {
+  if (!newJd.value.jobName.trim()) return;
+
+  const skillsArray = newJd.value.skills.split(/[,，、]/).map(s => s.trim()).filter(s => s);
+
+  jdLibrary.value.unshift({
+    id: Date.now(),
+    jobName: newJd.value.jobName.trim(),
+    salaryRange: newJd.value.salaryRange.trim() || '面议',
+    location: newJd.value.location.trim() || '上海',
+    education: newJd.value.education || '本科及以上',
+    experience: newJd.value.experience || '不限',
+    skills: skillsArray.length > 0 ? skillsArray : ['待补充'],
+    createdAt: new Date().toISOString().split('T')[0]
+  });
+
+  closeAddJdModal();
+};
+
+const removeJd = (id: number) => {
+  jdLibrary.value = jdLibrary.value.filter(jd => jd.id !== id);
+  if (selectedJdId.value === id) {
+    selectedJdId.value = null;
+  }
+};
+
+const selectJd = (id: number) => {
+  selectedJdId.value = selectedJdId.value === id ? null : id;
+};
+
 const handleSubmit = () => {
+  const selectedJd = jdLibrary.value.find(jd => jd.id === selectedJdId.value);
   router.push({
     name: 'resume-analysis-result',
     query: {
-      position: selectedPosition.value,
+      position: selectedJd?.jobName || '',
       fileCount: uploadedResumes.value.length
     }
   });
@@ -108,11 +277,13 @@ const handleSubmit = () => {
 
       <div class="form-content">
         <!-- 上传简历 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 上传简历
-            <span class="upload-count">（{{ uploadedResumes.length }}/{{ maxResumes }}）</span>
-          </label>
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span class="required">*</span> 上传简历
+              <span class="upload-count">（{{ uploadedResumes.length }}/{{ maxResumes }}）</span>
+            </h3>
+          </div>
           <label class="upload-area" :class="{ 'has-files': uploadedResumes.length > 0 }">
             <input type="file" @change="handleResumeUpload" accept=".pdf,.doc,.docx" hidden multiple />
             <Upload :size="32" />
@@ -133,37 +304,73 @@ const handleSubmit = () => {
           </div>
         </div>
 
-        <!-- 目标岗位 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 目标岗位
-          </label>
-          <input
-            v-model="selectedPosition"
-            type="text"
-            class="position-input"
-            placeholder="请输入目标岗位名称，如：项目经理、安全工程师等"
-          />
-        </div>
+        <!-- JD Library -->
+        <div class="form-section jd-library-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <span class="required">*</span> 选择目标岗位
+            </h3>
+            <button class="add-jd-btn" @click="openAddJdModal">
+              <Plus :size="16" />
+              添加 JD
+            </button>
+          </div>
+          <p class="section-hint">从 JD 库中选择目标岗位，用于简历匹配分析</p>
 
-        <!-- 岗位要求描述 -->
-        <div class="form-group">
-          <label class="form-label">岗位要求描述</label>
-          <div class="textarea-wrapper">
-            <textarea
-              v-model="positionRequirements"
-              class="info-textarea"
-              :maxlength="requirementsMaxLength"
-              placeholder="请输入该岗位的具体要求，如：学历要求、工作经验、专业技能、证书要求等"
-            ></textarea>
-            <span class="char-count">{{ positionRequirements.length }} / {{ requirementsMaxLength }}</span>
+          <div class="jd-table">
+            <div class="jd-table-header">
+              <span class="col-select"></span>
+              <span class="col-name">岗位名称</span>
+              <span class="col-salary">薪资范围</span>
+              <span class="col-location">工作地点</span>
+              <span class="col-education">学历要求</span>
+              <span class="col-experience">经验要求</span>
+              <span class="col-skills">技能要求</span>
+              <span class="col-action">操作</span>
+            </div>
+            <div class="jd-table-body">
+              <div
+                v-for="jd in jdLibrary"
+                :key="jd.id"
+                class="jd-table-row"
+                :class="{ selected: selectedJdId === jd.id }"
+                @click="selectJd(jd.id)"
+              >
+                <span class="col-select">
+                  <div class="jd-radio" :class="{ checked: selectedJdId === jd.id }">
+                    <Check v-if="selectedJdId === jd.id" :size="12" />
+                  </div>
+                </span>
+                <span class="col-name">
+                  <Briefcase :size="14" class="name-icon" />
+                  {{ jd.jobName }}
+                </span>
+                <span class="col-salary">{{ jd.salaryRange }}</span>
+                <span class="col-location">{{ jd.location }}</span>
+                <span class="col-education">{{ jd.education }}</span>
+                <span class="col-experience">{{ jd.experience }}</span>
+                <span class="col-skills">
+                  <span v-for="skill in jd.skills.slice(0, 3)" :key="skill" class="skill-tag">{{ skill }}</span>
+                  <span v-if="jd.skills.length > 3" class="skill-more">+{{ jd.skills.length - 3 }}</span>
+                </span>
+                <span class="col-action">
+                  <button class="jd-delete-btn" @click.stop="removeJd(jd.id)">
+                    <Trash2 :size="14" />
+                  </button>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Submit Button -->
         <div class="submit-container">
-          <button class="submit-btn" @click="handleSubmit">
-            提交
+          <button
+            class="submit-btn"
+            :disabled="uploadedResumes.length === 0 || !selectedJdId"
+            @click="handleSubmit"
+          >
+            开始分析
           </button>
         </div>
       </div>
@@ -183,6 +390,128 @@ const handleSubmit = () => {
         </li>
       </ul>
     </aside>
+
+    <!-- Add JD Modal -->
+    <div v-if="showAddJdModal" class="modal-overlay" @click.self="closeAddJdModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>添加岗位 JD</h3>
+          <button class="modal-close" @click="closeAddJdModal">
+            <X :size="20" />
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Mode Switch -->
+          <div class="mode-switch">
+            <button
+              class="mode-btn"
+              :class="{ active: addMode === 'manual' }"
+              @click="addMode = 'manual'"
+            >
+              手动录入
+            </button>
+            <button
+              class="mode-btn"
+              :class="{ active: addMode === 'paste' }"
+              @click="addMode = 'paste'"
+            >
+              粘贴解析
+            </button>
+          </div>
+
+          <!-- Paste Mode -->
+          <div v-if="addMode === 'paste'" class="paste-section">
+            <textarea
+              v-model="pasteContent"
+              class="paste-textarea"
+              placeholder="粘贴招聘信息内容，AI 将自动解析为标准 JD 格式...
+
+示例格式：
+岗位名称：Java开发工程师
+薪资范围：25K-35K
+工作地点：上海
+学历要求：本科及以上
+经验要求：3-5年
+技能要求：Java, Spring Boot, MySQL..."
+            ></textarea>
+            <button class="parse-btn" @click="parseJdFromText" :disabled="!pasteContent.trim()">
+              解析内容
+            </button>
+          </div>
+
+          <!-- Manual Form -->
+          <div v-if="addMode === 'manual'" class="manual-form">
+            <div class="form-row">
+              <label class="form-label-sm">
+                <span class="required">*</span> 岗位名称
+              </label>
+              <input
+                v-model="newJd.jobName"
+                type="text"
+                class="form-input-sm"
+                placeholder="如：Java开发工程师"
+              />
+            </div>
+
+            <div class="form-row-2col">
+              <div class="form-row">
+                <label class="form-label-sm">薪资范围</label>
+                <input
+                  v-model="newJd.salaryRange"
+                  type="text"
+                  class="form-input-sm"
+                  placeholder="如：25K-35K"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label-sm">工作地点</label>
+                <input
+                  v-model="newJd.location"
+                  type="text"
+                  class="form-input-sm"
+                  placeholder="如：上海"
+                />
+              </div>
+            </div>
+
+            <div class="form-row-2col">
+              <div class="form-row">
+                <label class="form-label-sm">学历要求</label>
+                <select v-model="newJd.education" class="form-select-sm">
+                  <option value="">请选择</option>
+                  <option v-for="edu in educationOptions" :key="edu" :value="edu">{{ edu }}</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label-sm">经验要求</label>
+                <select v-model="newJd.experience" class="form-select-sm">
+                  <option value="">请选择</option>
+                  <option v-for="exp in experienceOptions" :key="exp" :value="exp">{{ exp }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label-sm">技能要求</label>
+              <input
+                v-model="newJd.skills"
+                type="text"
+                class="form-input-sm"
+                placeholder="多个技能用逗号分隔，如：Java, Spring Boot, MySQL"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeAddJdModal">取消</button>
+          <button class="btn-confirm" @click="addJdToLibrary" :disabled="!newJd.jobName.trim()">
+            添加到 JD 库
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -254,7 +583,7 @@ const handleSubmit = () => {
   gap: 4px;
 }
 
-.section-title {
+.template-section .section-title {
   font-size: 12px;
   color: #94a3b8;
   padding: 12px 0 8px 0;
@@ -332,26 +661,48 @@ const handleSubmit = () => {
 
 .form-content {
   max-width: 100%;
-  padding-right: 40px;
 }
 
-.form-group {
-  margin-bottom: 28px;
-  position: relative;
+/* Form Sections */
+.form-section {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
-.form-label {
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.section-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px 0;
 }
 
 .required {
   color: #ef4444;
+}
+
+.upload-count {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 13px;
 }
 
 /* Upload Area */
@@ -390,21 +741,6 @@ const handleSubmit = () => {
   font-size: 12px;
   color: #94a3b8;
   margin-top: 4px;
-}
-
-.upload-file {
-  margin-top: 12px;
-  padding: 6px 12px;
-  background: #dcfce7;
-  color: #16a34a;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.upload-count {
-  font-weight: 400;
-  color: #64748b;
-  font-size: 13px;
 }
 
 /* Uploaded files list */
@@ -453,126 +789,195 @@ const handleSubmit = () => {
   color: #ef4444;
 }
 
-/* Position Input */
-.position-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.position-input:focus {
-  border-color: #2563eb;
-}
-
-.position-input::placeholder {
-  color: #94a3b8;
-}
-
-/* Textarea */
-.textarea-wrapper {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-
-.info-textarea {
-  width: 100%;
-  min-height: 120px;
-  padding: 12px 16px;
-  padding-bottom: 32px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  resize: vertical;
-  outline: none;
-  font-family: inherit;
-}
-
-.info-textarea::placeholder {
-  color: #94a3b8;
-}
-
-.textarea-wrapper:focus-within {
-  border-color: #2563eb;
-}
-
-.char-count {
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-/* Length Cards (for position selections) */
-.length-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.length-card {
+/* JD Library */
+.add-jd-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #2563eb;
+  border: none;
   border-radius: 8px;
-  background: white;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.length-card:hover:not(.active) {
+.add-jd-btn:hover {
+  background: #1d4ed8;
+}
+
+/* JD Table */
+.jd-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.jd-table-header {
+  display: grid;
+  grid-template-columns: 40px 1.2fr 0.8fr 0.7fr 0.8fr 0.7fr 1.2fr 50px;
+  gap: 12px;
+  padding: 12px 16px;
   background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.length-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-}
-
-.len-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: #64748b;
 }
 
-.length-card.active .len-icon {
-  background: #dbeafe;
-  color: #2563eb;
+.jd-table-body {
+  max-height: 320px;
+  overflow-y: auto;
 }
 
-.len-label {
-  font-size: 14px;
+.jd-table-row {
+  display: grid;
+  grid-template-columns: 40px 1.2fr 0.8fr 0.7fr 0.8fr 0.7fr 1.2fr 50px;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.jd-table-row:last-child {
+  border-bottom: none;
+}
+
+.jd-table-row:hover {
+  background: #f8fafc;
+}
+
+.jd-table-row.selected {
+  background: #eff6ff;
+}
+
+.col-select {
+  display: flex;
+  justify-content: center;
+}
+
+.jd-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.jd-radio.checked {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.col-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.name-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.col-salary {
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.col-location,
+.col-education,
+.col-experience {
+  color: #64748b;
+}
+
+.col-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.skill-tag {
+  padding: 2px 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 11px;
   color: #475569;
 }
 
-.length-card.active .len-label {
-  color: #2563eb;
-  font-weight: 500;
+.jd-table-row.selected .skill-tag {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.skill-more {
+  padding: 2px 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.col-action {
+  display: flex;
+  justify-content: center;
+}
+
+.jd-delete-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.jd-delete-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+/* Scrollbar styling */
+.jd-table-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jd-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.jd-table-body::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.jd-table-body::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 
 /* Submit */
 .submit-container {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 32px;
   padding-bottom: 40px;
 }
 
@@ -589,8 +994,13 @@ const handleSubmit = () => {
   transition: all 0.2s;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: #1d4ed8;
+}
+
+.submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
 /* Right Info Sidebar */
@@ -650,5 +1060,241 @@ const handleSubmit = () => {
   color: #2563eb;
   font-size: 8px;
   margin-top: 5px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 560px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Mode Switch */
+.mode-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover:not(.active) {
+  background: #f8fafc;
+}
+
+.mode-btn.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* Paste Section */
+.paste-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.paste-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+
+.paste-textarea:focus {
+  border-color: #2563eb;
+}
+
+.paste-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.parse-btn {
+  align-self: flex-end;
+  padding: 10px 20px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.parse-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.parse-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Manual Form */
+.manual-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-label-sm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.form-input-sm,
+.form-select-sm {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input-sm:focus,
+.form-select-sm:focus {
+  border-color: #2563eb;
+}
+
+.form-input-sm::placeholder {
+  color: #94a3b8;
+}
+
+/* Modal Buttons */
+.btn-cancel {
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f8fafc;
+}
+
+.btn-confirm {
+  padding: 10px 20px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn-confirm:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 </style>

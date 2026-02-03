@@ -8,55 +8,41 @@ import {
   Search,
   Upload,
   Flame,
-  ChevronDown,
-  ChevronUp
+  Plus,
+  Trash2,
+  FileText,
+  X,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// Form data
-const jobName = ref('');
-const jobNameMaxLength = 50;
-const jobType = ref('');
-const experienceRange = ref('');
-const selectedRegions = ref<string[]>([]);
-const selectedSources = ref<string[]>([]);
-const benchmarkMode = ref('upload');
-const uploadedFile = ref<File | null>(null);
-const regionExpanded = ref(false);
+// Form data for manual entry
+const newJobName = ref('');
+const newSalary = ref('');
 
-const allRegions = ['北京', '上海', '深圳', '广州', '杭州', '成都', '南京', '武汉', '西安', '苏州', '天津', '重庆'];
-const defaultRegions = allRegions.slice(0, 6);
+// Uploaded file
+const uploadedFile = ref<File | null>(null);
+
+// Mock data for monitored positions
+const monitoredPositions = ref([
+  { id: 1, jobName: 'Java开发工程师', salary: 25000, marketAvg: 28000, region: '上海', addedDate: '2026-01-15' },
+  { id: 2, jobName: '产品经理', salary: 30000, marketAvg: 32000, region: '上海', addedDate: '2026-01-18' },
+  { id: 3, jobName: '前端开发工程师', salary: 22000, marketAvg: 24000, region: '上海', addedDate: '2026-01-20' },
+  { id: 4, jobName: 'UI设计师', salary: 18000, marketAvg: 17000, region: '上海', addedDate: '2026-01-22' },
+  { id: 5, jobName: '数据分析师', salary: 26000, marketAvg: 27500, region: '上海', addedDate: '2026-01-25' },
+  { id: 6, jobName: '运维工程师', salary: 20000, marketAvg: 21000, region: '上海', addedDate: '2026-01-28' },
+  { id: 7, jobName: '测试工程师', salary: 18000, marketAvg: 19000, region: '上海', addedDate: '2026-02-01' },
+  { id: 8, jobName: '人力资源经理', salary: 25000, marketAvg: 26000, region: '上海', addedDate: '2026-02-03' },
+]);
 
 const recentTools = [
   { icon: UserCheck, label: 'Boss招聘' },
   { icon: FileUser, label: '简历分析' },
   { icon: DollarSign, label: '薪酬调查' },
-];
-
-const jobTypeOptions = [
-  { key: 'tech', icon: '技', label: '技术类' },
-  { key: 'sales', icon: '销', label: '销售类' },
-  { key: 'admin', icon: '职', label: '职能类' },
-  { key: 'management', icon: '管', label: '管理类' },
-];
-
-const experienceOptions = [
-  { key: '0-3', icon: '初', label: '0-3年' },
-  { key: '3-5', icon: '3-5', label: '3-5年' },
-  { key: '5-10', icon: '5+', label: '5-10年' },
-  { key: '10+', icon: '10+', label: '10年以上' },
-];
-
-const sourceOptions = [
-  { key: 'boss', icon: 'B', label: 'BOSS直聘' },
-  { key: 'liepin', icon: '猎', label: '猎聘' },
-];
-
-const benchmarkOptions = [
-  { key: 'upload', icon: '传', label: '上传Excel文件' },
-  { key: 'skip', icon: '跳', label: '暂不对标' },
 ];
 
 const features = [
@@ -71,37 +57,78 @@ const goBack = () => {
   router.push({ name: 'agents' });
 };
 
-const toggleRegion = (key: string) => {
-  const index = selectedRegions.value.indexOf(key);
-  if (index > -1) {
-    selectedRegions.value.splice(index, 1);
-  } else {
-    selectedRegions.value.push(key);
-  }
+const addPosition = () => {
+  if (!newJobName.value.trim() || !newSalary.value.trim()) return;
+
+  const salary = parseInt(newSalary.value);
+  if (isNaN(salary)) return;
+
+  // Mock market average (random variation around input salary)
+  const marketAvg = Math.round(salary * (0.9 + Math.random() * 0.2));
+
+  monitoredPositions.value.unshift({
+    id: Date.now(),
+    jobName: newJobName.value.trim(),
+    salary: salary,
+    marketAvg: marketAvg,
+    region: '上海',
+    addedDate: new Date().toISOString().split('T')[0],
+  });
+
+  newJobName.value = '';
+  newSalary.value = '';
 };
 
-const toggleSource = (key: string) => {
-  const index = selectedSources.value.indexOf(key);
-  if (index > -1) {
-    selectedSources.value.splice(index, 1);
-  } else {
-    selectedSources.value.push(key);
-  }
+const removePosition = (id: number) => {
+  monitoredPositions.value = monitoredPositions.value.filter(p => p.id !== id);
 };
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     uploadedFile.value = target.files[0];
+    // Mock: add some positions from the "uploaded file"
+    const mockImportData = [
+      { jobName: '架构师', salary: 45000 },
+      { jobName: '技术总监', salary: 55000 },
+      { jobName: '项目经理', salary: 35000 },
+    ];
+    mockImportData.forEach((item, index) => {
+      setTimeout(() => {
+        const marketAvg = Math.round(item.salary * (0.9 + Math.random() * 0.2));
+        monitoredPositions.value.unshift({
+          id: Date.now() + index,
+          jobName: item.jobName,
+          salary: item.salary,
+          marketAvg: marketAvg,
+          region: '上海',
+          addedDate: new Date().toISOString().split('T')[0],
+        });
+      }, 500 * (index + 1));
+    });
   }
+};
+
+const removeFile = () => {
+  uploadedFile.value = null;
+};
+
+const getSalaryDiff = (salary: number, marketAvg: number) => {
+  return ((salary - marketAvg) / marketAvg * 100).toFixed(1);
+};
+
+const getSalaryStatus = (salary: number, marketAvg: number) => {
+  const diff = (salary - marketAvg) / marketAvg;
+  if (diff > 0.05) return 'high';
+  if (diff < -0.05) return 'low';
+  return 'normal';
 };
 
 const handleSubmit = () => {
   router.push({
     name: 'salary-survey-result',
     query: {
-      job: jobName.value,
-      regions: selectedRegions.value.join(','),
+      count: monitoredPositions.value.length.toString(),
     },
   });
 };
@@ -144,140 +171,121 @@ const handleSubmit = () => {
         </div>
         <div class="form-title-area">
           <h1 class="form-title">岗位薪酬调查</h1>
-          <p class="form-subtitle">智能爬取全网薪酬数据，生成多维度薪酬对标报告</p>
+          <p class="form-subtitle">录入公司岗位薪资，智能对标市场薪酬水平</p>
         </div>
       </div>
 
       <div class="form-content">
-        <!-- 岗位名称 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 岗位名称
-          </label>
-          <div class="input-wrapper">
-            <input
-              v-model="jobName"
-              type="text"
-              class="form-input"
-              :maxlength="jobNameMaxLength"
-              placeholder="如：Java开发工程师"
-            />
-          </div>
-        </div>
+        <!-- 添加岗位区域 -->
+        <div class="add-section">
+          <h3 class="section-title">添加监控岗位</h3>
 
-        <!-- 岗位类型 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 岗位类型
-          </label>
-          <div class="four-col-cards">
-            <div
-              v-for="opt in jobTypeOptions"
-              :key="opt.key"
-              class="language-card"
-              :class="{ active: jobType === opt.key }"
-              @click="jobType = opt.key"
-            >
-              <span class="lang-icon">{{ opt.icon }}</span>
-              <span class="lang-label">{{ opt.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 工作年限 -->
-        <div class="form-group">
-          <label class="form-label">工作年限范围</label>
-          <div class="four-col-cards">
-            <div
-              v-for="exp in experienceOptions"
-              :key="exp.key"
-              class="language-card"
-              :class="{ active: experienceRange === exp.key }"
-              @click="experienceRange = exp.key"
-            >
-              <span class="lang-icon">{{ exp.icon }}</span>
-              <span class="lang-label">{{ exp.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 地区选择 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 地区选择（可多选）
-          </label>
-          <div class="region-selector">
-            <div class="region-btns">
-              <button
-                v-for="region in (regionExpanded ? allRegions : defaultRegions)"
-                :key="region"
-                class="region-btn"
-                :class="{ active: selectedRegions.includes(region) }"
-                @click="toggleRegion(region)"
-              >
-                {{ region }}
+          <!-- 手动录入 -->
+          <div class="manual-entry">
+            <div class="entry-row">
+              <div class="entry-field">
+                <label class="field-label">目标岗位</label>
+                <input
+                  v-model="newJobName"
+                  type="text"
+                  class="field-input"
+                  placeholder="如：Java开发工程师"
+                />
+              </div>
+              <div class="entry-field salary-field">
+                <label class="field-label">实际薪资（月薪）</label>
+                <div class="salary-input-wrapper">
+                  <input
+                    v-model="newSalary"
+                    type="number"
+                    class="field-input"
+                    placeholder="如：25000"
+                  />
+                  <span class="salary-unit">元/月</span>
+                </div>
+              </div>
+              <button class="add-btn" @click="addPosition" :disabled="!newJobName.trim() || !newSalary.trim()">
+                <Plus :size="18" />
+                添加
               </button>
-              <button class="region-btn expand-btn" @click="regionExpanded = !regionExpanded">
-                <ChevronDown v-if="!regionExpanded" :size="14" />
-                <ChevronUp v-else :size="14" />
+            </div>
+          </div>
+
+          <!-- 分隔线 -->
+          <div class="divider">
+            <span class="divider-text">或</span>
+          </div>
+
+          <!-- 批量导入 -->
+          <div class="batch-import">
+            <label v-if="!uploadedFile" class="upload-area">
+              <input type="file" @change="handleFileUpload" accept=".xlsx,.xls" hidden />
+              <Upload :size="24" />
+              <div class="upload-text">
+                <span class="upload-main">上传Excel批量导入</span>
+                <span class="upload-hint">支持 .xlsx, .xls 格式，需包含岗位名称和薪资列</span>
+              </div>
+            </label>
+            <div v-else class="uploaded-file-card">
+              <div class="file-info">
+                <FileText :size="24" class="file-icon" />
+                <div class="file-details">
+                  <span class="file-name">{{ uploadedFile.name }}</span>
+                  <span class="file-size">{{ (uploadedFile.size / 1024).toFixed(1) }} KB</span>
+                </div>
+              </div>
+              <button class="remove-file-btn" @click="removeFile">
+                <X :size="18" />
               </button>
             </div>
           </div>
         </div>
 
-        <!-- 数据来源 -->
-        <div class="form-group">
-          <label class="form-label">
-            <span class="required">*</span> 数据来源（可多选）
-          </label>
-          <div class="language-cards">
-            <div
-              v-for="source in sourceOptions"
-              :key="source.key"
-              class="language-card"
-              :class="{ active: selectedSources.includes(source.key) }"
-              @click="toggleSource(source.key)"
-            >
-              <span class="lang-icon">{{ source.icon }}</span>
-              <span class="lang-label">{{ source.label }}</span>
+        <!-- 已录入岗位列表 -->
+        <div class="positions-section">
+          <div class="section-header">
+            <h3 class="section-title">监控岗位列表</h3>
+            <span class="position-count">共 {{ monitoredPositions.length }} 个岗位</span>
+          </div>
+
+          <div class="positions-table">
+            <div class="table-header">
+              <span class="col-job">岗位名称</span>
+              <span class="col-salary">实际薪资</span>
+              <span class="col-market">市场均值</span>
+              <span class="col-diff">差异</span>
+              <span class="col-date">添加日期</span>
+              <span class="col-action">操作</span>
+            </div>
+            <div class="table-body">
+              <div v-for="position in monitoredPositions" :key="position.id" class="table-row">
+                <span class="col-job">
+                  <DollarSign :size="16" class="job-icon" />
+                  {{ position.jobName }}
+                </span>
+                <span class="col-salary">¥{{ position.salary.toLocaleString() }}</span>
+                <span class="col-market">¥{{ position.marketAvg.toLocaleString() }}</span>
+                <span class="col-diff" :class="'status-' + getSalaryStatus(position.salary, position.marketAvg)">
+                  <TrendingUp v-if="getSalaryStatus(position.salary, position.marketAvg) === 'high'" :size="14" />
+                  <TrendingDown v-else-if="getSalaryStatus(position.salary, position.marketAvg) === 'low'" :size="14" />
+                  <Minus v-else :size="14" />
+                  {{ getSalaryDiff(position.salary, position.marketAvg) }}%
+                </span>
+                <span class="col-date">{{ position.addedDate }}</span>
+                <span class="col-action">
+                  <button class="delete-btn" @click="removePosition(position.id)">
+                    <Trash2 :size="14" />
+                  </button>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- 对标配置 -->
-        <div class="form-group">
-          <label class="form-label">对标配置（可选）</label>
-          <div class="language-cards">
-            <div
-              v-for="opt in benchmarkOptions"
-              :key="opt.key"
-              class="language-card"
-              :class="{ active: benchmarkMode === opt.key }"
-              @click="benchmarkMode = opt.key"
-            >
-              <span class="lang-icon">{{ opt.icon }}</span>
-              <span class="lang-label">{{ opt.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 上传文件 -->
-        <div v-if="benchmarkMode === 'upload'" class="form-group">
-          <label class="upload-area">
-            <input type="file" @change="handleFileUpload" accept=".xlsx,.xls" hidden />
-            <Upload :size="32" />
-            <div class="upload-text">
-              <span class="upload-main">点击上传公司薪酬数据</span>
-              <span class="upload-hint">支持 .xlsx, .xls 格式</span>
-            </div>
-            <span v-if="uploadedFile" class="upload-file">{{ uploadedFile.name }}</span>
-          </label>
         </div>
 
         <!-- Submit Button -->
         <div class="submit-container">
-          <button class="submit-btn" @click="handleSubmit">
-            提交
+          <button class="submit-btn" @click="handleSubmit" :disabled="monitoredPositions.length === 0">
+            生成薪酬对标报告
           </button>
         </div>
       </div>
@@ -368,7 +376,7 @@ const handleSubmit = () => {
   gap: 4px;
 }
 
-.section-title {
+.template-section .section-title {
   font-size: 12px;
   color: #94a3b8;
   padding: 12px 0 8px 0;
@@ -446,66 +454,141 @@ const handleSubmit = () => {
 
 .form-content {
   max-width: 100%;
-  padding-right: 40px;
 }
 
-.form-group {
-  margin-bottom: 28px;
-  position: relative;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 8px;
-}
-
-.required {
-  color: #ef4444;
-}
-
-/* Input wrapper */
-.input-wrapper {
-  position: relative;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+/* Add Section */
+.add-section {
   background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
-.form-input {
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.manual-entry {
+  margin-bottom: 20px;
+}
+
+.entry-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.entry-field {
+  flex: 1;
+}
+
+.entry-field.salary-field {
+  flex: 0.8;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.field-input {
   width: 100%;
-  padding: 12px 16px;
-  border: none;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
   color: #334155;
   outline: none;
+  transition: border-color 0.2s;
 }
 
-.form-input::placeholder {
-  color: #94a3b8;
-}
-
-.input-wrapper:focus-within {
+.field-input:focus {
   border-color: #2563eb;
 }
 
-/* Upload Area */
-.upload-area {
+.field-input::placeholder {
+  color: #94a3b8;
+}
+
+.salary-input-wrapper {
+  position: relative;
+}
+
+.salary-input-wrapper .field-input {
+  padding-right: 60px;
+}
+
+.salary-unit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.add-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 32px;
-  border: 2px dashed #e2e8f0;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 12px 24px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  text-align: center;
+  white-space: nowrap;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.add-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.divider-text {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* Batch Import */
+.upload-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
   color: #64748b;
 }
 
@@ -517,7 +600,7 @@ const handleSubmit = () => {
 .upload-text {
   display: flex;
   flex-direction: column;
-  margin-top: 12px;
+  gap: 2px;
 }
 
 .upload-main {
@@ -529,189 +612,211 @@ const handleSubmit = () => {
 .upload-hint {
   font-size: 12px;
   color: #94a3b8;
-  margin-top: 4px;
 }
 
-.upload-file {
-  margin-top: 12px;
-  padding: 6px 12px;
-  background: #dcfce7;
-  color: #16a34a;
-  border-radius: 6px;
+/* Uploaded file card */
+.uploaded-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.uploaded-file-card .file-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.uploaded-file-card .file-icon {
+  color: #3b82f6;
+}
+
+.uploaded-file-card .file-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.uploaded-file-card .file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.uploaded-file-card .file-size {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.uploaded-file-card .remove-file-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploaded-file-card .remove-file-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+/* Positions Section */
+.positions-section {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-header .section-title {
+  margin: 0;
+}
+
+.position-count {
+  font-size: 13px;
+  color: #64748b;
+  padding: 4px 12px;
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+/* Positions Table */
+.positions-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.8fr 1fr 0.5fr;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.table-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.8fr 1fr 0.5fr;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  font-size: 14px;
+  color: #334155;
+  transition: background 0.15s;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: #f8fafc;
+}
+
+.col-job {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.job-icon {
+  color: #3b82f6;
+}
+
+.col-salary {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.col-market {
+  color: #64748b;
+}
+
+.col-diff {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
   font-size: 13px;
 }
 
-/* Language Cards (for 2-col selections) */
-.language-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.col-diff.status-high {
+  color: #16a34a;
 }
 
-/* Four Column Cards */
-.four-col-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+.col-diff.status-low {
+  color: #dc2626;
 }
 
-/* Region Selector */
-.region-selector {
-  width: 100%;
+.col-diff.status-normal {
+  color: #64748b;
 }
 
-.region-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.region-btn {
-  padding: 10px 20px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  color: #475569;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.region-btn:hover:not(.active):not(.expand-btn) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.region-btn.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.region-btn.expand-btn {
-  padding: 10px 14px;
-  border-style: dashed;
+.col-date {
   color: #94a3b8;
+  font-size: 13px;
 }
 
-.region-btn.expand-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+.col-action {
+  display: flex;
+  justify-content: center;
 }
 
-.language-card {
+.delete-btn {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  justify-content: center;
+  background: transparent;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
+  border-radius: 6px;
+  color: #94a3b8;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.language-card:hover:not(.active) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.language-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-}
-
-.lang-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.language-card.active .lang-icon {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.lang-label {
-  font-size: 14px;
-  color: #475569;
-}
-
-.language-card.active .lang-label {
-  color: #2563eb;
-  font-weight: 500;
-}
-
-/* Length Cards (for 3-col selections) */
-.length-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.length-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.length-card:hover:not(.active) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.length-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-}
-
-.len-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.length-card.active .len-icon {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.len-label {
-  font-size: 14px;
-  color: #475569;
-}
-
-.length-card.active .len-label {
-  color: #2563eb;
-  font-weight: 500;
+.delete-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #ef4444;
 }
 
 /* Submit */
 .submit-container {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 32px;
   padding-bottom: 40px;
 }
 
@@ -728,8 +833,13 @@ const handleSubmit = () => {
   transition: all 0.2s;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: #1d4ed8;
+}
+
+.submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
 /* Right Info Sidebar */
@@ -789,5 +899,23 @@ const handleSubmit = () => {
   color: #2563eb;
   font-size: 8px;
   margin-top: 5px;
+}
+
+/* Scrollbar styling */
+.table-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-body::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.table-body::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
 </style>

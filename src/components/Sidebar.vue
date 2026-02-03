@@ -9,7 +9,8 @@ import {
   Building2,
   FileText,
   Users,
-  Newspaper
+  Newspaper,
+  Bell
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -34,6 +35,12 @@ const isActive = (routeName: string) => {
 const isBidSearchActive = computed(() => {
   const bidRoutes = ['enterprise-search', 'bid-center', 'bid-info-form', 'bid-info-daily', 'bid-analysis-form', 'bid-analysis-result', 'bid-doc-form', 'bid-doc-result'];
   return bidRoutes.includes(route.name as string);
+});
+
+// 检查标讯订阅是否处于激活状态
+const isBidSubscriptionActive = computed(() => {
+  const subscriptionRoutes = ['bid-daily-report'];
+  return subscriptionRoutes.includes(route.name as string);
 });
 </script>
 
@@ -64,11 +71,21 @@ const isBidSearchActive = computed(() => {
       <!-- 标讯搜索 -->
       <div
         class="nav-item"
-        :class="{ active: isBidSearchActive }"
+        :class="{ active: isActive('enterprise-search') }"
         @click="handleItemClick('enterprise-search')"
       >
         <Newspaper :size="18" class="nav-icon" />
         <span class="nav-label">标讯搜索</span>
+      </div>
+
+      <!-- 标讯订阅 -->
+      <div
+        class="nav-item"
+        :class="{ active: isBidSubscriptionActive }"
+        @click="handleItemClick('bid-subscription')"
+      >
+        <Bell :size="18" class="nav-icon" />
+        <span class="nav-label">标讯订阅</span>
       </div>
 
       <!-- AI对话 -->

@@ -19,9 +19,8 @@ const route = useRoute();
 const projectTitle = ref(route.query.title as string || '');
 const preloadedFileName = ref(route.query.fileName as string || '');
 
-// Support multiple files (batch upload)
-const uploadedFiles = ref<File[]>([]);
-const maxFiles = 50;
+// 只支持上传一套招标文件
+const uploadedFile = ref<File | null>(null);
 const additionalInfo = ref('');
 const maxLength = 5000;
 
@@ -52,16 +51,13 @@ const goBack = () => {
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    const newFiles = Array.from(target.files);
-    const remainingSlots = maxFiles - uploadedFiles.value.length;
-    const filesToAdd = newFiles.slice(0, remainingSlots);
-    uploadedFiles.value = [...uploadedFiles.value, ...filesToAdd];
-    target.value = ''; // Reset input for re-upload
+    uploadedFile.value = target.files[0];
+    target.value = '';
   }
 };
 
-const removeFile = (index: number) => {
-  uploadedFiles.value.splice(index, 1);
+const removeFile = () => {
+  uploadedFile.value = null;
 };
 
 const clearAdditionalInfo = () => {
@@ -71,14 +67,14 @@ const clearAdditionalInfo = () => {
 const handleSubmit = () => {
   const formData = {
     additionalInfo: additionalInfo.value,
-    fileCount: uploadedFiles.value.length
+    fileName: uploadedFile.value?.name || ''
   };
   console.log('Submitting:', formData);
 
   router.push({
     name: 'bid-analysis-result',
     query: {
-      fileCount: uploadedFiles.value.length
+      fileName: uploadedFile.value?.name || ''
     }
   });
 };
@@ -129,26 +125,29 @@ const handleSubmit = () => {
         <!-- File Upload -->
         <div class="form-group">
           <label class="form-label">
-            <span class="required">*</span> 上传待解读文档
-            <span class="upload-count">（{{ uploadedFiles.length }}/{{ maxFiles }}）</span>
+            <span class="required">*</span> 上传招标文件
           </label>
-          <label class="upload-area">
-            <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden multiple />
+          <p class="upload-tip">请上传完整的一套招标文件，AI将进行精准解读分析</p>
+          <label v-if="!uploadedFile" class="upload-area">
+            <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" hidden />
             <Upload :size="32" />
             <div class="upload-text">
               <span class="upload-main">点击上传招标文件</span>
-              <span class="upload-hint">支持 PDF、Word 格式，最多上传 {{ maxFiles }} 份</span>
+              <span class="upload-hint">支持 PDF、Word 格式，仅限上传 1 份完整招标文件</span>
             </div>
           </label>
-          <!-- Uploaded files list -->
-          <div v-if="uploadedFiles.length > 0" class="uploaded-files-list">
-            <div v-for="(file, index) in uploadedFiles" :key="index" class="uploaded-file-item">
-              <FileText :size="14" />
-              <span class="file-name">{{ file.name }}</span>
-              <button class="remove-file-btn" @click="removeFile(index)">
-                <X :size="14" />
-              </button>
+          <!-- Uploaded file display -->
+          <div v-else class="uploaded-file-card">
+            <div class="file-info">
+              <FileText :size="24" class="file-icon" />
+              <div class="file-details">
+                <span class="file-name">{{ uploadedFile.name }}</span>
+                <span class="file-size">{{ (uploadedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
+              </div>
             </div>
+            <button class="remove-file-btn" @click="removeFile">
+              <X :size="18" />
+            </button>
           </div>
         </div>
 
@@ -391,6 +390,13 @@ const handleSubmit = () => {
   background: #1d4ed8;
 }
 
+.upload-tip {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
 /* Upload Area */
 .upload-area {
   display: flex;
@@ -409,6 +415,64 @@ const handleSubmit = () => {
 .upload-area:hover {
   border-color: #2563eb;
   background: #eff6ff;
+}
+
+/* Uploaded file card */
+.uploaded-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.uploaded-file-card .file-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.uploaded-file-card .file-icon {
+  color: #3b82f6;
+}
+
+.uploaded-file-card .file-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.uploaded-file-card .file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.uploaded-file-card .file-size {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.uploaded-file-card .remove-file-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploaded-file-card .remove-file-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #ef4444;
 }
 
 .upload-text {
