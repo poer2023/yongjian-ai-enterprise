@@ -17,7 +17,9 @@ import {
   Users,
   Eye,
   Play,
-  RefreshCw
+  RefreshCw,
+  Smartphone,
+  Send
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
@@ -25,12 +27,50 @@ const router = useRouter();
 
 // Authentication state
 type AuthStatus = 'idle' | 'scanning' | 'success' | 'error';
+type AuthMethod = 'phone' | 'qrcode';
 const authStatus = ref<AuthStatus>('idle');
+const authMethod = ref<AuthMethod>('phone');
 const accountInfo = ref({
   name: '',
   company: '',
   avatar: ''
 });
+
+// Phone auth state
+const phoneNumber = ref('');
+const verifyCode = ref('');
+const codeSent = ref(false);
+const countdown = ref(0);
+let countdownTimer: ReturnType<typeof setInterval> | null = null;
+
+// Send verification code
+const sendCode = () => {
+  if (!phoneNumber.value || phoneNumber.value.length !== 11) return;
+  codeSent.value = true;
+  countdown.value = 60;
+  countdownTimer = setInterval(() => {
+    countdown.value--;
+    if (countdown.value <= 0) {
+      if (countdownTimer) clearInterval(countdownTimer);
+      codeSent.value = false;
+    }
+  }, 1000);
+};
+
+// Phone login
+const phoneLogin = () => {
+  if (!phoneNumber.value || !verifyCode.value) return;
+  authStatus.value = 'scanning';
+  setTimeout(() => {
+    authStatus.value = 'success';
+    accountInfo.value = {
+      name: '张招聘',
+      company: 'XX科技有限公司',
+      avatar: ''
+    };
+    jdList.value = [...mockJdList];
+  }, 1000);
+};
 
 // JD list from Boss
 interface BossJD {
@@ -189,32 +229,83 @@ const handleSubmit = () => {
 
           <!-- Not authenticated -->
           <div v-if="authStatus === 'idle'" class="auth-area">
-            <div class="qr-placeholder">
-              <QrCode :size="48" />
+            <!-- Auth method tabs -->
+            <div class="auth-method-tabs">
+              <button
+                class="auth-tab"
+                :class="{ active: authMethod === 'phone' }"
+                @click="authMethod = 'phone'"
+              >
+                <Smartphone :size="16" />
+                手机验证码登录
+              </button>
+              <button
+                class="auth-tab"
+                :class="{ active: authMethod === 'qrcode' }"
+                @click="authMethod = 'qrcode'"
+              >
+                <QrCode :size="16" />
+                扫码登录
+              </button>
             </div>
-            <div class="auth-text">
-              <p class="auth-main">使用Boss直聘APP扫码授权</p>
-              <p class="auth-hint">授权后将自动获取您发布的岗位信息</p>
+
+            <!-- Phone login form -->
+            <div v-if="authMethod === 'phone'" class="phone-login-form">
+              <div class="phone-input-group">
+                <input
+                  v-model="phoneNumber"
+                  type="tel"
+                  placeholder="请输入手机号"
+                  maxlength="11"
+                  class="phone-input"
+                />
+              </div>
+              <div class="code-input-group">
+                <input
+                  v-model="verifyCode"
+                  type="text"
+                  placeholder="请输入验证码"
+                  maxlength="6"
+                  class="code-input"
+                />
+                <button
+                  class="send-code-btn"
+                  :disabled="!phoneNumber || phoneNumber.length !== 11 || codeSent"
+                  @click="sendCode"
+                >
+                  {{ codeSent ? `${countdown}s后重发` : '获取验证码' }}
+                </button>
+              </div>
+              <button
+                class="phone-login-btn"
+                :disabled="!phoneNumber || !verifyCode"
+                @click="phoneLogin"
+              >
+                登录授权
+              </button>
             </div>
-            <button class="auth-btn" @click="startAuth">
-              开始授权
-            </button>
+
+            <!-- QR code login -->
+            <div v-else class="qrcode-login">
+              <div class="qr-placeholder">
+                <QrCode :size="48" />
+              </div>
+              <div class="auth-text">
+                <p class="auth-main">使用Boss直聘APP扫码授权</p>
+                <p class="auth-hint">授权后将自动获取您发布的岗位信息</p>
+              </div>
+              <button class="auth-btn" @click="startAuth">
+                开始授权
+              </button>
+            </div>
           </div>
 
-          <!-- Scanning -->
-          <div v-else-if="authStatus === 'scanning'" class="auth-area scanning">
-            <div class="qr-code-box">
-              <div class="qr-code-inner">
-                <QrCode :size="120" />
-              </div>
-              <div class="scanning-indicator">
-                <Loader2 :size="16" class="spin" />
-                等待扫码...
-              </div>
-            </div>
-            <div class="auth-text">
-              <p class="auth-main">请使用Boss直聘APP扫描二维码</p>
-              <p class="auth-hint">扫码后在APP中确认授权</p>
+          <!-- Scanning / Loading -->
+          <div v-else-if="authStatus === 'scanning'" class="auth-area loading">
+            <div class="loading-box">
+              <Loader2 :size="40" class="spin loading-icon" />
+              <p class="loading-text">正在授权中...</p>
+              <p class="loading-hint">请稍候，正在获取账号信息</p>
             </div>
           </div>
 
@@ -546,20 +637,169 @@ const handleSubmit = () => {
 /* Auth Area */
 .auth-area {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 20px;
   padding: 24px;
   background: #f8fafc;
   border-radius: 10px;
 }
 
-.auth-area.scanning {
+.auth-method-tabs {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab:hover {
+  border-color: #cbd5e1;
+}
+
+.auth-tab.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.phone-login-form {
+  display: flex;
   flex-direction: column;
-  padding: 32px;
+  gap: 14px;
+  max-width: 400px;
+}
+
+.phone-input-group,
+.code-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.phone-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.phone-input:focus {
+  border-color: #2563eb;
+}
+
+.code-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.code-input:focus {
+  border-color: #2563eb;
+}
+
+.send-code-btn {
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  color: #2563eb;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-code-btn:hover:not(:disabled) {
+  background: #eff6ff;
+}
+
+.send-code-btn:disabled {
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.phone-login-btn {
+  padding: 12px 24px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.phone-login-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.phone-login-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.qrcode-login {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.auth-area.loading {
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
 }
 
 .auth-area.authenticated {
+  flex-direction: row;
   justify-content: space-between;
+}
+
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-icon {
+  color: #2563eb;
+}
+
+.loading-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.loading-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
 }
 
 .qr-placeholder {
@@ -571,28 +811,6 @@ const handleSubmit = () => {
   align-items: center;
   justify-content: center;
   color: #94a3b8;
-}
-
-.qr-code-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.qr-code-inner {
-  padding: 16px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
-
-.scanning-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #64748b;
 }
 
 .spin {

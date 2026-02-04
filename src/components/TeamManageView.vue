@@ -7,10 +7,8 @@ import {
   Bot,
   Coins,
   Bell,
-  Edit3,
-  Building2
+  Edit3
 } from 'lucide-vue-next';
-import EnterpriseAssets from './EnterpriseAssets.vue';
 import BidSubscription from './BidSubscription.vue';
 
 // Menu items
@@ -19,7 +17,6 @@ const menuItems = [
   { icon: Users, label: '成员管理', id: 'members' },
   { icon: UsersRound, label: '小组管理', id: 'groups' },
   { icon: Bot, label: '智能体管理', id: 'agents' },
-  { icon: Building2, label: '企业素材库', id: 'enterprise-assets' },
   { icon: Coins, label: '权益明细', id: 'benefits' },
   { icon: Bell, label: '标讯订阅', id: 'bid-subscription' }
 ];
@@ -89,11 +86,6 @@ const handleMenuClick = (id: string) => {
             <div class="info-row"><span class="info-label">知识库空间</span><span class="info-value">{{ teamInfo.storageSpace }}</span></div>
           </div>
         </div>
-      </template>
-
-      <!-- Enterprise Assets -->
-      <template v-else-if="activeMenu === 'enterprise-assets'">
-        <EnterpriseAssets />
       </template>
 
       <!-- Bid Subscription -->

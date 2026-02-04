@@ -16,7 +16,8 @@ import {
   Database,
   Sparkles,
   FileText,
-  ScrollText
+  ScrollText,
+  FileSearch
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
@@ -294,6 +295,14 @@ const handleDownload = () => {
 const handleAddToKnowledge = () => {
   alert('已加入知识库');
 };
+
+const goToAnalysis = (id: number) => {
+  router.push({ name: 'bid-analysis-form', query: { bidId: id } });
+};
+
+const goToDocGenerate = (id: number) => {
+  router.push({ name: 'bid-doc-form', query: { bidId: id } });
+};
 </script>
 
 <template>
@@ -319,85 +328,11 @@ const handleAddToKnowledge = () => {
     </header>
 
     <div class="report-body">
-      <!-- Left Sidebar - Document List -->
-      <aside class="document-sidebar">
-        <div class="sidebar-header">
-          <FileText :size="16" />
-          <span>文件列表</span>
-        </div>
-        <div class="document-list">
-          <div
-            v-for="doc in documentList"
-            :key="doc.id"
-            class="document-item"
-            :class="{ active: activeDocId === doc.id }"
-            @click="selectDocument(doc.id)"
-          >
-            <div class="doc-icon" :class="doc.type">
-              <ScrollText v-if="doc.type === 'report'" :size="16" />
-              <FileText v-else :size="16" />
-            </div>
-            <div class="doc-info">
-              <span class="doc-title">{{ doc.title }}</span>
-              <span class="doc-status" :class="{ high: doc.matchScore && doc.matchScore >= 85 }">
-                <template v-if="doc.type === 'report'">
-                  <span class="status-dot"></span>
-                  {{ doc.status }}
-                </template>
-                <template v-else>
-                  匹配度 {{ doc.matchScore }}%
-                </template>
-              </span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
       <!-- Main Content -->
       <main class="report-content">
         <!-- Daily Report View -->
         <template v-if="activeDocId === 'daily-report'">
           <div class="report-container">
-            <!-- Stats Summary -->
-            <section class="stats-section">
-              <div class="stat-card">
-                <div class="stat-icon blue">
-                  <Target :size="20" />
-                </div>
-                <div class="stat-info">
-                  <span class="stat-value">{{ reportStats.totalCount }}</span>
-                  <span class="stat-label">今日标讯总数</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon green">
-                  <CheckCircle2 :size="20" />
-                </div>
-                <div class="stat-info">
-                  <span class="stat-value">{{ reportStats.highMatchCount }}</span>
-                  <span class="stat-label">高匹配项目</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon orange">
-                  <DollarSign :size="20" />
-                </div>
-                <div class="stat-info">
-                  <span class="stat-value">{{ reportStats.totalBudget }}<small>万</small></span>
-                  <span class="stat-label">总预算规模</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon purple">
-                  <TrendingUp :size="20" />
-                </div>
-                <div class="stat-info">
-                  <span class="stat-value">{{ reportStats.avgBudget }}<small>万</small></span>
-                  <span class="stat-label">平均预算</span>
-                </div>
-              </div>
-            </section>
-
             <!-- Report Body -->
             <article class="report-article">
               <!-- Market Overview -->
@@ -417,35 +352,47 @@ const handleAddToKnowledge = () => {
                 </h2>
                 <div class="projects-list">
                   <div v-for="project in keyProjects" :key="project.id" class="project-card">
-                    <div class="project-header">
-                      <h3 class="project-title">{{ project.title }}</h3>
-                      <span class="match-badge" :class="{ high: project.matchScore >= 90 }">
-                        匹配度 {{ project.matchScore }}%
-                      </span>
-                    </div>
-                    <div class="project-meta">
-                      <span class="meta-item">
-                        <DollarSign :size="14" />
-                        {{ project.budget }}
-                      </span>
-                      <span class="meta-item">
-                        <Clock :size="14" />
-                        截止 {{ project.deadline }}
-                      </span>
-                      <span class="meta-item">
-                        <MapPin :size="14" />
-                        {{ project.region }}
-                      </span>
-                    </div>
-                    <div class="project-insight">
-                      <div class="insight-row highlight">
-                        <Lightbulb :size="14" />
-                        <span>{{ project.highlight }}</span>
+                    <div class="project-content">
+                      <div class="project-header">
+                        <h3 class="project-title">{{ project.title }}</h3>
+                        <span class="match-badge" :class="{ high: project.matchScore >= 90 }">
+                          匹配度 {{ project.matchScore }}%
+                        </span>
                       </div>
-                      <div class="insight-row suggestion">
-                        <CheckCircle2 :size="14" />
-                        <span>{{ project.suggestion }}</span>
+                      <div class="project-meta">
+                        <span class="meta-item">
+                          <DollarSign :size="14" />
+                          {{ project.budget }}
+                        </span>
+                        <span class="meta-item">
+                          <Clock :size="14" />
+                          截止 {{ project.deadline }}
+                        </span>
+                        <span class="meta-item">
+                          <MapPin :size="14" />
+                          {{ project.region }}
+                        </span>
                       </div>
+                      <div class="project-insight">
+                        <div class="insight-row highlight">
+                          <Lightbulb :size="14" />
+                          <span>{{ project.highlight }}</span>
+                        </div>
+                        <div class="insight-row suggestion">
+                          <CheckCircle2 :size="14" />
+                          <span>{{ project.suggestion }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="project-actions">
+                      <button class="project-action-btn secondary" @click="goToAnalysis(project.id)">
+                        <FileSearch :size="14" />
+                        标讯解读
+                      </button>
+                      <button class="project-action-btn primary" @click="goToDocGenerate(project.id)">
+                        <FileText :size="14" />
+                        生成标书
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -926,10 +873,61 @@ const handleAddToKnowledge = () => {
 }
 
 .project-card {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
   padding: 20px;
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+}
+
+.project-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.project-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.project-action-btn.secondary {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.project-action-btn.secondary:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.project-action-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  color: white;
+}
+
+.project-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .project-header {

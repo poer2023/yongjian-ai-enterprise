@@ -3,45 +3,80 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   FileText,
-  Loader2,
-  Check
+  Loader2
 } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
 
-const progress = ref(0);
-const currentStep = ref(0);
+const displayedOutline = ref('');
+let charIndex = 0;
 let timer: ReturnType<typeof setInterval>;
 
-const steps = [
-  { name: '解析招标文件', desc: '提取项目要求与评分标准' },
-  { name: '匹配素材资源', desc: '关联企业信息、资质、业绩' },
-  { name: '生成技术方案', desc: 'AI智能撰写技术标内容' },
-  { name: '生成商务文件', desc: '整合企业介绍与项目业绩' },
-  { name: '格式校验与排版', desc: '检查废标项与签章位置' },
-];
+// Mock outline content for streaming display
+const fullOutline = `# XX项目技术投标文件
+
+## 第一章 投标函及投标函附录
+### 1.1 投标函
+### 1.2 法定代表人授权书
+### 1.3 投标保证金证明
+
+## 第二章 资格证明文件
+### 2.1 企业营业执照
+### 2.2 资质证书
+### 2.3 业绩证明材料
+### 2.4 财务状况证明
+
+## 第三章 技术方案
+### 3.1 项目理解与需求分析
+#### 3.1.1 项目背景理解
+#### 3.1.2 建设目标分析
+#### 3.1.3 核心需求梳理
+### 3.2 总体设计方案
+#### 3.2.1 设计原则
+#### 3.2.2 技术架构设计
+#### 3.2.3 网络拓扑设计
+### 3.3 详细技术方案
+#### 3.3.1 硬件部署方案
+#### 3.3.2 软件系统方案
+#### 3.3.3 安全保障方案
+#### 3.3.4 数据管理方案
+### 3.4 技术亮点与创新
+#### 3.4.1 核心技术优势
+#### 3.4.2 差异化竞争力
+
+## 第四章 项目实施方案
+### 4.1 项目组织架构
+### 4.2 实施进度计划
+### 4.3 质量保障措施
+### 4.4 风险控制方案
+
+## 第五章 售后服务方案
+### 5.1 服务体系介绍
+### 5.2 运维服务内容
+### 5.3 培训方案
+### 5.4 应急响应机制
+
+## 第六章 商务报价
+### 6.1 报价总表
+### 6.2 分项报价明细
+### 6.3 付款方式说明
+
+## 附录
+### 附录A 项目团队成员简历
+### 附录B 类似项目业绩案例
+### 附录C 相关资质证书复印件`;
 
 onMounted(() => {
+  // Simulate streaming output
   timer = setInterval(() => {
-    if (progress.value < 95) {
-      if (progress.value < 30) {
-        progress.value += 1.5;
-      } else if (progress.value < 60) {
-        progress.value += 1;
-      } else if (progress.value < 85) {
-        progress.value += 0.5;
-      } else {
-        progress.value += 0.2;
-      }
-
-      // Update steps based on progress
-      if (progress.value > 20) currentStep.value = 1;
-      if (progress.value > 40) currentStep.value = 2;
-      if (progress.value > 60) currentStep.value = 3;
-      if (progress.value > 80) currentStep.value = 4;
+    if (charIndex < fullOutline.length) {
+      // Add multiple characters at once for faster display
+      const charsToAdd = Math.min(3, fullOutline.length - charIndex);
+      displayedOutline.value += fullOutline.slice(charIndex, charIndex + charsToAdd);
+      charIndex += charsToAdd;
     }
-  }, 100);
+  }, 20);
 });
 
 onUnmounted(() => {
@@ -55,10 +90,11 @@ const handleSkip = () => {
   });
 };
 
-const getStepStatus = (index: number) => {
-  if (index < currentStep.value) return 'completed';
-  if (index === currentStep.value) return 'active';
-  return 'pending';
+const handleSkipToSkeleton = () => {
+  router.push({
+    name: 'bid-doc-skeleton',
+    query: route.query
+  });
 };
 </script>
 
@@ -70,68 +106,28 @@ const getStepStatus = (index: number) => {
       </div>
       <div class="header-content">
         <h1 class="page-title">AI标书生成</h1>
-        <p class="page-desc">请耐心等待，AI正在为您生成专业标书</p>
+        <p class="page-desc">正在为您生成标书大纲...</p>
       </div>
     </header>
 
     <main class="main-content">
-      <div class="status-card">
-        <h2 class="status-title">生成进度</h2>
-
-        <!-- Current Step Active Display -->
-        <div class="active-step">
-          <div class="step-icon-wrapper">
-            <Loader2 :size="20" class="spinner" />
-          </div>
-          <div class="step-info">
-            <div class="step-name">{{ steps[currentStep]?.name || '处理中...' }}</div>
-            <div class="step-sub">{{ steps[currentStep]?.desc || '请稍候' }}</div>
-          </div>
+      <div class="outline-card">
+        <div class="outline-header">
+          <Loader2 :size="16" class="spinner" />
+          <span>大纲生成中</span>
         </div>
-
-        <!-- Progress Bar -->
-        <div class="progress-section">
-          <div class="progress-labels">
-            <span>处理进度</span>
-            <span>正在进行第 {{ currentStep + 1 }} 步 / 共 {{ steps.length }} 步</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" :style="{ width: Math.min(progress, 100) + '%' }"></div>
-          </div>
-        </div>
-
-        <!-- Steps List -->
-        <div class="steps-list">
-          <div
-            v-for="(step, index) in steps"
-            :key="index"
-            class="step-item"
-            :class="getStepStatus(index)"
-          >
-            <div class="step-indicator">
-              <Check v-if="getStepStatus(index) === 'completed'" :size="12" />
-              <Loader2 v-else-if="getStepStatus(index) === 'active'" :size="12" class="spinner" />
-              <span v-else class="step-dot"></span>
-            </div>
-            <div class="step-content">
-              <span class="step-title">{{ step.name }}</span>
-              <span class="step-desc">{{ step.desc }}</span>
-            </div>
-            <span class="step-status-text">
-              {{ getStepStatus(index) === 'completed' ? '已完成' : getStepStatus(index) === 'active' ? '进行中' : '等待中' }}
-            </span>
-          </div>
+        <div class="outline-content">
+          <pre class="outline-text">{{ displayedOutline }}<span class="cursor">|</span></pre>
         </div>
       </div>
 
-      <div class="tips-card">
-        <p>AI标书生成大约需要 2-5 分钟，后续可在 <a href="#">个人中心-使用记录</a> 中查看；遇到复杂项目或排队情况可能需要等待更久，感谢理解~</p>
-
-        <div class="manual-action">
-           <button class="skip-btn" @click="handleSkip">
-             进入结果页 (测试用)
-           </button>
-        </div>
+      <div class="action-bar">
+        <button class="action-btn secondary" @click="handleSkipToSkeleton">
+          进入结果页（空）
+        </button>
+        <button class="action-btn primary" @click="handleSkip">
+          进入结果页（完成）
+        </button>
       </div>
     </main>
   </div>
@@ -181,46 +177,32 @@ const getStepStatus = (index: number) => {
 .main-content {
   flex: 1;
   padding: 24px;
-  max-width: 700px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.status-card {
+.outline-card {
+  flex: 1;
   background: white;
   border-radius: 12px;
-  padding: 32px;
-  margin-bottom: 24px;
   border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.status-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 24px 0;
-}
-
-.active-step {
+.outline-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  border-radius: 8px;
-  margin-bottom: 24px;
-  border: 1px solid #93c5fd;
-}
-
-.step-icon-wrapper {
-  width: 40px;
-  height: 40px;
-  background: #3b82f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+  gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3b82f6;
 }
 
 .spinner {
@@ -232,179 +214,69 @@ const getStepStatus = (index: number) => {
   to { transform: rotate(360deg); }
 }
 
-.step-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.step-sub {
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-.progress-section {
-  margin-bottom: 24px;
-}
-
-.progress-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #64748b;
-  margin-bottom: 8px;
-}
-
-.progress-track {
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* Steps List */
-.steps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.step-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: #f8fafc;
-  transition: all 0.3s;
-}
-
-.step-item.active {
-  background: #eff6ff;
-  border: 1px solid #93c5fd;
-}
-
-.step-item.completed {
-  background: #eff6ff;
-}
-
-.step-indicator {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #e2e8f0;
-  color: #94a3b8;
-  flex-shrink: 0;
-}
-
-.step-item.active .step-indicator {
-  background: #3b82f6;
-  color: white;
-}
-
-.step-item.completed .step-indicator {
-  background: #3b82f6;
-  color: white;
-}
-
-.step-dot {
-  width: 8px;
-  height: 8px;
-  background: #cbd5e1;
-  border-radius: 50%;
-}
-
-.step-content {
+.outline-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  min-height: 400px;
+  max-height: calc(100vh - 300px);
 }
 
-.step-title {
+.outline-text {
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
   font-size: 13px;
-  font-weight: 500;
+  line-height: 1.8;
   color: #334155;
-}
-
-.step-desc {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.step-item.active .step-title {
-  color: #1e40af;
-}
-
-.step-item.active .step-desc {
-  color: #3b82f6;
-}
-
-.step-status-text {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.step-item.active .step-status-text {
-  color: #3b82f6;
-  font-weight: 500;
-}
-
-.step-item.completed .step-status-text {
-  color: #3b82f6;
-}
-
-.tips-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.6;
-  text-align: center;
-}
-
-.tips-card p {
+  white-space: pre-wrap;
+  word-wrap: break-word;
   margin: 0;
 }
 
-.tips-card a {
+.cursor {
+  animation: blink 1s step-end infinite;
   color: #3b82f6;
-  text-decoration: none;
 }
 
-.tips-card a:hover {
-  text-decoration: underline;
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.manual-action {
+.action-bar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
   margin-top: 24px;
+  padding-bottom: 24px;
 }
 
-.skip-btn {
-  background: white;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  padding: 10px 20px;
-  border-radius: 6px;
+.action-btn {
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 13px;
   transition: all 0.2s;
 }
 
-.skip-btn:hover {
+.action-btn.secondary {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.action-btn.secondary:hover {
   border-color: #3b82f6;
   color: #3b82f6;
+}
+
+.action-btn.primary {
+  background: #3b82f6;
+  border: none;
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: #2563eb;
 }
 </style>

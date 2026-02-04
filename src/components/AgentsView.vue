@@ -10,7 +10,8 @@ import {
   FileUser,
   DollarSign,
   FileSearch,
-  FileText
+  FileText,
+  Zap
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -61,6 +62,15 @@ const allAgents = [
     color: '#10b981',
     bgColor: '#ecfdf5',
     routeName: 'bid-doc-form'
+  },
+  {
+    id: 7,
+    name: 'AI标书生成（智能版）',
+    description: '极简操作，上传文件即可自动生成标书',
+    icon: Zap,
+    color: '#8b5cf6',
+    bgColor: '#f5f3ff',
+    routeName: 'bid-doc-smart-form'
   }
 ];
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import {
   ChevronLeft,
   Type,
@@ -20,43 +20,53 @@ import {
   Zap,
   Clock,
   Presentation,
-  Edit3
+  Edit3,
+  Loader2
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// Outline data - bid document structure
+// Real outline from parsed document - IDs match the HTML headings
 const outlineItems = ref([
-  { id: '1', title: '第一章 投标函', level: 1, children: [] },
-  { id: '2', title: '第二章 法定代表人身份证明', level: 1, children: [] },
-  { id: '3', title: '第三章 投标人基本情况', level: 1, children: [
-    { id: '3.1', title: '3.1 企业概况', level: 2 },
-    { id: '3.2', title: '3.2 资质证书', level: 2 },
-    { id: '3.3', title: '3.3 财务状况', level: 2 },
+  { id: 'section-1', title: '投标文件基本文件', level: 1, children: [
+    { id: 'section-1-1', title: '公章对投标专用章的授权函', level: 2 },
+    { id: 'section-1-2', title: '投标函', level: 2 },
+    { id: 'section-1-3', title: '开标一览表', level: 2 },
+    { id: 'section-1-4', title: '分项报价表', level: 2 },
+    { id: 'section-1-5', title: '投标保证金缴纳凭证', level: 2 },
+    { id: 'section-1-6', title: '投标保证金退款账户信息', level: 2 },
+    { id: 'section-1-7', title: '中标服务费承诺书', level: 2 },
   ]},
-  { id: '4', title: '第四章 技术方案', level: 1, children: [
-    { id: '4.1', title: '4.1 项目理解与需求分析', level: 2 },
-    { id: '4.2', title: '4.2 总体技术方案', level: 2 },
-    { id: '4.3', title: '4.3 系统架构设计', level: 2 },
-    { id: '4.4', title: '4.4 功能模块设计', level: 2 },
+  { id: 'section-2', title: '商务响应文件', level: 1, children: [
+    { id: 'section-2-8', title: '企业法人营业执照副本', level: 2 },
+    { id: 'section-2-9', title: '工商变更登记文件', level: 2 },
+    { id: 'section-2-10', title: '法定代表人授权书', level: 2 },
+    { id: 'section-2-11', title: '廉洁承诺书', level: 2 },
+    { id: 'section-2-12', title: '投标人关联关系单位披露表', level: 2 },
+    { id: 'section-2-13', title: '网络安全等级测评机构服务认证证书', level: 2 },
+    { id: 'section-2-14', title: '全国网络安全等级测评机构目录截图', level: 2 },
+    { id: 'section-2-15', title: '从业年限证明', level: 2 },
+    { id: 'section-2-16', title: '资质认证', level: 2 },
+    { id: 'section-2-17', title: '技术/服务需求响应偏离表', level: 2 },
+    { id: 'section-2-18', title: '合同条款响应偏离表', level: 2 },
+    { id: 'section-2-19', title: '投标人情况介绍', level: 2 },
+    { id: 'section-2-20', title: '财务状况及财务报告', level: 2 },
   ]},
-  { id: '5', title: '第五章 项目实施方案', level: 1, children: [
-    { id: '5.1', title: '5.1 项目组织架构', level: 2 },
-    { id: '5.2', title: '5.2 实施计划与进度', level: 2 },
-    { id: '5.3', title: '5.3 质量保障措施', level: 2 },
+  { id: 'section-3', title: '技术响应文件', level: 1, children: [
+    { id: 'section-3-21', title: '《技术要求与服务内容》点对点应答', level: 2 },
+    { id: 'section-3-22', title: '投标人所投服务符合招标文件规定的证明', level: 2 },
+    { id: 'section-3-23', title: '相关承诺书', level: 2 },
+    { id: 'section-3-24', title: '项目方案', level: 2 },
+    { id: 'section-3-25', title: '招标人需配合的前期准备工作', level: 2 },
+    { id: 'section-3-26', title: '利益冲突说明', level: 2 },
   ]},
-  { id: '6', title: '第六章 售后服务方案', level: 1, children: [
-    { id: '6.1', title: '6.1 服务承诺', level: 2 },
-    { id: '6.2', title: '6.2 培训方案', level: 2 },
-    { id: '6.3', title: '6.3 运维支持', level: 2 },
-  ]},
-  { id: '7', title: '第七章 商务报价', level: 1, children: [] },
-  { id: '8', title: '第八章 业绩案例', level: 1, children: [] },
-  { id: '9', title: '第九章 项目团队', level: 1, children: [] },
 ]);
 
 const activeOutlineId = ref('1');
+const documentContent = ref('');
+const isLoading = ref(true);
+const loadError = ref('');
 
 const goBack = () => {
   router.push({ name: 'bid-doc-form' });
@@ -64,11 +74,34 @@ const goBack = () => {
 
 const selectOutline = (id: string) => {
   activeOutlineId.value = id;
+  // Scroll to corresponding section in document
+  const heading = document.getElementById(id);
+  if (heading) {
+    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
 
 const exportWord = () => {
   alert('Word文档已导出');
 };
+
+// Load document content
+onMounted(async () => {
+  try {
+    isLoading.value = true;
+    const response = await fetch('/docs/bid-doc.html');
+    if (!response.ok) {
+      throw new Error('Failed to load document');
+    }
+    const html = await response.text();
+    documentContent.value = html;
+    isLoading.value = false;
+  } catch (error) {
+    console.error('Error loading document:', error);
+    loadError.value = '文档加载失败，请刷新重试';
+    isLoading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -81,7 +114,7 @@ const exportWord = () => {
           <ChevronLeft :size="18" />
         </button>
         <div class="header-tag">AI标书生成</div>
-        <div class="header-title">智慧城市数据中台建设项目投标文件</div>
+        <div class="header-title">信息系统安全等级保护测评（等保2.0）项目投标文件</div>
         <div class="header-status">已保存</div>
       </div>
 
@@ -141,91 +174,19 @@ const exportWord = () => {
       <main class="content-panel">
         <div class="document-container">
           <div class="document-wrapper">
-            <article class="document-content">
-              <h1 class="doc-title">智慧城市数据中台建设项目<br/>投标文件（技术标）</h1>
+            <!-- Loading State -->
+            <div v-if="isLoading" class="loading-state">
+              <Loader2 :size="32" class="loading-spinner" />
+              <p>正在加载文档...</p>
+            </div>
 
-              <div class="doc-meta">
-                <div class="meta-row">
-                  <span class="meta-label">项目名称：</span>
-                  <span>XX市智慧城市数据中台建设项目</span>
-                </div>
-                <div class="meta-row">
-                  <span class="meta-label">项目编号：</span>
-                  <span>XXZC-2026-0128</span>
-                </div>
-                <div class="meta-row">
-                  <span class="meta-label">投标人：</span>
-                  <span>深圳市智云科技有限公司</span>
-                </div>
-                <div class="meta-row">
-                  <span class="meta-label">投标日期：</span>
-                  <span>2026年2月15日</span>
-                </div>
-              </div>
+            <!-- Error State -->
+            <div v-else-if="loadError" class="error-state">
+              <p>{{ loadError }}</p>
+            </div>
 
-              <h2 class="doc-heading">第一章 投标函</h2>
-
-              <p class="doc-paragraph">
-                致：XX市公共资源交易中心
-              </p>
-
-              <p class="doc-paragraph">
-                根据贵方发布的《XX市智慧城市数据中台建设项目》（项目编号：XXZC-2026-0128）招标文件，我方经认真研究招标文件的全部内容，决定参加本项目的投标。
-              </p>
-
-              <p class="doc-paragraph">
-                一、我方愿意按照招标文件规定的各项要求，以人民币（大写）壹仟贰佰捌拾万元整（小写：¥12,800,000.00元）的投标总价，承担本项目的全部工作内容，并在合同签订后180个日历日内完成项目交付。
-              </p>
-
-              <p class="doc-paragraph">
-                二、我方承诺：如中标，将严格按照招标文件要求和投标文件承诺的内容履行合同义务，确保项目质量、进度和服务水平达到招标文件规定的标准。
-              </p>
-
-              <p class="doc-paragraph">
-                三、我方同意所递交的投标文件在投标有效期（90天）内有效，在此期间如中标，我方将受此约束。
-              </p>
-
-              <p class="doc-paragraph">
-                四、我方理解：贵方不一定接受最低报价的投标或收到的任何投标。
-              </p>
-
-              <div class="doc-signature">
-                <p>投标人（盖章）：深圳市智云科技有限公司</p>
-                <p>法定代表人或授权代表（签字）：___________</p>
-                <p>日期：2026年2月15日</p>
-              </div>
-
-              <h2 class="doc-heading">第四章 技术方案</h2>
-
-              <h3 class="doc-subheading">4.1 项目理解与需求分析</h3>
-
-              <p class="doc-paragraph">
-                本项目旨在建设XX市智慧城市数据中台，实现全市政务数据的统一汇聚、治理、共享和开放，为各委办局业务系统提供标准化的数据服务能力，支撑城市精细化治理和公共服务智能化升级。
-              </p>
-
-              <p class="doc-paragraph">
-                通过深入分析招标文件，我方认为项目建设的核心目标包括：（1）构建统一的数据资源池，打破部门间数据壁垒；（2）建立数据标准规范体系，提升数据质量和可用性；（3）搭建数据服务平台，支撑跨部门业务协同；（4）强化数据安全保障，确保数据合规使用。
-              </p>
-
-              <h3 class="doc-subheading">4.2 总体技术方案</h3>
-
-              <p class="doc-paragraph">
-                我方采用"平台+应用+服务"的总体架构设计，以云原生技术为底座，构建弹性可扩展的数据中台体系。整体方案分为基础设施层、数据服务层、应用支撑层和业务应用层四个层次，同时配套建设安全保障体系和运维管理体系。
-              </p>
-
-              <p class="doc-paragraph">
-                技术选型方面，数据存储采用分布式数据库集群，支持PB级数据存储和高并发访问；数据计算采用Spark+Flink混合计算引擎，满足批处理和实时计算双重需求；数据治理采用自研的智能数据治理平台，提供数据质量检测、血缘分析、标签管理等核心能力。
-              </p>
-
-              <h3 class="doc-subheading">4.3 系统架构设计</h3>
-
-              <p class="doc-paragraph">
-                系统采用微服务架构，基于Kubernetes容器编排平台实现服务的弹性伸缩和高可用部署。核心服务包括数据接入服务、数据存储服务、数据计算服务、数据治理服务、数据服务网关、统一门户等模块，各服务之间通过API网关进行统一管理和调度。
-              </p>
-
-              <p class="doc-paragraph">
-                在高可用设计方面，采用主备双活架构，RPO≤0，RTO≤30分钟；关键组件均采用集群部署，单点故障自动切换；数据存储采用多副本机制，确保数据持久性和一致性。
-              </p>
+            <!-- Document Content -->
+            <article v-else class="document-content" v-html="documentContent">
             </article>
 
             <!-- Edit icon -->
@@ -565,6 +526,28 @@ const exportWord = () => {
   min-height: 800px;
 }
 
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #666;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  color: #4b83f0;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .doc-edit-btn {
   position: absolute;
   top: 48px;
@@ -585,45 +568,6 @@ const exportWord = () => {
 .doc-edit-btn:hover {
   color: #4b83f0;
   border-color: #4b83f0;
-}
-
-.doc-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
-  text-align: center;
-  margin: 0 0 28px 0;
-  line-height: 1.5;
-}
-
-.doc-meta {
-  text-align: left;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 24px;
-}
-
-.doc-paragraph {
-  font-size: 15px;
-  color: #333;
-  line-height: 2;
-  margin: 0 0 20px 0;
-  text-align: justify;
-  text-indent: 2em;
-}
-
-.doc-heading {
-  font-size: 17px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 36px 0 20px 0;
-}
-
-.doc-subheading {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 28px 0 16px 0;
 }
 
 /* AI Tools Panel */
@@ -654,21 +598,10 @@ const exportWord = () => {
   flex-shrink: 0;
 }
 
-.section-icon.blue {
-  color: #4b83f0;
-}
-
-.section-icon.purple {
-  color: #9b59b6;
-}
-
-.section-icon.green {
-  color: #27ae60;
-}
-
-.section-icon.orange {
-  color: #e74c3c;
-}
+.section-icon.blue { color: #4b83f0; }
+.section-icon.purple { color: #9b59b6; }
+.section-icon.green { color: #27ae60; }
+.section-icon.orange { color: #e74c3c; }
 
 .section-title {
   font-size: 14px;
@@ -795,17 +728,9 @@ const exportWord = () => {
   flex-shrink: 0;
 }
 
-.feature-icon.green {
-  color: #27ae60;
-}
-
-.feature-icon.red {
-  color: #e74c3c;
-}
-
-.feature-icon.yellow {
-  color: #f39c12;
-}
+.feature-icon.green { color: #27ae60; }
+.feature-icon.red { color: #e74c3c; }
+.feature-icon.yellow { color: #f39c12; }
 
 .feature-label {
   font-weight: 600;
@@ -850,5 +775,200 @@ const exportWord = () => {
   opacity: 0.95;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+}
+
+/* Document Content Styles */
+:deep(.document-content) {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+}
+
+:deep(.document-content p) {
+  margin: 0 0 12px 0;
+  text-align: justify;
+}
+
+/* Cover Section Styles */
+:deep(.doc-cover-section) {
+  text-align: center;
+  padding: 60px 40px 40px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+:deep(.doc-cover-section p) {
+  text-align: center;
+  margin: 12px 0;
+}
+
+:deep(.doc-cover-section p strong) {
+  font-size: 22px;
+  display: block;
+  margin: 20px 0;
+}
+
+:deep(.doc-cover-section p:first-child strong) {
+  font-size: 28px;
+  border: 2px solid #333;
+  padding: 12px 32px;
+  display: inline-block;
+}
+
+/* TOC Section Styles */
+:deep(.doc-toc-section) {
+  padding: 40px 20px;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+:deep(.doc-toc-section > p:first-child) {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+:deep(.toc-item) {
+  display: flex;
+  align-items: baseline;
+  margin: 6px 0;
+  text-align: left;
+}
+
+:deep(.toc-item a) {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  color: #333;
+  text-decoration: none;
+}
+
+:deep(.toc-item a:hover) {
+  color: #4b83f0;
+}
+
+:deep(.toc-num) {
+  flex-shrink: 0;
+  min-width: 50px;
+}
+
+:deep(.toc-title) {
+  flex-shrink: 0;
+}
+
+:deep(.toc-dots) {
+  flex: 1;
+  border-bottom: 1px dotted #999;
+  margin: 0 8px;
+  min-width: 20px;
+  height: 1em;
+}
+
+:deep(.toc-page) {
+  flex-shrink: 0;
+  color: #666;
+}
+
+:deep(.toc-level-1) {
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+:deep(.toc-level-2) {
+  padding-left: 24px;
+  font-size: 13px;
+}
+
+:deep(.toc-level-3) {
+  padding-left: 48px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Heading Styles */
+:deep(.document-content h1) {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 32px 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #4b83f0;
+  color: #1a1a1a;
+}
+
+:deep(.document-content h2) {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 24px 0 16px 0;
+  padding-left: 12px;
+  border-left: 4px solid #4b83f0;
+  color: #1a1a1a;
+}
+
+:deep(.document-content h3) {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 20px 0 12px 0;
+  color: #333;
+}
+
+/* Table Styles */
+:deep(.document-content table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 13px;
+}
+
+:deep(.document-content table td),
+:deep(.document-content table th) {
+  border: 1px solid #d0d0d0;
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+:deep(.document-content table th),
+:deep(.document-content thead td) {
+  background: #f0f4f8;
+  font-weight: 600;
+  text-align: center;
+}
+
+:deep(.document-content table tr:nth-child(even)) {
+  background: #fafbfc;
+}
+
+/* Image Styles */
+:deep(.document-content img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 16px auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+/* List Styles */
+:deep(.document-content ul),
+:deep(.document-content ol) {
+  margin: 12px 0;
+  padding-left: 2em;
+}
+
+:deep(.document-content li) {
+  margin-bottom: 6px;
+}
+
+/* Strong/Bold Text */
+:deep(.document-content strong) {
+  font-weight: 600;
+  color: #1a1a1a;
 }
 </style>

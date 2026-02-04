@@ -1,65 +1,43 @@
 # UI Style Rules
 
 ## 1. Design Keywords
-- **Professional**: Clean, trustworthy, authority (Legal context).
-- **Modern**: Smooth gradients, subtle shadows, rounded corners (8px-12px).
+- **Professional**: Clean, trustworthy, authority.
+- **Modern**: Smooth gradients, subtle shadows, rounded corners.
 - **Efficient**: Clear hierarchy, distinct actions.
-- **Airy**: Ample whitespace, avoiding clutter.
+- **Airy**: Ample whitespace.
 
-## 2. Colors & Palette
-### Primary (Blue)
-- **Main**: `#2563eb` (Blue 600) - Primary buttons, active states, links.
-- **Hover**: `#1d4ed8` (Blue 700) - Hover states.
-- **Surface**: `#eff6ff` (Blue 50) - Backgrounds for active items, selected states.
+## 2. Layout & Structure
+- **Sidebar**: ~200px-240px width, Gradient Blue background.
+- **Split View**: File Manager (Left) vs AI Chat (Right).
+- **Grid**: Responsive grid for folders.
 
-### Neutral (Slate/Gray)
-- **Text Primary**: `#1e293b` (Slate 800) - Headings, main text.
-- **Text Secondary**: `#64748b` (Slate 500) - Subtitles, descriptions, placeholders.
-- **Border**: `#e2e8f0` (Slate 200) - Dividers, card borders.
-- **Background**: `#f8fafc` (Slate 50) - Page background.
-- **White**: `#ffffff` - Card backgrounds.
+## 3. Colors & Palette
+### Primary
+- **Blue**: `#3b82f6` (Blue 500) - Main interactive color.
+- **Active Background**: `#dbeafe` (Blue 100).
+- **Sidebar Gradient**: `#eff6ff` to `#dbeafe`.
 
-### Semantic
-- **Success**: `#22c55e` (Green 500)
-- **Warning**: `#f59e0b` (Amber 500)
-- **Error**: `#ef4444` (Red 500)
+### Accents
+- **Folder**: `#FBBF24` (Icon Body), `#F59E0B` (Icon Top).
+- **PDF Label**: `#dc2626` (Red 600) on `#fee2e2`.
 
-## 3. Typography
-- **Font Family**: System default sans-serif (Inter, -apple-system, BlinkMacSystemFont, etc.).
-- **Headings**:
-  - H1: 28px-32px, Bold (700).
-  - H2: 24px, SemiBold (600).
-  - H3: 18px-20px, Medium (500).
-- **Body**: 14px-16px, Regular (400).
-- **Caption**: 12px, Regular (400).
+### Neutral
+- **Text**: `#1f2937` (Dark), `#4b5563` (Gray).
+- **Border**: `#e5e7eb` (Light Gray).
 
-## 4. Spacing & Grid
-- **Base Unit**: 4px.
-- **Common Spacings**:
-  - Tiny: 4px
-  - Small: 8px, 12px
-  - Medium: 16px, 24px
-  - Large: 32px, 48px, 64px
-- **Container Max Width**: 800px - 1000px for centered content.
+## 4. Typography
+- **Headings**: 18px Bold (Page Title).
+- **Body**: 14px Regular.
+- **Small**: 12px (Labels, Hints).
 
-## 5. Components
-
-### Cards & Containers
-- **Background**: White.
-- **Border Radius**: 12px (Standard), 16px (Large).
-- **Shadow**: `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)` (Tailwind `shadow-md` equivalent or custom subtle shadow).
-
-### Buttons
-- **Primary**: Blue background, White text, 8px radius.
-- **Secondary/Ghost**: Transparent/Light background, Blue/Slate text.
-- **Height**: 40px (Medium), 48px (Large).
-
-### Inputs
-- **Style**: No border (shadow-based) or subtle border (`#e2e8f0`).
-- **Focus**: Blue ring/border.
-- **Radius**: 8px or Full (Pill shape for search).
-
-## 6. Layout Specifics (Legal Search)
-- **Hero Alignment**: Center-weighted, approx 30-40% from top (visual center).
-- **Search Bar**: Prominent, high contrast against background.
-- **Tabs**: minimalist, underline or pill style.
+## 5. Component Specifics
+- **Sidebar Nav**:
+  - Vertical list.
+  - Active state: Blue text + Light Blue bg background.
+  - Expandable items support (Knowledge Base).
+- **Knowledge Base**:
+  - **Folders**: Custom SVG folder icon.
+  - **Files**: List item with icon, name, size, words, creator.
+- **Chat**:
+  - Suggestion bubbles with emojis.
+  - Disclaimer footer.

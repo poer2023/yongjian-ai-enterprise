@@ -26,11 +26,16 @@ import BidInfoDailyView from '../components/BidInfoDailyView.vue';
 import BidAnalysisFormView from '../components/BidAnalysisFormView.vue';
 import BidAnalysisResultView from '../components/BidAnalysisResultView.vue';
 import BidDocFormView from '../components/BidDocFormView.vue';
+import BidDocSmartFormView from '../components/BidDocSmartFormView.vue';
 import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
+import BidDocSkeletonView from '../components/BidDocSkeletonView.vue';
 import BidDetailView from '../components/BidDetailView.vue';
 import BidDailyReportView from '../components/BidDailyReportView.vue';
 import BidSubscriptionView from '../components/BidSubscriptionView.vue';
+import BidListDetailView from '../components/BidListDetailView.vue';
+import KnowledgeBaseView from '../components/KnowledgeBaseView.vue';
+import EnterpriseMaterialView from '../components/EnterpriseMaterialView.vue';
 
 // Placeholder views - can be replaced with actual components later
 const PlaceholderView = {
@@ -65,8 +70,14 @@ const routes = [
   {
     path: '/knowledge',
     name: 'knowledge',
-    component: PlaceholderView,
+    component: KnowledgeBaseView,
     meta: { title: '知识库' }
+  },
+  {
+    path: '/enterprise-material',
+    name: 'enterprise-material',
+    component: EnterpriseMaterialView,
+    meta: { title: '企业素材库' }
   },
   {
     path: '/enterprise-search',
@@ -148,10 +159,22 @@ const routes = [
     meta: { title: 'AI标书生成' }
   },
   {
+    path: '/bid/doc/smart',
+    name: 'bid-doc-smart-form',
+    component: BidDocSmartFormView,
+    meta: { title: 'AI标书生成（智能版）' }
+  },
+  {
     path: '/bid/doc/generating',
     name: 'bid-doc-generating',
     component: BidDocGeneratingView,
     meta: { title: 'AI标书生成中' }
+  },
+  {
+    path: '/bid/doc/skeleton',
+    name: 'bid-doc-skeleton',
+    component: BidDocSkeletonView,
+    meta: { title: '标书骨架预览' }
   },
   {
     path: '/bid/doc/result',
@@ -176,6 +199,12 @@ const routes = [
     name: 'bid-subscription',
     component: BidSubscriptionView,
     meta: { title: '标讯订阅' }
+  },
+  {
+    path: '/bid/list-detail',
+    name: 'bid-list-detail',
+    component: BidListDetailView,
+    meta: { title: '标讯列表', fullScreen: true }
   },
 
   // 素材库模块

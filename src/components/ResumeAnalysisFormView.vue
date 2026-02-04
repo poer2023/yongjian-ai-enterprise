@@ -16,7 +16,8 @@ import {
   MapPin,
   GraduationCap,
   Clock,
-  Check
+  Check,
+  Eye
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
@@ -95,6 +96,8 @@ const jdLibrary = ref<JobDescription[]>([
 
 // Add JD form data
 const showAddJdModal = ref(false);
+const showJdDetailModal = ref(false);
+const selectedJdForDetail = ref<JobDescription | null>(null);
 const addMode = ref<'manual' | 'paste'>('manual');
 const pasteContent = ref('');
 const newJd = ref({
@@ -220,6 +223,16 @@ const removeJd = (id: number) => {
 
 const selectJd = (id: number) => {
   selectedJdId.value = selectedJdId.value === id ? null : id;
+};
+
+const openJdDetail = (jd: JobDescription) => {
+  selectedJdForDetail.value = jd;
+  showJdDetailModal.value = true;
+};
+
+const closeJdDetailModal = () => {
+  showJdDetailModal.value = false;
+  selectedJdForDetail.value = null;
 };
 
 const handleSubmit = () => {
@@ -354,6 +367,9 @@ const handleSubmit = () => {
                   <span v-if="jd.skills.length > 3" class="skill-more">+{{ jd.skills.length - 3 }}</span>
                 </span>
                 <span class="col-action">
+                  <button class="jd-view-btn" @click.stop="openJdDetail(jd)" title="查看详情">
+                    <Eye :size="14" />
+                  </button>
                   <button class="jd-delete-btn" @click.stop="removeJd(jd.id)">
                     <Trash2 :size="14" />
                   </button>
@@ -367,7 +383,7 @@ const handleSubmit = () => {
         <div class="submit-container">
           <button
             class="submit-btn"
-            :disabled="uploadedResumes.length === 0 || !selectedJdId"
+            :disabled="!selectedJdId"
             @click="handleSubmit"
           >
             开始分析
@@ -509,6 +525,82 @@ const handleSubmit = () => {
           <button class="btn-confirm" @click="addJdToLibrary" :disabled="!newJd.jobName.trim()">
             添加到 JD 库
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JD Detail Modal -->
+    <div v-if="showJdDetailModal && selectedJdForDetail" class="modal-overlay" @click.self="closeJdDetailModal">
+      <div class="modal-content detail-modal">
+        <div class="modal-header">
+          <h3>岗位详情</h3>
+          <button class="modal-close" @click="closeJdDetailModal">
+            <X :size="20" />
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-section">
+            <div class="detail-header">
+              <Briefcase :size="20" class="detail-icon" />
+              <span class="detail-job-name">{{ selectedJdForDetail.jobName }}</span>
+              <span class="detail-salary">{{ selectedJdForDetail.salaryRange }}</span>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">工作地点</span>
+              <span class="detail-value">{{ selectedJdForDetail.location }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">学历要求</span>
+              <span class="detail-value">{{ selectedJdForDetail.education }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">经验要求</span>
+              <span class="detail-value">{{ selectedJdForDetail.experience }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">发布时间</span>
+              <span class="detail-value">{{ selectedJdForDetail.createdAt }}</span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4 class="detail-section-title">技能要求</h4>
+            <div class="detail-skills">
+              <span v-for="skill in selectedJdForDetail.skills" :key="skill" class="detail-skill-tag">
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4 class="detail-section-title">岗位职责</h4>
+            <ul class="detail-list">
+              <li>负责公司核心业务系统的开发与维护</li>
+              <li>参与系统架构设计和技术方案评审</li>
+              <li>编写高质量、可维护的代码</li>
+              <li>配合团队完成项目交付，确保代码质量</li>
+            </ul>
+          </div>
+
+          <div class="detail-section">
+            <h4 class="detail-section-title">任职要求</h4>
+            <ul class="detail-list">
+              <li>{{ selectedJdForDetail.education }}学历，计算机相关专业优先</li>
+              <li>{{ selectedJdForDetail.experience }}相关工作经验</li>
+              <li v-for="skill in selectedJdForDetail.skills.slice(0, 3)" :key="skill">
+                熟练掌握 {{ skill }} 相关技术
+              </li>
+              <li>具有良好的沟通能力和团队协作精神</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-confirm" @click="closeJdDetailModal">关闭</button>
         </div>
       </div>
     </div>
@@ -933,6 +1025,27 @@ const handleSubmit = () => {
 .col-action {
   display: flex;
   justify-content: center;
+  gap: 6px;
+}
+
+.jd-view-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.jd-view-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #2563eb;
 }
 
 .jd-delete-btn {
@@ -1296,5 +1409,99 @@ const handleSubmit = () => {
 .btn-confirm:disabled {
   background: #94a3b8;
   cursor: not-allowed;
+}
+
+/* JD Detail Modal */
+.detail-modal {
+  width: 600px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.detail-icon {
+  color: #2563eb;
+}
+
+.detail-job-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.detail-salary {
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.detail-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+}
+
+.detail-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-skill-tag {
+  padding: 6px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+
+.detail-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.detail-list li {
+  margin-bottom: 4px;
 }
 </style>

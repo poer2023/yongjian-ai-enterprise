@@ -175,15 +175,24 @@ const handleTagClick = (tag: string) => {
 <style scoped>
 .bid-search-page {
   min-height: 100%;
+  height: 100%;
   background: #f8fafc;
   padding: 0 24px 40px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 内容容器 - 限制最大宽度并居中 */
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: calc(38.2vh - 100px);
 }
 
 /* Hero 搜索区 */
