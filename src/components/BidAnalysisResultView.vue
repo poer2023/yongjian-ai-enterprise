@@ -237,6 +237,12 @@ const goBack = () => {
   router.push({ name: 'bid-info-daily' });
 };
 
+// Scroll to section (simple version for report section clicks)
+const scrollToSection = (targetSection: string) => {
+  const element = document.getElementById(targetSection);
+  element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const getStatusIcon = (status: string) => {
   return status === 'match' ? CheckCircle : status === 'partial' ? Clock : XCircle;
 };

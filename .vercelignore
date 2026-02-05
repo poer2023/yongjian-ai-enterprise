@@ -1,3 +1,5 @@
 public/docs/
+dist/docs/
 *.docx
 node_modules/
+.git/

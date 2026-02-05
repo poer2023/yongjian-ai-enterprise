@@ -138,7 +138,7 @@ onMounted(() => {
   const bidId = route.query.bidId;
   if (bidId) {
     selectedBidId.value = parseInt(bidId as string);
-  } else if (bidList.value.length > 0) {
+  } else if (bidList.value.length > 0 && bidList.value[0]) {
     selectedBidId.value = bidList.value[0].id;
   }
 });

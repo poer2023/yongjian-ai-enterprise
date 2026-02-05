@@ -237,7 +237,8 @@ const dataByPolicyAndDate: DataByPolicy = {
 // 计算当前日期和策略组的数据
 const currentData = computed(() => {
   const policyData = dataByPolicyAndDate[activePolicyId.value] || dataByPolicyAndDate['all'];
-  return policyData[currentDate.value.date] || policyData['2026-02-04'];
+  if (!policyData || !currentDate.value) return null;
+  return policyData[currentDate.value.date] || policyData['2026-02-04'] || null;
 });
 
 const goToDetail = (id: number) => {
@@ -258,7 +259,7 @@ const selectedBidId = ref<number | null>(null);
 
 const openFullscreen = () => {
   isFullscreen.value = true;
-  if (currentData.value.allBids.length > 0) {
+  if (currentData.value && currentData.value.allBids.length > 0 && currentData.value.allBids[0]) {
     selectedBidId.value = currentData.value.allBids[0].id;
   }
 };
@@ -273,7 +274,7 @@ const selectBid = (id: number) => {
 };
 
 const selectedBidDetail = computed(() => {
-  if (!selectedBidId.value) return null;
+  if (!selectedBidId.value || !currentData.value) return null;
   const bid = currentData.value.allBids.find(b => b.id === selectedBidId.value);
   if (!bid) return null;
   // Return detailed mock data
@@ -325,8 +326,8 @@ const getMatchScoreClass = (score: number) => {
           </button>
           <div class="date-display">
             <Calendar :size="16" />
-            <span class="date-label">{{ currentDate.label }}</span>
-            <span class="date-value">{{ currentDate.date }}</span>
+            <span class="date-label">{{ currentDate?.label ?? '' }}</span>
+            <span class="date-value">{{ currentDate?.date ?? '' }}</span>
           </div>
           <button class="date-arrow" :disabled="currentDateIndex <= 0" @click="nextDate">
             <ChevronRight :size="18" />
@@ -364,7 +365,7 @@ const getMatchScoreClass = (score: number) => {
             <div class="card-header">
               <div class="header-title">
                 <Sparkles :size="18" class="sparkles-icon" />
-                <h2>{{ currentDate.label }}标讯总结</h2>
+                <h2>{{ currentDate?.label ?? '' }}标讯总结</h2>
               </div>
               <button class="report-link" @click="goToFullReport">
                 <ScrollText :size="14" />
@@ -372,7 +373,7 @@ const getMatchScoreClass = (score: number) => {
               </button>
             </div>
             <div class="summary-content">
-              <p>{{ currentData.summary }}</p>
+              <p>{{ currentData?.summary ?? '' }}</p>
             </div>
           </section>
 
@@ -382,12 +383,12 @@ const getMatchScoreClass = (score: number) => {
               <div class="header-title">
                 <Star :size="18" class="star-icon" />
                 <h2>重点标讯</h2>
-                <span class="count-badge">{{ currentData.highlights.length }} 条高匹配</span>
+                <span class="count-badge">{{ currentData?.highlights?.length ?? 0 }} 条高匹配</span>
               </div>
             </div>
             <div class="highlight-list">
               <div
-                v-for="bid in currentData.highlights"
+                v-for="bid in currentData?.highlights ?? []"
                 :key="bid.id"
                 class="highlight-item"
                 @click="goToDetail(bid.id)"
@@ -440,7 +441,7 @@ const getMatchScoreClass = (score: number) => {
               <div class="header-title">
                 <Bell :size="18" />
                 <h2>全部标讯</h2>
-                <span class="count-badge">{{ currentData.allBids.length }} 条</span>
+                <span class="count-badge">{{ currentData?.allBids?.length ?? 0 }} 条</span>
               </div>
               <button class="view-all-btn" @click="openFullscreen">
                 <Maximize2 :size="14" />
@@ -449,7 +450,7 @@ const getMatchScoreClass = (score: number) => {
             </div>
             <div class="bid-list">
               <div
-                v-for="bid in currentData.allBids.slice(0, 8)"
+                v-for="bid in (currentData?.allBids ?? []).slice(0, 8)"
                 :key="bid.id"
                 class="bid-list-item"
                 @click="goToDetail(bid.id)"
@@ -462,9 +463,9 @@ const getMatchScoreClass = (score: number) => {
                 <ChevronRight :size="16" class="list-arrow" />
               </div>
             </div>
-            <div v-if="currentData.allBids.length > 8" class="list-footer">
+            <div v-if="(currentData?.allBids?.length ?? 0) > 8" class="list-footer">
               <button class="more-btn" @click="openFullscreen">
-                查看全部 {{ currentData.allBids.length }} 条标讯
+                查看全部 {{ currentData?.allBids?.length ?? 0 }} 条标讯
                 <ChevronRight :size="14" />
               </button>
             </div>
@@ -482,7 +483,7 @@ const getMatchScoreClass = (score: number) => {
             <span>返回</span>
           </button>
           <h1 class="header-title">全部标讯列表</h1>
-          <span class="header-count">共 {{ currentData.allBids.length }} 条</span>
+          <span class="header-count">共 {{ currentData?.allBids?.length ?? 0 }} 条</span>
         </div>
       </header>
       <div class="fullscreen-body">
@@ -494,7 +495,7 @@ const getMatchScoreClass = (score: number) => {
           </div>
           <div class="file-list">
             <div
-              v-for="bid in currentData.allBids"
+              v-for="bid in currentData?.allBids ?? []"
               :key="bid.id"
               class="file-item"
               :class="{ active: selectedBidId === bid.id }"

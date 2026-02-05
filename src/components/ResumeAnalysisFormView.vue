@@ -205,10 +205,10 @@ const addJdToLibrary = () => {
     jobName: newJd.value.jobName.trim(),
     salaryRange: newJd.value.salaryRange.trim() || '面议',
     location: newJd.value.location.trim() || '上海',
-    education: newJd.value.education || '本科及以上',
-    experience: newJd.value.experience || '不限',
+    education: newJd.value.education ?? '本科及以上',
+    experience: newJd.value.experience ?? '不限',
     skills: skillsArray.length > 0 ? skillsArray : ['待补充'],
-    createdAt: new Date().toISOString().split('T')[0]
+    createdAt: new Date().toISOString().split('T')[0] ?? ''
   });
 
   closeAddJdModal();

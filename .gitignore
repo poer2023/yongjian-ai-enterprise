@@ -22,3 +22,8 @@ npm-debug.log*
 
 # TypeScript cache
 *.tsbuildinfo
+.vercel
+
+# Large files
+public/docs/
+*.docx

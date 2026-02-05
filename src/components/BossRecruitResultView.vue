@@ -51,6 +51,18 @@ const currentJd = computed(() => {
 // Dashboard stats for current JD
 const dashboardStats = computed(() => {
   const jd = currentJd.value;
+  if (!jd) {
+    return {
+      todayGreetings: 0,
+      todayResumes: 0,
+      replyRate: '0',
+      totalResumes: 0,
+      pendingCount: 0,
+      collectedCount: 0,
+      interviewCount: 0,
+      rejectedCount: 0,
+    };
+  }
   return {
     todayGreetings: jd.todayGreetings,
     todayResumes: jd.todayResumes,
@@ -207,11 +219,11 @@ const handleReject = (resume: Resume) => {
       <!-- Header -->
       <div class="content-header">
         <div class="header-left">
-          <h1>{{ currentJd.jobName }}</h1>
-          <span class="header-salary">{{ currentJd.salaryRange }}</span>
-          <span class="header-status" :class="currentJd.status">
+          <h1>{{ currentJd?.jobName ?? '' }}</h1>
+          <span class="header-salary">{{ currentJd?.salaryRange ?? '' }}</span>
+          <span class="header-status" :class="currentJd?.status ?? ''">
             <span class="status-dot"></span>
-            {{ currentJd.status === 'running' ? '运行中' : '已暂停' }}
+            {{ currentJd?.status === 'running' ? '运行中' : '已暂停' }}
           </span>
         </div>
         <div class="header-actions">

@@ -76,7 +76,7 @@ const enterprises = ref<Enterprise[]>([
   }
 ]);
 
-const selectedEnterprise = ref<Enterprise | null>(enterprises.value[0]);
+const selectedEnterprise = ref<Enterprise | null>(enterprises.value[0] ?? null);
 
 // Parse state
 const isParsing = ref(false);
@@ -180,7 +180,7 @@ const goBack = () => {
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    uploadedFile.value = target.files[0];
+    uploadedFile.value = target.files[0] ?? null;
     target.value = '';
   }
 };

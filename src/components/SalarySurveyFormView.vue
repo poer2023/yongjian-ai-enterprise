@@ -72,7 +72,7 @@ const addPosition = () => {
     salary: salary,
     marketAvg: marketAvg,
     region: '上海',
-    addedDate: new Date().toISOString().split('T')[0],
+    addedDate: new Date().toISOString().split('T')[0] ?? '',
   });
 
   newJobName.value = '';
@@ -102,7 +102,7 @@ const handleFileUpload = (event: Event) => {
           salary: item.salary,
           marketAvg: marketAvg,
           region: '上海',
-          addedDate: new Date().toISOString().split('T')[0],
+          addedDate: new Date().toISOString().split('T')[0] ?? '',
         });
       }, 500 * (index + 1));
     });

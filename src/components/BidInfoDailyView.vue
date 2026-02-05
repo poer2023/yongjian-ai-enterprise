@@ -358,7 +358,7 @@ const filterCounts = computed(() => {
     else counts.type.engineering++;
 
     if (counts.region[bid.region] !== undefined) {
-      counts.region[bid.region]++;
+      counts.region[bid.region] = (counts.region[bid.region] ?? 0) + 1;
     }
   });
 
@@ -751,7 +751,7 @@ const hasActiveFilters = computed(() => {
                 <ChevronLeft :size="14" />
               </button>
 
-              <template v-if="visiblePages[0] > 1">
+              <template v-if="visiblePages && visiblePages[0] && visiblePages[0] > 1">
                 <button class="page-btn" @click="currentPage = 1">1</button>
                 <span class="page-ellipsis" v-if="visiblePages[0] > 2">...</span>
               </template>
@@ -766,8 +766,8 @@ const hasActiveFilters = computed(() => {
                 {{ page }}
               </button>
 
-              <template v-if="visiblePages[visiblePages.length - 1] < totalPages">
-                <span class="page-ellipsis" v-if="visiblePages[visiblePages.length - 1] < totalPages - 1">...</span>
+              <template v-if="visiblePages && visiblePages.length > 0 && visiblePages[visiblePages.length - 1] && visiblePages[visiblePages.length - 1]! < totalPages">
+                <span class="page-ellipsis" v-if="visiblePages[visiblePages.length - 1]! < totalPages - 1">...</span>
                 <button class="page-btn" @click="currentPage = totalPages">{{ totalPages }}</button>
               </template>
 
