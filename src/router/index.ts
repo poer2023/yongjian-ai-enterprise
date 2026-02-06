@@ -13,29 +13,34 @@ import ProjectCaseView from '../components/ProjectCaseView.vue';
 import AssetUploadView from '../components/assets/AssetUploadView.vue';
 
 // HR模块
-import BossRecruitFormView from '../components/BossRecruitFormView.vue';
+import BossRecruitFormView from '../components/boss-recruit/BossRecruitFormView.vue';
 import BossRecruitResultView from '../components/BossRecruitResultView.vue';
-import ResumeAnalysisFormView from '../components/ResumeAnalysisFormView.vue';
+import ResumeAnalysisFormView from '../components/resume-analysis/ResumeAnalysisFormView.vue';
 import ResumeAnalysisResultView from '../components/ResumeAnalysisResultView.vue';
-import SalarySurveyFormView from '../components/SalarySurveyFormView.vue';
+import SalarySurveyFormView from '../components/salary-survey/SalarySurveyFormView.vue';
 import SalarySurveyResultView from '../components/SalarySurveyResultView.vue';
 
 // 投标模块
 import BidInfoFormView from '../components/BidInfoFormView.vue';
-import BidInfoDailyView from '../components/BidInfoDailyView.vue';
+import BidInfoDailyView from '../components/bid-info-daily/BidInfoDailyView.vue';
 import BidAnalysisFormView from '../components/BidAnalysisFormView.vue';
-import BidAnalysisResultView from '../components/BidAnalysisResultView.vue';
-import BidDocFormView from '../components/BidDocFormView.vue';
-import BidDocSmartFormView from '../components/BidDocSmartFormView.vue';
+import BidAnalysisResultView from '../components/bid-analysis-result/BidAnalysisResultView.vue';
+import BidDocFormView from '../components/bid-doc-form/BidDocFormView.vue';
+import BidDocSmartFormView from '../components/bid-doc-smart/BidDocSmartFormView.vue';
 import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
-import BidDocSkeletonView from '../components/BidDocSkeletonView.vue';
+import BidDocSkeletonView from '../components/bid-doc-skeleton/BidDocSkeletonView.vue';
 import BidDetailView from '../components/BidDetailView.vue';
-import BidDailyReportView from '../components/BidDailyReportView.vue';
-import BidSubscriptionView from '../components/BidSubscriptionView.vue';
+import BidDailyReportView from '../components/bid-daily-report/BidDailyReportView.vue';
+import BidSubscriptionView from '../components/bid-subscription/BidSubscriptionView.vue';
+import BidIndustryReportView from '../components/bid-industry-report/BidIndustryReportView.vue';
 import BidListDetailView from '../components/BidListDetailView.vue';
 import KnowledgeBaseView from '../components/KnowledgeBaseView.vue';
-import EnterpriseMaterialView from '../components/EnterpriseMaterialView.vue';
+import EnterpriseMaterialView from '../components/enterprise-material/EnterpriseMaterialView.vue';
+
+// 合同模块
+import ContractCompareResultView from '../components/contract-compare/ContractCompareResultView.vue';
+import ContractReviewResultView from '../components/contract-review/ContractReviewResultView.vue';
 
 // Placeholder views - can be replaced with actual components later
 const PlaceholderView = {
@@ -205,6 +210,26 @@ const routes = [
     name: 'bid-list-detail',
     component: BidListDetailView,
     meta: { title: '标讯列表', fullScreen: true }
+  },
+  {
+    path: '/bid/industry-report',
+    name: 'bid-industry-report',
+    component: BidIndustryReportView,
+    meta: { title: '行业分析报告', fullScreen: true }
+  },
+
+  // 合同模块
+  {
+    path: '/contract/compare/result',
+    name: 'contract-compare-result',
+    component: ContractCompareResultView,
+    meta: { title: '合同对比结果', fullScreen: true }
+  },
+  {
+    path: '/contract/review/result',
+    name: 'contract-review-result',
+    component: ContractReviewResultView,
+    meta: { title: '合同审查结果', fullScreen: true }
   },
 
   // 素材库模块

@@ -8,7 +8,14 @@ import {
   Search,
   Upload,
   Flame,
-  X
+  X,
+  Building2,
+  Award,
+  Briefcase,
+  Users,
+  ChevronDown,
+  Check,
+  ExternalLink
 } from 'lucide-vue-next';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -23,6 +30,64 @@ const preloadedFileName = ref(route.query.fileName as string || '');
 const uploadedFile = ref<File | null>(null);
 const additionalInfo = ref('');
 const maxLength = 5000;
+
+// Enterprise selection
+const showEnterpriseDropdown = ref(false);
+
+interface Enterprise {
+  id: number;
+  name: string;
+  certCount: number;
+  caseCount: number;
+  teamCount: number;
+  recentCerts: string[];
+}
+
+const enterprises = ref<Enterprise[]>([
+  {
+    id: 1,
+    name: '深圳市智联云科技术有限公司',
+    certCount: 6,
+    caseCount: 8,
+    teamCount: 6,
+    recentCerts: ['高新技术企业', 'ISO9001', 'CMMI3']
+  },
+  {
+    id: 2,
+    name: '北京华信安全科技有限公司',
+    certCount: 8,
+    caseCount: 12,
+    teamCount: 10,
+    recentCerts: ['等保三级', 'ISO27001', 'CMMI5']
+  },
+  {
+    id: 3,
+    name: '上海数智信息技术有限公司',
+    certCount: 5,
+    caseCount: 6,
+    teamCount: 8,
+    recentCerts: ['软件企业认证', 'ISO9001', '双软认证']
+  },
+  {
+    id: 4,
+    name: '广州云端网络科技有限公司',
+    certCount: 4,
+    caseCount: 5,
+    teamCount: 5,
+    recentCerts: ['高新技术企业', 'ISO9001']
+  }
+]);
+
+const selectedEnterprise = ref<Enterprise | null>(enterprises.value[0] ?? null);
+
+const selectEnterprise = (enterprise: Enterprise) => {
+  selectedEnterprise.value = enterprise;
+  showEnterpriseDropdown.value = false;
+};
+
+const goToMaterialLibrary = () => {
+  router.push({ name: 'enterprise-material' });
+};
 
 const templateTypes = [
   { icon: FileSearch, label: '标讯解读', active: true },
@@ -45,7 +110,7 @@ const features = [
 ];
 
 const goBack = () => {
-  router.push({ name: 'agents' });
+  router.push({ name: 'bid-subscription' });
 };
 
 const handleFileUpload = (event: Event) => {
@@ -148,6 +213,64 @@ const handleSubmit = () => {
             <button class="remove-file-btn" @click="removeFile">
               <X :size="18" />
             </button>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="form-group">
+          <label class="form-label">投标主体</label>
+          <p class="field-hint">选择参与投标的企业，AI 将基于该企业素材库进行资质匹配</p>
+          <div class="enterprise-selector">
+            <div
+              class="enterprise-selected"
+              @click="showEnterpriseDropdown = !showEnterpriseDropdown"
+            >
+              <template v-if="selectedEnterprise">
+                <div class="enterprise-icon">
+                  <Building2 :size="18" />
+                </div>
+                <div class="enterprise-info">
+                  <span class="enterprise-name">{{ selectedEnterprise.name }}</span>
+                  <div class="enterprise-stats">
+                    <span class="stat-item">
+                      <Award :size="12" />
+                      {{ selectedEnterprise.certCount }} 项资质
+                    </span>
+                    <span class="stat-item">
+                      <Briefcase :size="12" />
+                      {{ selectedEnterprise.caseCount }} 个案例
+                    </span>
+                    <span class="stat-item">
+                      <Users :size="12" />
+                      {{ selectedEnterprise.teamCount }} 名成员
+                    </span>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <span class="placeholder-text">请选择投标主体企业</span>
+              </template>
+              <ChevronDown :size="18" class="dropdown-arrow" :class="{ rotated: showEnterpriseDropdown }" />
+            </div>
+
+            <!-- Dropdown -->
+            <div v-if="showEnterpriseDropdown" class="enterprise-dropdown">
+              <div
+                v-for="enterprise in enterprises"
+                :key="enterprise.id"
+                class="dropdown-item"
+                :class="{ selected: selectedEnterprise?.id === enterprise.id }"
+                @click="selectEnterprise(enterprise)"
+              >
+                <div class="dropdown-item-content">
+                  <span class="item-name">{{ enterprise.name }}</span>
+                  <div class="item-certs">
+                    <span v-for="cert in enterprise.recentCerts" :key="cert" class="cert-tag">{{ cert }}</span>
+                  </div>
+                </div>
+                <Check v-if="selectedEnterprise?.id === enterprise.id" :size="16" class="check-icon" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -656,5 +779,181 @@ const handleSubmit = () => {
   color: #2563eb;
   font-size: 8px;
   margin-top: 5px;
+}
+
+/* Enterprise Selector */
+.field-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.enterprise-selector {
+  position: relative;
+}
+
+.enterprise-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.enterprise-selected:hover {
+  border-color: #3b82f6;
+}
+
+.enterprise-icon {
+  width: 40px;
+  height: 40px;
+  background: #eff6ff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.enterprise-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.enterprise-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.enterprise-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.placeholder-text {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.dropdown-arrow {
+  color: #94a3b8;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.enterprise-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.dropdown-item.selected {
+  background: #eff6ff;
+}
+
+.dropdown-item-content {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.item-certs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cert-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  color: #64748b;
+}
+
+.dropdown-item.selected .cert-tag {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.check-icon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.dropdown-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.go-material-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.go-material-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
 }
 </style>

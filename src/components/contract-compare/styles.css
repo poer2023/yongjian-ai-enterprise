@@ -1,0 +1,36 @@
+@import '../../styles/document-layout.css';
+
+/* Contract Compare specific styles */
+
+/* Clause state styles */
+.contract-clause.has-pending {
+  background: transparent;
+  border-color: transparent;
+}
+
+.contract-clause.has-issues:not(.has-pending) {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Highlight block state overrides */
+.highlight-block.risk-high { background: transparent; border-color: transparent; }
+.highlight-block.risk-medium { background: transparent; border-color: transparent; }
+.highlight-block.risk-low { background: transparent; border-color: transparent; }
+
+/* Diff line colors - Blue/Orange theme for contract comparison */
+.diff-line {
+  text-decoration: none;
+}
+
+.diff-line.del {
+  background-color: #eff6ff;
+  color: #1e40af;
+  text-decoration: line-through;
+  text-decoration-color: rgba(30, 64, 175, 0.4);
+}
+
+.diff-line.add {
+  background-color: #fff7ed;
+  color: #c2410c;
+}

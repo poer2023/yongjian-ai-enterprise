@@ -1,0 +1,376 @@
+@import '../../styles/index.css';
+
+/* BidDocFormView Styles */
+
+/* Component-specific overrides */
+
+.help-icon {
+  color: #94a3b8;
+  cursor: help;
+}
+
+/* Upload Wrapper */
+.upload-wrapper {
+  width: 100%;
+}
+
+.upload-icon {
+  color: #94a3b8;
+}
+
+.input-hint {
+  position: absolute;
+  right: 12px;
+  bottom: -20px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Select */
+.select-wrapper {
+  width: 100%;
+}
+
+.form-select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus {
+  border-color: #2563eb;
+}
+
+/* Toggle Cards */
+.toggle-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.toggle-cards.two-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.toggle-card {
+  padding: 14px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #475569;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-card:hover:not(.active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.toggle-card.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* Outline Cards */
+.outline-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.outline-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.outline-card:hover:not(.active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.outline-card.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.outline-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.outline-card.active .outline-label {
+  color: #2563eb;
+}
+
+.outline-desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Page Slider */
+.page-value {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.slider-wrapper {
+  padding: 0 4px;
+}
+
+.page-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e2e8f0;
+  border-radius: 3px;
+  outline: none;
+}
+
+.page-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #2563eb;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Writing Style Cards */
+.style-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.style-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.style-card:hover:not(.active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.style-card.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.style-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.style-card.active .style-label {
+  color: #2563eb;
+}
+
+.style-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Config Options */
+.config-options-inline {
+  display: flex;
+  gap: 8px;
+}
+
+.config-option {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-option:hover:not(.active) {
+  background: #f1f5f9;
+}
+
+.config-option.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+/* Textarea Override */
+.textarea-wrapper {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+.textarea-wrapper:focus-within {
+  border-color: #2563eb;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px 16px;
+  padding-bottom: 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.form-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 60px;
+  bottom: 10px;
+  padding: 2px 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clear-btn:hover {
+  color: #2563eb;
+}
+
+/* Material Control Panel */
+.material-control-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.material-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.material-section-header {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.material-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.material-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.material-item:hover {
+  border-color: #cbd5e1;
+}
+
+.material-item.selected {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.material-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.2s;
+}
+
+.material-item.selected .material-checkbox {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.material-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.material-name {
+  font-size: 14px;
+  color: #334155;
+}
+
+.material-item.selected .material-name {
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.material-meta {
+  font-size: 12px;
+  color: #94a3b8;
+}

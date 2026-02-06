@@ -137,7 +137,15 @@ const selectedBidId = ref<number>(1);
 onMounted(() => {
   const bidId = route.query.bidId;
   if (bidId) {
-    selectedBidId.value = parseInt(bidId as string);
+    const parsedId = parseInt(bidId as string);
+    // Check if the bidId exists in mock data, if not fallback to first item
+    const exists = bidList.value.some(b => b.id === parsedId);
+    if (exists) {
+      selectedBidId.value = parsedId;
+    } else if (bidList.value.length > 0 && bidList.value[0]) {
+      // Fallback to first item if bidId doesn't exist in mock data
+      selectedBidId.value = bidList.value[0].id;
+    }
   } else if (bidList.value.length > 0 && bidList.value[0]) {
     selectedBidId.value = bidList.value[0].id;
   }

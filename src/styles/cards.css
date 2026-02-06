@@ -1,0 +1,109 @@
+/* Card Styles */
+.section-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  color: #2563eb;
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.required-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 4px;
+}
+
+.optional-tag {
+  padding: 2px 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.icon-cards {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-cards.three-col {
+  display: flex;
+}
+
+.icon-cards.two-col {
+  display: flex;
+}
+
+.icon-card {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.icon-card:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.icon-card.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.card-icon {
+  font-size: 16px;
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.icon-card.active .card-icon {
+  color: #3b82f6;
+}
+
+.card-label {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.icon-card.active .card-label {
+  color: #3b82f6;
+}

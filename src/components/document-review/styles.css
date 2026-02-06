@@ -1,0 +1,27 @@
+@import '../../styles/document-layout.css';
+
+/* Document Review specific styles */
+
+/* Clause state styles */
+.contract-clause.has-pending {
+  background: transparent;
+  border-color: transparent;
+}
+
+.contract-clause.has-issues:not(.has-pending) {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Diff line colors - Red/Green theme for document review */
+.diff-line.del {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  text-decoration: line-through;
+  text-decoration-color: rgba(185, 28, 28, 0.4);
+}
+
+.diff-line.add {
+  background-color: #dcfce7;
+  color: #15803d;
+}

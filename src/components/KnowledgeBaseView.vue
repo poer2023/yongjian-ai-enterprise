@@ -4,15 +4,14 @@ import {
   Plus,
   ChevronDown,
   Search,
-  MoreHorizontal,
   Clock,
   Send,
-  Network,
   FolderPlus,
   Upload,
   Link,
   ClipboardPaste
 } from 'lucide-vue-next';
+import FileItem from './enterprise-material/components/FileItem.vue';
 
 // Folder data
 const folders = ref([
@@ -33,17 +32,17 @@ const folders = ref([
   { id: 15, name: '公司资料' }
 ]);
 
-// File list data
+// File list data - compatible with SourceFile type
 const files = ref([
-  { id: 1, name: 'die religionsgesprache der reformationsz...', size: '9.36MB', words: '15.78万字', creator: '亚光' },
-  { id: 2, name: '《上海市进一步扩大人工智能应用的若干措施...', size: '212.26KB', words: '0.13万字', creator: '包子-运营' },
-  { id: 3, name: '《上海市加快推动"AI+制造"发展的实施方案...', size: '373.79KB', words: '0.43万字', creator: '包子-运营' },
-  { id: 4, name: '上海市经济和信息化委员会关于印发《上海市...', size: '641.66KB', words: '0.65万字', creator: '包子-运营' },
-  { id: 5, name: '中华人民共和国国民经济和社会发展第十四个...', size: '30.31MB', words: '4.91万字', creator: '包子-运营' },
-  { id: 6, name: 'Agent上下文工程调研报告.pdf', size: '152.20KB', words: '0.39万字', creator: 'sinder' },
-  { id: 7, name: 'DeepSeek 推动下生成式AI走势及其图书馆应...', size: '1.79MB', words: '0.85万字', creator: 'sinder' },
-  { id: 8, name: 'opening up military innovation- causal eff...', size: '7.25MB', words: '6.54万字', creator: '黑莉-课题1' },
-  { id: 9, name: '06.Profiles in neglect of older adult care ...', size: '206.51KB', words: '1.69万字', creator: '大量' }
+  { id: 1, name: 'die religionsgesprache der reformationsz...', size: '9.36MB', words: '15.78万字', creator: '亚光', status: 'completed' as const, materialCount: 0 },
+  { id: 2, name: '《上海市进一步扩大人工智能应用的若干措施...', size: '212.26KB', words: '0.13万字', creator: '包子-运营', status: 'completed' as const, materialCount: 0 },
+  { id: 3, name: '《上海市加快推动"AI+制造"发展的实施方案...', size: '373.79KB', words: '0.43万字', creator: '包子-运营', status: 'completed' as const, materialCount: 0 },
+  { id: 4, name: '上海市经济和信息化委员会关于印发《上海市...', size: '641.66KB', words: '0.65万字', creator: '包子-运营', status: 'completed' as const, materialCount: 0 },
+  { id: 5, name: '中华人民共和国国民经济和社会发展第十四个...', size: '30.31MB', words: '4.91万字', creator: '包子-运营', status: 'completed' as const, materialCount: 0 },
+  { id: 6, name: 'Agent上下文工程调研报告.pdf', size: '152.20KB', words: '0.39万字', creator: 'sinder', status: 'completed' as const, materialCount: 0 },
+  { id: 7, name: 'DeepSeek 推动下生成式AI走势及其图书馆应...', size: '1.79MB', words: '0.85万字', creator: 'sinder', status: 'completed' as const, materialCount: 0 },
+  { id: 8, name: 'opening up military innovation- causal eff...', size: '7.25MB', words: '6.54万字', creator: '黑莉-课题1', status: 'completed' as const, materialCount: 0 },
+  { id: 9, name: '06.Profiles in neglect of older adult care ...', size: '206.51KB', words: '1.69万字', creator: '大量', status: 'completed' as const, materialCount: 0 }
 ]);
 
 // Suggestions
@@ -120,7 +119,6 @@ onUnmounted(() => {
       <div class="page-header">
         <div class="header-left">
           <div class="header-icon-circle">
-            <!-- Tree structure icon SVG -->
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="5" r="3" stroke="#3b82f6" stroke-width="2"/>
               <circle cx="5" cy="19" r="3" stroke="#3b82f6" stroke-width="2"/>
@@ -139,27 +137,27 @@ onUnmounted(() => {
             <ChevronDown :size="16" stroke-width="2.5" />
           </button>
           <div v-if="showAddMenu" class="add-menu">
-              <div class="menu-item">
-                <FolderPlus :size="16" />
-                <span>新建文件夹</span>
-              </div>
-              <div class="menu-item">
-                <Upload :size="16" />
-                <span>本地上传</span>
-              </div>
-              <div class="menu-item">
-                <Link :size="16" />
-                <span>网址导入</span>
-              </div>
-              <div class="menu-item">
-                <Search :size="16" />
-                <span>搜索添加</span>
-              </div>
-              <div class="menu-item">
-                <ClipboardPaste :size="16" />
-                <span>文本粘贴</span>
-              </div>
+            <div class="menu-item">
+              <FolderPlus :size="16" />
+              <span>新建文件夹</span>
             </div>
+            <div class="menu-item">
+              <Upload :size="16" />
+              <span>本地上传</span>
+            </div>
+            <div class="menu-item">
+              <Link :size="16" />
+              <span>网址导入</span>
+            </div>
+            <div class="menu-item">
+              <Search :size="16" />
+              <span>搜索添加</span>
+            </div>
+            <div class="menu-item">
+              <ClipboardPaste :size="16" />
+              <span>文本粘贴</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -184,11 +182,8 @@ onUnmounted(() => {
           class="folder-item"
         >
           <div class="folder-icon-wrapper">
-            <!-- Refined Folder SVG -->
             <svg width="60" height="48" viewBox="0 0 60 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Back tab (Darker Amber) -->
               <path d="M2.5 0C1.11929 0 0 1.11929 0 2.5V45.5C0 46.8807 1.11929 48 2.5 48H57.5C58.8807 48 60 46.8807 60 45.5V10.5C60 9.11929 58.8807 8 57.5 8H31L23 0H2.5Z" fill="#F59E0B"/>
-              <!-- Front tab (Lighter Amber) -->
               <path d="M60 45.5C60 46.8807 58.8807 48 57.5 48H2.5C1.11929 48 0 46.8807 0 45.5V14.5C0 13.1193 1.11929 12 2.5 12H57.5C58.8807 12 60 13.1193 60 14.5V45.5Z" fill="#FCD34D"/>
             </svg>
           </div>
@@ -196,28 +191,13 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Files - Table-like List -->
+      <!-- Files List -->
       <div class="files-list">
-        <div 
-          class="file-item-realign" 
-          v-for="file in files" 
+        <FileItem
+          v-for="file in files"
           :key="file.id"
-        >
-           <div class="file-col-icon">
-              <!-- Custom Red PDF Badge -->
-              <div class="pdf-badge">
-                <span class="pdf-text">PDF</span>
-              </div>
-           </div>
-           <div class="file-col-name" :title="file.name">{{ file.name }}</div>
-           <div class="file-col-meta">{{ file.size }}</div>
-           <div class="file-col-meta">{{ file.words }}</div>
-           <div class="file-col-creator">{{ file.creator }}</div>
-           <div class="file-col-actions">
-              <button class="action-icon-btn"><Search :size="14"/></button>
-              <button class="action-icon-btn"><MoreHorizontal :size="14"/></button>
-           </div>
-        </div>
+          :file="file"
+        />
       </div>
     </div>
 
@@ -234,7 +214,7 @@ onUnmounted(() => {
     <div class="chat-panel" :style="{ width: (100 - leftPanelWidth) + '%' }">
       <div class="chat-content">
         <div class="chat-header-hint">你可以这样提问</div>
-        
+
         <!-- Suggestions -->
         <div class="suggestions-list">
           <div
@@ -252,14 +232,14 @@ onUnmounted(() => {
       <!-- Input Area -->
       <div class="chat-input-area">
         <div class="action-buttons-row">
-            <button class="pill-btn">
-                <Plus :size="14" stroke-width="2.5" />
-                <span>新提问</span>
-            </button>
-            <button class="pill-btn">
-                <Clock :size="14" stroke-width="2.5" />
-                <span>提问记录</span>
-            </button>
+          <button class="pill-btn">
+            <Plus :size="14" stroke-width="2.5" />
+            <span>新提问</span>
+          </button>
+          <button class="pill-btn">
+            <Clock :size="14" stroke-width="2.5" />
+            <span>提问记录</span>
+          </button>
         </div>
         <div class="input-container">
           <textarea
@@ -283,7 +263,7 @@ onUnmounted(() => {
   flex: 1;
   height: 100%;
   display: flex;
-  background: #eff6ff; /* Global Blue 50 background */
+  background: #eff6ff;
   overflow: hidden;
   position: relative;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -297,7 +277,7 @@ onUnmounted(() => {
   overflow-y: auto;
   min-width: 480px;
   flex-shrink: 0;
-  background-color: #eff6ff; /* Match Sidebar Blue 50 */
+  background-color: #eff6ff;
 }
 
 .page-header {
@@ -317,8 +297,8 @@ onUnmounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: white; /* White circle stands out on blue bg */
-  border: 1px solid #dbeafe; /* Lighter border */
+  background: white;
+  border: 1px solid #dbeafe;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,14 +369,13 @@ onUnmounted(() => {
   color: #6b7280;
 }
 
-/* Search */
+/* Search - same as enterprise material */
 .search-bar {
   display: flex;
   align-items: center;
   height: 48px;
   background: white;
-  border: 1px solid #bfdbfe; /* Use blue tint border */
-  border-color: #3b82f6;
+  border: 1px solid #3b82f6;
   border-radius: 8px;
   padding: 0 4px 0 16px;
   margin-bottom: 32px;
@@ -433,7 +412,7 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-/* Folders */
+/* Folders - same as enterprise material */
 .folders-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -466,119 +445,23 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
-/* Files List */
+/* Files List - same as enterprise material */
 .files-list {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Gap between cards */
-}
-
-.file-item-realign {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  background: white; /* White card background */
-  border-radius: 16px; /* Rounded pill/card shape */
-  border: 1px solid transparent; 
-  gap: 16px;
-  transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02); /* Extremely subtle shadow */
-}
-
-.file-item-realign:hover {
-  background: white;
-  border-color: #bfdbfe; /* Blue border on hover */
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); /* Blue glow */
-}
-
-.file-col-icon {
-  width: 32px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-}
-
-.pdf-badge {
-  width: 24px;
-  height: 24px;
-  background: #ef4444;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.pdf-text {
-  font-size: 8px;
-  font-weight: 800;
-  color: white;
-  letter-spacing: 0.5px;
-}
-
-.file-col-name {
-  flex: 1;
-  font-size: 14px;
-  color: #1f2937;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 120px;
-  padding-right: 20px;
-}
-
-.file-col-meta {
-  font-size: 13px;
-  color: #6b7280; /* Slightly darker gray for readability on blue bg */
-  white-space: nowrap;
-}
-
-.file-col-meta:nth-child(3) { width: 80px; }
-.file-col-meta:nth-child(4) { width: 100px; }
-.file-col-creator { 
-  width: 90px;
-  font-size: 13px;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.file-col-actions {
-  width: 60px;
-  display: flex;
   gap: 8px;
-  justify-content: flex-end;
-}
-
-.action-icon-btn {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #e2e8f0; /* Subtle border */
-  background: white;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.action-icon-btn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: #eff6ff;
 }
 
 /* --- Resizer --- */
 .resizer {
   width: 1px;
-  background: #dbeafe; /* Blend with blue bg */
+  background: #dbeafe;
   position: relative;
   z-index: 10;
   cursor: col-resize;
   flex-shrink: 0;
 }
+
 .resizer:hover {
   width: 4px;
   background: #bfdbfe;
@@ -586,7 +469,7 @@ onUnmounted(() => {
 
 /* --- Right Chat Panel --- */
 .chat-panel {
-  background: white; /* Chat panel remains white/clean */
+  background: white;
   display: flex;
   flex-direction: column;
 }
@@ -649,9 +532,8 @@ onUnmounted(() => {
 
 /* Input Area */
 .chat-input-area {
-  background: white; /* Or transparent depending on container */
+  background: white;
   padding: 24px 40px;
-  border-top: none; /* Screenshot doesn't show a hard top border, maybe just space */
 }
 
 .action-buttons-row {
@@ -667,8 +549,8 @@ onUnmounted(() => {
   gap: 8px;
   padding: 8px 20px;
   background: white;
-  border: 1px solid #bfdbfe; /* Light blue border */
-  border-radius: 8px; /* Slightly rounded rect, not full pill */
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
   font-size: 14px;
   color: #4b5563;
   cursor: pointer;
@@ -684,10 +566,10 @@ onUnmounted(() => {
 
 .input-container {
   display: flex;
-  flex-direction: column; /* Stack input and button */
-  min-height: 140px; /* Tall box */
+  flex-direction: column;
+  min-height: 140px;
   background: white;
-  border: 1px solid #bfdbfe; /* Light blue border */
+  border: 1px solid #bfdbfe;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 2px 12px rgba(59, 130, 246, 0.05);
@@ -722,7 +604,7 @@ onUnmounted(() => {
   right: 16px;
   width: 36px;
   height: 36px;
-  background: #cbd5e1; /* Gray disabled look as per screenshot */
+  background: #cbd5e1;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -736,9 +618,8 @@ onUnmounted(() => {
   background: #94a3b8;
 }
 
-/* Active state for send button if needed via class */
 .send-btn.active {
-   background: #3b82f6;
+  background: #3b82f6;
 }
 
 .disclaimer-text {

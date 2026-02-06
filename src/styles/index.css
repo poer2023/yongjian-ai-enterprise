@@ -1,0 +1,13 @@
+/* Shared Styles Index */
+@import './common.css';
+@import './form.css';
+@import './modal.css';
+@import './upload.css';
+@import './cards.css';
+@import './table.css';
+@import './result-layout.css';
+@import './search-filter.css';
+@import './pagination.css';
+@import './badges.css';
+@import './lists.css';
+@import './document-layout.css';
