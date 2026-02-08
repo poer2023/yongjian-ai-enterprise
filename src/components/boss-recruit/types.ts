@@ -23,6 +23,7 @@ export interface BossJD {
 export interface RecentTool {
   icon: any;
   label: string;
+  route?: string;
 }
 
 // Filter configuration for candidate screening

@@ -40,9 +40,9 @@ const monitoredPositions = ref([
 ]);
 
 const recentTools = [
-  { icon: UserCheck, label: 'Boss招聘' },
-  { icon: FileUser, label: '简历分析' },
-  { icon: DollarSign, label: '薪酬调查' },
+  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit-form' },
+  { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
+  { icon: DollarSign, label: '薪酬调查', route: 'salary-survey-form' },
 ];
 
 const features = [

@@ -50,9 +50,9 @@ const technicalHighlights = ref('');
 const technicalMaxLength = 1000;
 
 const recentTools = [
-  { icon: FileText, label: 'AI标书生成', active: true },
-  { icon: FileSearch, label: '标讯解读', active: false },
-  { icon: Bell, label: '标讯订阅', active: false },
+  { icon: FileText, label: 'AI标书生成（表单版）', active: true, route: 'bid-doc-form' },
+  { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
+  { icon: Bell, label: '标讯订阅', active: false, route: 'bid-subscription' },
 ];
 
 // Material selections
@@ -97,7 +97,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <FormPageLayout :icon="FileText" title="AI标书生成" subtitle="智能解析招标文件，一键生成规范标书">
+  <FormPageLayout :icon="FileText" title="AI标书生成（表单版）" subtitle="智能解析招标文件，一键生成规范标书">
     <template #sidebar>
       <TemplateSidebar :recent-tools="recentTools" />
     </template>
@@ -456,7 +456,7 @@ const handleSubmit = () => {
     </div>
 
     <template #info-sidebar>
-      <InfoSidebar :icon="FileText" title="AI标书生成" description="智能解析招标文件，一键生成规范标书" :features="features" />
+      <InfoSidebar :icon="FileText" title="AI标书生成（表单版）" description="智能解析招标文件，一键生成规范标书" :features="features" />
     </template>
   </FormPageLayout>
 </template>

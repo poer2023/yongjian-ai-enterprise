@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   FileText,
   FileSearch,
-  Database,
   Building2,
   Calendar,
   MapPin,
@@ -177,13 +176,10 @@ const goToAnalysis = () => {
 
 const goToDocGenerate = () => {
   if (selectedBidId.value) {
-    router.push({ name: 'bid-doc-form', query: { bidId: selectedBidId.value } });
+    router.push({ name: 'bid-doc-smart-form', query: { bidId: selectedBidId.value } });
   }
 };
 
-const handleAddToKnowledge = () => {
-  alert('已加入知识库');
-};
 </script>
 
 <template>
@@ -206,10 +202,6 @@ const handleAddToKnowledge = () => {
         <button class="header-action-btn primary" @click="goToDocGenerate">
           <FileText :size="16" />
           生成标书
-        </button>
-        <button class="header-action-btn" @click="handleAddToKnowledge">
-          <Database :size="16" />
-          加入知识库
         </button>
       </div>
     </header>

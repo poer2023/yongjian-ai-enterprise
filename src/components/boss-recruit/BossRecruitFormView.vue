@@ -13,24 +13,17 @@ import {
   Smartphone,
   Filter,
   Settings,
-  Plus,
-  X,
   Clock,
-  AlertCircle,
-  ChevronDown
+  AlertCircle
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
-import type { AuthStatus, AuthMethod, AccountInfo, BossJD, CandidateFilter, RpaStrategy } from './types';
+import type { AuthStatus, AuthMethod, AccountInfo, BossJD, RpaStrategy } from './types';
 import {
   mockJdList,
   recentTools,
   features,
-  cityOptions,
-  educationOptions,
-  experienceOptions,
   errorHandlingOptions,
-  defaultFilter,
   defaultRpaStrategy
 } from './mockData';
 
@@ -126,34 +119,6 @@ const selectAll = () => {
 const isAllSelected = computed(() => {
   return jdList.value.length > 0 && selectedJdIds.value.length === jdList.value.length;
 });
-
-// Candidate filter state
-const filter = ref<CandidateFilter>({ ...defaultFilter });
-const newKeyword = ref('');
-const showCityDropdown = ref(false);
-
-// Add keyword
-const addKeyword = () => {
-  const k = newKeyword.value.trim();
-  if (k && !filter.value.keywords.includes(k)) {
-    filter.value.keywords.push(k);
-    newKeyword.value = '';
-  }
-};
-
-// Remove keyword
-const removeKeyword = (keyword: string) => {
-  filter.value.keywords = filter.value.keywords.filter(k => k !== keyword);
-};
-
-// Toggle city selection
-const toggleCity = (city: string) => {
-  if (filter.value.cities.includes(city)) {
-    filter.value.cities = filter.value.cities.filter(c => c !== city);
-  } else {
-    filter.value.cities.push(city);
-  }
-};
 
 // RPA strategy state
 const rpaStrategy = ref<RpaStrategy>({ ...defaultRpaStrategy });
@@ -363,135 +328,11 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Step 3: Candidate Filter -->
+    <!-- Step 3: RPA Strategy -->
     <div v-if="authStatus === 'success' && selectedJdIds.length > 0" class="form-section">
       <div class="section-header">
         <h3 class="section-title">
           <span class="step-number">3</span>
-          候选人筛选条件
-        </h3>
-      </div>
-      <p class="section-hint">配置自动筛选规则，只对符合条件的候选人打招呼</p>
-
-      <div class="filter-grid">
-        <!-- Keywords -->
-        <div class="filter-row">
-          <label class="filter-label">关键词</label>
-          <div class="filter-content">
-            <div class="keyword-tags">
-              <span v-for="k in filter.keywords" :key="k" class="keyword-tag">
-                {{ k }}
-                <X :size="12" class="tag-remove" @click="removeKeyword(k)" />
-              </span>
-              <div class="keyword-input-wrap">
-                <input
-                  v-model="newKeyword"
-                  type="text"
-                  placeholder="输入关键词"
-                  class="keyword-input"
-                  @keyup.enter="addKeyword"
-                />
-                <button class="keyword-add-btn" @click="addKeyword">
-                  <Plus :size="14" />
-                </button>
-              </div>
-            </div>
-            <span class="filter-hint">匹配简历中包含这些关键词的候选人</span>
-          </div>
-        </div>
-
-        <!-- Cities -->
-        <div class="filter-row">
-          <label class="filter-label">城市</label>
-          <div class="filter-content">
-            <div class="city-selector" @click="showCityDropdown = !showCityDropdown">
-              <span v-if="filter.cities.length === 0" class="placeholder">选择城市</span>
-              <span v-else class="selected-cities">{{ filter.cities.join('、') }}</span>
-              <ChevronDown :size="16" class="dropdown-icon" :class="{ open: showCityDropdown }" />
-            </div>
-            <div v-if="showCityDropdown" class="city-dropdown">
-              <div
-                v-for="city in cityOptions"
-                :key="city"
-                class="city-option"
-                :class="{ selected: filter.cities.includes(city) }"
-                @click.stop="toggleCity(city)"
-              >
-                <div class="city-checkbox" :class="{ checked: filter.cities.includes(city) }">
-                  <CheckCircle v-if="filter.cities.includes(city)" :size="12" />
-                </div>
-                {{ city }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Education -->
-        <div class="filter-row">
-          <label class="filter-label">学历要求</label>
-          <div class="filter-content">
-            <div class="option-buttons">
-              <button
-                v-for="opt in educationOptions"
-                :key="opt.value"
-                class="option-btn"
-                :class="{ active: filter.education === opt.value }"
-                @click="filter.education = opt.value"
-              >
-                {{ opt.label }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Experience -->
-        <div class="filter-row">
-          <label class="filter-label">工作年限</label>
-          <div class="filter-content">
-            <div class="option-buttons">
-              <button
-                v-for="opt in experienceOptions"
-                :key="opt.value"
-                class="option-btn"
-                :class="{ active: filter.experience === opt.value }"
-                @click="filter.experience = opt.value"
-              >
-                {{ opt.label }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Salary Range -->
-        <div class="filter-row">
-          <label class="filter-label">期望薪资</label>
-          <div class="filter-content">
-            <div class="salary-range">
-              <input
-                v-model.number="filter.salaryMin"
-                type="number"
-                placeholder="最低"
-                class="salary-input"
-              />
-              <span class="salary-separator">-</span>
-              <input
-                v-model.number="filter.salaryMax"
-                type="number"
-                placeholder="最高"
-                class="salary-input"
-              />
-              <span class="salary-unit">K</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 4: RPA Strategy -->
-    <div v-if="authStatus === 'success' && selectedJdIds.length > 0" class="form-section">
-      <div class="section-header">
-        <h3 class="section-title">
-          <span class="step-number">4</span>
           自动化运行策略
         </h3>
         <div class="rpa-toggle" :class="{ active: rpaStrategy.enabled }" @click="toggleRpaEnabled">

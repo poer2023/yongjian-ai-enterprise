@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-  ChevronLeft,
   FileSearch,
   Bell,
   FileText,
-  Search,
   Upload,
-  Flame,
   X,
   Building2,
   Award,
@@ -18,6 +15,7 @@ import {
   ExternalLink
 } from 'lucide-vue-next';
 import { useRouter, useRoute } from 'vue-router';
+import { TemplateSidebar, InfoSidebar, FormPageLayout } from './shared';
 
 const router = useRouter();
 const route = useRoute();
@@ -96,9 +94,9 @@ const templateTypes = [
 ];
 
 const recentTools = [
-  { icon: FileSearch, label: '标讯解读' },
-  { icon: FileText, label: 'AI标书生成' },
-  { icon: Bell, label: '标讯订阅' },
+  { icon: FileSearch, label: '标讯解读', active: true, route: 'bid-analysis-form' },
+  { icon: FileText, label: 'AI标书生成', route: 'bid-doc-smart-form' },
+  { icon: Bell, label: '标讯订阅', route: 'bid-subscription' },
 ];
 
 const features = [
@@ -108,10 +106,6 @@ const features = [
   '投标可行性评估',
   '下一步行动计划生成',
 ];
-
-const goBack = () => {
-  router.push({ name: 'bid-subscription' });
-};
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -146,45 +140,10 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="review-form-page">
-    <!-- Left Sidebar -->
-    <aside class="template-sidebar">
-      <button class="back-btn" @click="goBack">
-        <ChevronLeft :size="16" />
-        <span>返回应用市场</span>
-      </button>
-
-      <div class="search-box">
-        <Search :size="14" class="search-icon" />
-        <input type="text" placeholder="搜索投标工具" class="search-input" />
-      </div>
-
-      <div class="template-section">
-        <div class="section-title">最近使用</div>
-        <div
-          v-for="(item, index) in recentTools"
-          :key="index"
-          class="template-item"
-          :class="{ active: index === 0 }"
-        >
-          <component :is="item.icon" :size="16" class="item-icon" />
-          <span>{{ item.label }}</span>
-          <Flame v-if="index === 0" :size="14" class="hot-icon" />
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Form Area -->
-    <main class="form-main">
-      <div class="form-header">
-        <div class="form-icon">
-          <FileSearch :size="20" />
-        </div>
-        <div class="form-title-area">
-          <h1 class="form-title">标讯解读</h1>
-          <p class="form-subtitle">AI智能解析招标文件，快速提取关键信息</p>
-        </div>
-      </div>
+  <FormPageLayout :icon="FileSearch" title="标讯解读" subtitle="AI智能解析招标文件，快速提取关键信息">
+    <template #sidebar>
+      <TemplateSidebar :recent-tools="recentTools" />
+    </template>
 
       <div class="form-content">
         <!-- File Upload -->
@@ -296,174 +255,14 @@ const handleSubmit = () => {
           </button>
         </div>
       </div>
-    </main>
 
-    <!-- Right Info Area -->
-    <aside class="info-sidebar">
-      <div class="info-icon-wrapper">
-        <FileSearch :size="28" class="info-main-icon" />
-      </div>
-      <h3 class="info-title">标讯解读</h3>
-      <p class="info-desc">AI快速解析招标文件，助您精准把握投标要点</p>
-      <ul class="feature-list">
-        <li v-for="(feature, index) in features" :key="index">
-          <span class="bullet">●</span>
-          {{ feature }}
-        </li>
-      </ul>
-    </aside>
-  </div>
+    <template #info-sidebar>
+      <InfoSidebar :icon="FileSearch" title="标讯解读" description="AI快速解析招标文件，助您精准把握投标要点" :features="features" />
+    </template>
+  </FormPageLayout>
 </template>
 
 <style scoped>
-.review-form-page {
-  display: flex;
-  height: 100%;
-  background: #f8fafc;
-}
-
-.template-sidebar {
-  width: 200px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: #eff6ff;
-  border: none;
-  border-radius: 8px;
-  color: #2563eb;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-btn:hover {
-  background: #dbeafe;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
-
-.search-icon {
-  color: #94a3b8;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 13px;
-  color: #475569;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.template-section {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section-title {
-  font-size: 12px;
-  color: #94a3b8;
-  padding: 12px 0 8px 0;
-}
-
-.template-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.template-item:hover {
-  background: #f8fafc;
-}
-
-.template-item.active {
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.template-item.active .item-icon {
-  color: #2563eb;
-}
-
-.hot-icon {
-  color: #f97316;
-  margin-left: auto;
-}
-
-.form-main {
-  flex: 1;
-  padding: 24px 32px;
-  overflow-y: auto;
-}
-
-.form-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: -24px -32px 32px -32px;
-  padding: 20px 32px;
-  background: #eff6ff;
-}
-
-.form-icon {
-  width: 40px;
-  height: 40px;
-  background: #eff6ff;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #2563eb;
-}
-
-.form-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2563eb;
-  margin: 0;
-}
-
-.form-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 4px 0 0 0;
-}
-
-.form-content {
-  max-width: 100%;
-  padding-right: 40px;
-}
-
 .form-group {
   margin-bottom: 28px;
   position: relative;
@@ -720,65 +519,6 @@ const handleSubmit = () => {
   bottom: 8px;
   font-size: 13px;
   color: #94a3b8;
-}
-
-/* Right Info Sidebar */
-.info-sidebar {
-  width: 260px;
-  padding: 40px 24px;
-  background: transparent;
-  border-left: 1px solid #e2e8f0;
-}
-
-.info-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.info-main-icon {
-  color: white;
-}
-
-.info-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 8px 0;
-}
-
-.info-desc {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0 0 20px 0;
-  line-height: 1.5;
-}
-
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.feature-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 13px;
-  color: #475569;
-  padding: 6px 0;
-  line-height: 1.4;
-}
-
-.bullet {
-  color: #2563eb;
-  font-size: 8px;
-  margin-top: 5px;
 }
 
 /* Enterprise Selector */

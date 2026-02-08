@@ -57,15 +57,6 @@ const allAgents = [
   {
     id: 6,
     name: 'AI标书生成',
-    description: '一键生成专业标书，智能匹配素材库',
-    icon: FileText,
-    color: '#10b981',
-    bgColor: '#ecfdf5',
-    routeName: 'bid-doc-form'
-  },
-  {
-    id: 7,
-    name: 'AI标书生成（智能版）',
     description: '极简操作，上传文件即可自动生成标书',
     icon: Zap,
     color: '#8b5cf6',

@@ -15,7 +15,10 @@ import {
   Building2,
   ChevronDown,
   Users,
-  Briefcase
+  Briefcase,
+  Settings,
+  MessageSquare,
+  FolderOpen
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
@@ -25,6 +28,8 @@ import {
   mockParsedData,
   recentTools,
   bidDocTypes,
+  outlineModes,
+  matchedTemplates,
   features
 } from './mockData';
 import type { Enterprise } from './types';
@@ -46,6 +51,12 @@ const bidTitle = ref('');
 const bidDocType = ref('service');
 const projectUnderstanding = ref('');
 const technicalHighlights = ref('');
+const outlineMode = ref('template');
+const selectedTemplateId = ref('tpl1');
+const pageCount = ref(120);
+const aiRecommendedPages = ref(120);
+const additionalInfo = ref('');
+const maxLength = 2000;
 
 const selectEnterprise = (enterprise: Enterprise) => {
   selectedEnterprise.value = enterprise;
@@ -64,8 +75,13 @@ const removeFile = () => {
   uploadedFile.value = null;
   isParsed.value = false;
   bidTitle.value = '';
+  bidDocType.value = 'service';
   projectUnderstanding.value = '';
   technicalHighlights.value = '';
+  outlineMode.value = 'template';
+  selectedTemplateId.value = 'tpl1';
+  pageCount.value = 120;
+  additionalInfo.value = '';
 };
 
 const handleParse = () => {
@@ -75,6 +91,10 @@ const handleParse = () => {
     bidDocType.value = mockParsedData.bidDocType;
     projectUnderstanding.value = mockParsedData.projectUnderstanding;
     technicalHighlights.value = mockParsedData.technicalHighlights;
+    // AI 推荐页数基于匹配到的模板
+    const matched = matchedTemplates.find(t => t.id === selectedTemplateId.value);
+    aiRecommendedPages.value = matched?.pages ?? 120;
+    pageCount.value = aiRecommendedPages.value;
     isParsing.value = false;
     isParsed.value = true;
   }, 2000);
@@ -101,7 +121,7 @@ const getRiskLevelText = (level: string) => {
 </script>
 
 <template>
-  <FormPageLayout :icon="Zap" title="AI标书生成（智能版）" subtitle="极简操作，上传文件即可自动生成专业标书">
+  <FormPageLayout :icon="Zap" title="AI标书生成" subtitle="极简操作，上传文件即可自动生成专业标书">
     <template #sidebar>
       <TemplateSidebar :recent-tools="recentTools" />
     </template>
@@ -308,6 +328,126 @@ const getRiskLevelText = (level: string) => {
             </div>
           </div>
         </div>
+
+        <!-- 大纲模式 -->
+        <div class="section-card">
+          <div class="card-header">
+            <div class="header-left">
+              <FolderOpen :size="18" class="header-icon" />
+              <span class="header-title">大纲模式</span>
+              <span class="auto-fill-tag"><Sparkles :size="12" /> AI 推荐</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="outline-cards">
+                <div
+                  v-for="mode in outlineModes"
+                  :key="mode.key"
+                  class="outline-card"
+                  :class="{ active: outlineMode === mode.key }"
+                  @click="outlineMode = mode.key"
+                >
+                  <span class="outline-label">{{ mode.label }}</span>
+                  <span class="outline-desc">{{ mode.desc }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 素材库模板匹配 -->
+            <div v-if="outlineMode === 'template'" class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">匹配到的项目模板</label>
+              <div class="template-list">
+                <div
+                  v-for="tpl in matchedTemplates"
+                  :key="tpl.id"
+                  class="template-item"
+                  :class="{ selected: selectedTemplateId === tpl.id }"
+                  @click="selectedTemplateId = tpl.id; pageCount = tpl.pages; aiRecommendedPages = tpl.pages;"
+                >
+                  <div class="template-radio">
+                    <Check v-if="selectedTemplateId === tpl.id" :size="12" />
+                  </div>
+                  <div class="template-info">
+                    <span class="template-name">{{ tpl.name }}</span>
+                    <span class="template-meta">来源：{{ tpl.projectName }} · {{ tpl.pages }}页</span>
+                  </div>
+                  <span class="template-score">匹配度 {{ tpl.matchScore }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 手动指定大纲 -->
+            <div v-if="outlineMode === 'custom'" class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">自定义大纲目录</label>
+              <div class="textarea-wrapper">
+                <textarea class="form-textarea" maxlength="2000" placeholder="请输入大纲目录结构，每行一个章节标题，如：&#10;第一章 项目概述&#10;第二章 技术方案&#10;第三章 实施计划&#10;..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 页数设置 -->
+        <div class="section-card">
+          <div class="card-header">
+            <div class="header-left">
+              <Settings :size="18" class="header-icon" />
+              <span class="header-title">生成配置</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">
+                预设标书页数
+                <span class="page-value">{{ pageCount }} 页</span>
+                <span v-if="pageCount === aiRecommendedPages" class="ai-recommend-tag">
+                  <Sparkles :size="11" /> AI 推荐
+                </span>
+              </label>
+              <div class="slider-wrapper">
+                <input
+                  v-model="pageCount"
+                  type="range"
+                  min="50"
+                  max="500"
+                  step="10"
+                  class="page-slider"
+                />
+                <div class="slider-labels">
+                  <span>50页</span>
+                  <span class="ai-page-mark" v-if="aiRecommendedPages > 50 && aiRecommendedPages < 500">
+                    AI推荐 {{ aiRecommendedPages }}页
+                  </span>
+                  <span>500页</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 补充说明 -->
+        <div class="section-card">
+          <div class="card-header">
+            <div class="header-left">
+              <MessageSquare :size="18" class="header-icon" />
+              <span class="header-title">补充说明</span>
+              <span class="optional-tag">选填</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom: 0;">
+              <div class="textarea-wrapper">
+                <textarea
+                  v-model="additionalInfo"
+                  class="form-textarea"
+                  :maxlength="maxLength"
+                  placeholder="请输入需要在标书中强调的内容，如：重点突出的技术优势、需要规避的竞争对手等..."
+                ></textarea>
+                <span class="char-count">{{ additionalInfo.length }} / {{ maxLength }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="submit-container">
@@ -316,7 +456,7 @@ const getRiskLevelText = (level: string) => {
     </template>
 
     <template #info-sidebar>
-      <InfoSidebar :icon="Zap" title="AI标书生成（智能版）" description="极简操作，上传文件即可自动生成专业标书" :features="features" />
+      <InfoSidebar :icon="Zap" title="AI标书生成" description="极简操作，上传文件即可自动生成专业标书" :features="features" />
     </template>
   </FormPageLayout>
 </template>

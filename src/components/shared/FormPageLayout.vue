@@ -36,7 +36,7 @@ defineProps<{
 .form-page {
   display: flex;
   height: 100%;
-  background: #f8fafc;
+  background: #ffffff;
 }
 
 .form-main {

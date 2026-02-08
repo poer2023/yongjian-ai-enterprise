@@ -51,9 +51,9 @@ export const defaultEmployees: EmployeeEntry[] = [
 ];
 
 export const recentTools = [
-  { label: 'Boss招聘' },
-  { label: '简历分析' },
-  { label: '薪酬调查' },
+  { label: 'Boss招聘', route: 'boss-recruit-form' },
+  { label: '简历分析', route: 'resume-analysis-form' },
+  { label: '薪酬调查', route: 'salary-survey-form' },
 ];
 
 export const features = [

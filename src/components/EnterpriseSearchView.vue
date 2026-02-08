@@ -106,7 +106,7 @@ const agentCards = [
     description: '一键生成专业标书',
     color: '#10b981',
     bgColor: '#ecfdf5',
-    routeName: 'bid-doc-form'
+    routeName: 'bid-doc-smart-form'
   },
   {
     icon: Bell,

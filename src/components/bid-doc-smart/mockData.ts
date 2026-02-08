@@ -1,7 +1,7 @@
 // Mock data for BidDocSmartFormView
 
 import { Zap, FileText, FileSearch, Bell } from 'lucide-vue-next';
-import type { Enterprise, ScoringItem, Qualification, TimelineItem, RiskItem, ParsedAnalysis, BidDocType, RecentTool } from './types';
+import type { Enterprise, ScoringItem, Qualification, TimelineItem, RiskItem, ParsedAnalysis, BidDocType, RecentTool, OutlineMode, MatchedTemplate } from './types';
 
 export const enterprises: Enterprise[] = [
   {
@@ -77,10 +77,10 @@ export const mockParsedData = {
 };
 
 export const recentTools: RecentTool[] = [
-  { icon: Zap, label: 'AI标书生成（智能版）', active: true },
-  { icon: FileText, label: 'AI标书生成', active: false },
-  { icon: FileSearch, label: '标讯解读', active: false },
-  { icon: Bell, label: '标讯订阅', active: false },
+  { icon: Zap, label: 'AI标书生成', active: true, route: 'bid-doc-smart-form' },
+  // { icon: FileText, label: 'AI标书生成（表单版）', active: false, route: 'bid-doc-form' },
+  { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
+  { icon: Bell, label: '标讯订阅', active: false, route: 'bid-subscription' },
 ];
 
 export const bidDocTypes: BidDocType[] = [
@@ -98,6 +98,18 @@ export const warrantyOptions = [
   { key: '1year', label: '1年' },
   { key: '2year', label: '2年' },
   { key: '3year', label: '3年' },
+];
+
+export const outlineModes: OutlineMode[] = [
+  { key: 'template', label: '素材库模板匹配', desc: '从企业素材库中匹配类似项目大纲' },
+  { key: 'ai', label: 'AI智能生成', desc: '根据招标文件自动生成大纲' },
+  { key: 'custom', label: '手动指定大纲', desc: '按您提供的目录结构生成' },
+];
+
+export const matchedTemplates: MatchedTemplate[] = [
+  { id: 'tpl1', name: '政务云平台建设方案模板', projectName: '某市政务云平台建设项目', matchScore: 95, pages: 120 },
+  { id: 'tpl2', name: '智慧城市数据中心方案模板', projectName: '某市智慧城市数据中心项目', matchScore: 82, pages: 150 },
+  { id: 'tpl3', name: '信息化系统集成方案模板', projectName: '某区信息化系统集成项目', matchScore: 76, pages: 100 },
 ];
 
 export const features = [

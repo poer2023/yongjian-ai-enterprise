@@ -161,13 +161,13 @@ const routes = [
     path: '/bid/doc',
     name: 'bid-doc-form',
     component: BidDocFormView,
-    meta: { title: 'AI标书生成' }
+    meta: { title: 'AI标书生成（表单版）' }
   },
   {
     path: '/bid/doc/smart',
     name: 'bid-doc-smart-form',
     component: BidDocSmartFormView,
-    meta: { title: 'AI标书生成（智能版）' }
+    meta: { title: 'AI标书生成' }
   },
   {
     path: '/bid/doc/generating',

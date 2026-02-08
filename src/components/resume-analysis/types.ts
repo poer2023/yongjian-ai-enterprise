@@ -31,4 +31,5 @@ export interface NewJdForm {
 export interface RecentTool {
   icon: any;
   label: string;
+  route?: string;
 }

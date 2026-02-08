@@ -330,7 +330,7 @@ const regenerateCurrentSection = async () => {
 // ============ Navigation Methods ============
 
 const goBack = () => {
-  router.push({ name: 'bid-doc-form' });
+  router.push({ name: 'bid-doc-smart-form' });
 };
 
 const selectOutline = (id: string) => {

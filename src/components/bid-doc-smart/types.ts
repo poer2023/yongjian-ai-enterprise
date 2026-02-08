@@ -49,4 +49,19 @@ export interface RecentTool {
   icon: any;
   label: string;
   active: boolean;
+  route?: string;
+}
+
+export interface OutlineMode {
+  key: string;
+  label: string;
+  desc: string;
+}
+
+export interface MatchedTemplate {
+  id: string;
+  name: string;
+  projectName: string;
+  matchScore: number;
+  pages: number;
 }

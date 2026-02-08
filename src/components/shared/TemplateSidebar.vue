@@ -7,6 +7,7 @@ interface RecentTool {
   icon: Component;
   label: string;
   active?: boolean;
+  route?: string;
 }
 
 defineProps<{
@@ -18,6 +19,13 @@ const router = useRouter();
 
 const goBack = () => {
   router.push({ name: 'agents' });
+};
+
+const navigateTo = (item: RecentTool) => {
+  if (item.active) return;
+  if (item.route) {
+    router.push({ name: item.route });
+  }
 };
 </script>
 
@@ -40,6 +48,7 @@ const goBack = () => {
         :key="index"
         class="template-item"
         :class="{ active: item.active || index === activeIndex }"
+        @click="navigateTo(item)"
       >
         <component :is="item.icon" :size="16" class="item-icon" />
         <span>{{ item.label }}</span>

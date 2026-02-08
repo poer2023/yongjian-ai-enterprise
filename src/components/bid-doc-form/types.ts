@@ -63,4 +63,5 @@ export interface RecentTool {
   icon: any;
   label: string;
   active: boolean;
+  route?: string;
 }

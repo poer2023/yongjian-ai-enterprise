@@ -13,7 +13,7 @@ import {
   Clock,
   MapPin,
   Download,
-  Database,
+
   FileText,
   FileSearch
 } from 'lucide-vue-next';
@@ -62,8 +62,8 @@ const handleDownload = () => {
   alert('报告PDF已下载');
 };
 
-const handleAddToKnowledge = () => {
-  alert('已加入知识库');
+const handleGenerateBidDoc = () => {
+  router.push({ name: 'bid-doc-smart-form' });
 };
 
 const goToAnalysis = (id: number) => {
@@ -71,7 +71,7 @@ const goToAnalysis = (id: number) => {
 };
 
 const goToDocGenerate = (id: number) => {
-  router.push({ name: 'bid-doc-form', query: { bidId: id } });
+  router.push({ name: 'bid-doc-smart-form', query: { bidId: id } });
 };
 </script>
 
@@ -90,9 +90,9 @@ const goToDocGenerate = (id: number) => {
           <Download :size="16" />
           导出
         </button>
-        <button class="action-btn primary" @click="handleAddToKnowledge">
-          <Database :size="16" />
-          加入知识库
+        <button class="action-btn primary" @click="handleGenerateBidDoc">
+          <FileText :size="16" />
+          生成标书
         </button>
       </div>
     </header>
@@ -375,15 +375,13 @@ const goToDocGenerate = (id: number) => {
 }
 
 .action-btn.primary {
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
 }
 
 .action-btn.primary:hover {
-  background: #f8fafc;
-  border-color: #3b82f6;
-  color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .report-body {
