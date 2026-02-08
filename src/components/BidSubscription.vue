@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { Plus, X, Edit3, Trash2, Check, ChevronDown, ChevronUp, Bell, Mail, BarChart3 } from 'lucide-vue-next';
+import { Plus, X, Edit3, Trash2, Check, ChevronDown, ChevronUp } from 'lucide-vue-next';
 
 const router = useRouter();
 
@@ -101,25 +101,13 @@ const removeKeyword = (k: string) => { policyKeywords.value = policyKeywords.val
 const toggleRegion = (r: string) => { policyRegions.value.includes(r) ? policyRegions.value = policyRegions.value.filter(x => x !== r) : policyRegions.value.push(r); };
 const toggleType = (t: string) => { policyTypes.value.includes(t) ? policyTypes.value = policyTypes.value.filter(x => x !== t) : policyTypes.value.push(t); };
 const toggleMember = (id: string) => { selectedMembers.value.includes(id) ? selectedMembers.value = selectedMembers.value.filter(x => x !== id) : selectedMembers.value.push(id); };
-
-const goToIndustryReport = () => {
-  router.push({ name: 'bid-industry-report' });
-};
 </script>
 
 <template>
   <div class="bid-subscription">
     <div class="content-header">
-      <div class="header-top">
-        <div>
-          <h1 class="page-title">标讯订阅</h1>
-          <p class="page-subtitle">每个策略组可独立配置关键词/地区，AI智能匹配推送给对应成员</p>
-        </div>
-        <button class="report-btn" @click="goToIndustryReport">
-          <BarChart3 :size="16" />
-          查看行业分析报告
-        </button>
-      </div>
+      <h1 class="page-title">标讯订阅</h1>
+      <p class="page-subtitle">每个策略组可独立配置关键词/地区，AI智能匹配推送给对应成员</p>
     </div>
 
     <!-- List View -->
@@ -228,9 +216,6 @@ const goToIndustryReport = () => {
 <style scoped>
 .bid-subscription { width: 100%; max-width: 700px; }
 .content-header { margin-bottom: 24px; }
-.header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-.report-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); }
-.report-btn:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
 .page-title { font-size: 20px; font-weight: 600; color: #1e293b; margin: 0; }
 .page-subtitle { font-size: 14px; color: #64748b; margin: 4px 0 0; }
 .subscription-form, .policy-editor { width: 100%; }

@@ -5,7 +5,6 @@ import {
   Home,
   MessageSquare, // AI提问
   Newspaper, // 标讯搜索
-  Bell, // 标讯订阅
   Bot, // 智能体
   Network, // 知识库 (Tree structure)
   ChevronDown,
@@ -88,16 +87,6 @@ const bottomItems = [
       >
         <Newspaper :size="18" class="nav-icon" />
         <span class="nav-label">标讯搜索</span>
-      </div>
-
-      <!-- 标讯订阅 -->
-      <div
-        class="nav-item"
-        :class="{ active: isActive('bid-subscription') }"
-        @click="handleItemClick('bid-subscription')"
-      >
-        <Bell :size="18" class="nav-icon" />
-        <span class="nav-label">标讯订阅</span>
       </div>
 
       <!-- 智能体 -->
