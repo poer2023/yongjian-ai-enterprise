@@ -19,6 +19,8 @@ export interface Qualification {
   name: string;
   status: string;
   matched: string;
+  expiryDate?: string;
+  expiringSoon?: boolean;
 }
 
 export interface TimelineItem {
@@ -64,4 +66,19 @@ export interface MatchedTemplate {
   projectName: string;
   matchScore: number;
   pages: number;
+}
+
+export type GenerateMode = 'oneclick' | 'node';
+
+export type NodeSourceType = 'ai' | 'manual' | 'material';
+
+export type NodeStatus = 'pending' | 'ready' | 'generated' | 'edited' | 'to-fill';
+
+export interface OutlineNode {
+  id: number;
+  name: string;
+  sourceType: NodeSourceType;
+  sourceLabel: string;
+  status: NodeStatus;
+  statusLabel: string;
 }

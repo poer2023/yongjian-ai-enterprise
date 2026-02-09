@@ -11,7 +11,8 @@ import {
   DollarSign,
   FileSearch,
   FileText,
-  Zap
+  Zap,
+  Target
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -71,6 +72,15 @@ const allAgents = [
     color: '#f59e0b',
     bgColor: '#fffbeb',
     routeName: 'bid-doc-oneclick-form'
+  },
+  {
+    id: 8,
+    name: '销售策略分析',
+    description: '销售策略工具，分析招标单位、竞争对手和项目',
+    icon: Target,
+    color: '#ef4444',
+    bgColor: '#fef2f2',
+    routeName: 'competition-analysis'
   }
 ];
 

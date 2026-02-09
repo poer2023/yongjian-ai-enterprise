@@ -648,3 +648,315 @@ export const competitorSearchResults: CompetitorSearchResult[] = [
   { id: 's7', name: '紫光股份有限公司', industry: '系统集成', region: '北京', bidCount: 98 },
   { id: 's8', name: '东软集团股份', industry: '软件开发', region: '辽宁', bidCount: 88 },
 ];
+
+// ============ 竞争格局分析 - 3 维度数据 ============
+
+// Watched bidding units (招标单位)
+export interface BiddingUnit {
+  id: string;
+  name: string;
+  type: string;
+  region: string;
+  addedAt: string;
+}
+
+export interface BiddingUnitSearchResult {
+  id: string;
+  name: string;
+  type: string;
+  region: string;
+  projectCount: number;
+}
+
+export const configuredBiddingUnits: BiddingUnit[] = [
+  { id: 'bu1', name: '上海市大数据中心', type: '事业单位', region: '上海', addedAt: '2025-12-01' },
+  { id: 'bu2', name: '浦东新区政务服务中心', type: '政府机关', region: '上海', addedAt: '2025-12-15' },
+  { id: 'bu3', name: '中国工商银行上海分行', type: '金融机构', region: '上海', addedAt: '2026-01-05' },
+  { id: 'bu4', name: '上海交通大学', type: '教育机构', region: '上海', addedAt: '2026-01-10' },
+];
+
+export const biddingUnitSearchResults: BiddingUnitSearchResult[] = [
+  { id: 'bus1', name: '上海市卫生健康委员会', type: '政府机关', region: '上海', projectCount: 12 },
+  { id: 'bus2', name: '复旦大学', type: '教育机构', region: '上海', projectCount: 8 },
+  { id: 'bus3', name: '中国建设银行上海分行', type: '金融机构', region: '上海', projectCount: 15 },
+  { id: 'bus4', name: '上海市公安局', type: '政府机关', region: '上海', projectCount: 22 },
+  { id: 'bus5', name: '国家电网上海公司', type: '国有企业', region: '上海', projectCount: 18 },
+  { id: 'bus6', name: '上海证券交易所', type: '金融机构', region: '上海', projectCount: 10 },
+];
+
+// Dimension 1: Bidding Unit Analysis (招标单位分析)
+export interface BiddingUnitDetail {
+  id: string;
+  name: string;
+  type: string;
+  region: string;
+  totalProjects: number;
+  totalBudget: number;
+  avgBudget: number;
+  procurementPreferences: string[];
+  recentProjects: { name: string; budget: number; date: string; winner: string }[];
+  topWinners: { name: string; winCount: number; winRate: number }[];
+  yearlyTrend: { year: string; projectCount: number; totalBudget: number }[];
+}
+
+export const biddingUnitDetails: BiddingUnitDetail[] = [
+  {
+    id: 'bu1',
+    name: '上海市大数据中心',
+    type: '事业单位',
+    region: '上海',
+    totalProjects: 32,
+    totalBudget: 4560,
+    avgBudget: 142.5,
+    procurementPreferences: ['等保测评', '数据安全', '安全运维', '态势感知'],
+    recentProjects: [
+      { name: '政务云安全运维服务', budget: 280, date: '2026-01-15', winner: '华安信息技术有限公司' },
+      { name: '数据安全治理平台建设', budget: 350, date: '2025-11-20', winner: '中科安全科技股份' },
+      { name: '等保三级测评服务', budget: 85, date: '2025-09-10', winner: '本公司' },
+      { name: '网络安全态势感知平台', budget: 420, date: '2025-07-05', winner: '深信服科技股份' },
+    ],
+    topWinners: [
+      { name: '华安信息技术有限公司', winCount: 8, winRate: 25.0 },
+      { name: '本公司', winCount: 6, winRate: 18.8 },
+      { name: '中科安全科技股份', winCount: 5, winRate: 15.6 },
+      { name: '深信服科技股份', winCount: 4, winRate: 12.5 },
+    ],
+    yearlyTrend: [
+      { year: '2023', projectCount: 8, totalBudget: 920 },
+      { year: '2024', projectCount: 12, totalBudget: 1580 },
+      { year: '2025', projectCount: 12, totalBudget: 2060 },
+    ],
+  },
+  {
+    id: 'bu2',
+    name: '浦东新区政务服务中心',
+    type: '政府机关',
+    region: '上海',
+    totalProjects: 18,
+    totalBudget: 2280,
+    avgBudget: 126.7,
+    procurementPreferences: ['安全评估', '安全加固', '数据分类分级'],
+    recentProjects: [
+      { name: '一网通办安全评估', budget: 120, date: '2026-01-08', winner: '启明星辰科技' },
+      { name: '政务外网安全加固', budget: 180, date: '2025-10-15', winner: '本公司' },
+      { name: '数据分类分级服务', budget: 95, date: '2025-08-20', winner: '华安信息技术有限公司' },
+    ],
+    topWinners: [
+      { name: '本公司', winCount: 5, winRate: 27.8 },
+      { name: '华安信息技术有限公司', winCount: 4, winRate: 22.2 },
+      { name: '启明星辰科技', winCount: 3, winRate: 16.7 },
+    ],
+    yearlyTrend: [
+      { year: '2023', projectCount: 4, totalBudget: 480 },
+      { year: '2024', projectCount: 6, totalBudget: 750 },
+      { year: '2025', projectCount: 8, totalBudget: 1050 },
+    ],
+  },
+];
+
+// Dimension 2: Competitor Deep Analysis (竞争对手分析)
+export interface CompetitorDetail {
+  id: string;
+  name: string;
+  region: string;
+  totalBids: number;
+  totalWins: number;
+  winRate: number;
+  totalAmount: number;
+  strengths: string[];
+  weaknesses: string[];
+  recentWins: { project: string; client: string; amount: number; date: string }[];
+  focusAreas: { area: string; bidCount: number; winCount: number }[];
+  overlapProjects: number;
+  headToHeadWinRate: number;
+}
+
+export const competitorDetails: CompetitorDetail[] = [
+  {
+    id: 'c1',
+    name: '华安信息技术有限公司',
+    region: '北京',
+    totalBids: 156,
+    totalWins: 78,
+    winRate: 50.0,
+    totalAmount: 3520,
+    strengths: ['品牌影响力强', '金融行业深耕', '全国化布局', '资质齐全'],
+    weaknesses: ['价格偏高', '交付周期长', '区域响应较慢'],
+    recentWins: [
+      { project: '某银行数据安全评估', client: '中国工商银行', amount: 180, date: '2026-01-20' },
+      { project: '政务云安全运维', client: '上海市大数据中心', amount: 280, date: '2026-01-15' },
+      { project: '等保三级测评', client: '上海证券交易所', amount: 120, date: '2025-12-10' },
+    ],
+    focusAreas: [
+      { area: '等保测评', bidCount: 52, winCount: 28 },
+      { area: '安全运维', bidCount: 38, winCount: 22 },
+      { area: '渗透测试', bidCount: 28, winCount: 12 },
+      { area: '数据安全', bidCount: 22, winCount: 10 },
+      { area: '安全咨询', bidCount: 16, winCount: 6 },
+    ],
+    overlapProjects: 28,
+    headToHeadWinRate: 35.7,
+  },
+  {
+    id: 'c2',
+    name: '中科安全科技股份',
+    region: '北京',
+    totalBids: 142,
+    totalWins: 62,
+    winRate: 43.7,
+    totalAmount: 2890,
+    strengths: ['技术研发能力强', '政府关系好', '等保测评经验丰富'],
+    weaknesses: ['华东市场覆盖弱', '服务团队规模有限', '品牌知名度一般'],
+    recentWins: [
+      { project: '数据安全治理平台', client: '上海市大数据中心', amount: 350, date: '2025-11-20' },
+      { project: '关基安全检查', client: '国家电网', amount: 220, date: '2025-10-15' },
+    ],
+    focusAreas: [
+      { area: '等保测评', bidCount: 48, winCount: 22 },
+      { area: '关基保护', bidCount: 32, winCount: 15 },
+      { area: '安全咨询', bidCount: 28, winCount: 12 },
+      { area: '渗透测试', bidCount: 20, winCount: 8 },
+      { area: '安全运维', bidCount: 14, winCount: 5 },
+    ],
+    overlapProjects: 22,
+    headToHeadWinRate: 40.9,
+  },
+];
+
+// Dimension 3: Project Analysis (项目分析)
+export interface ProjectRecord {
+  id: string;
+  name: string;
+  client: string;
+  clientType: string;
+  region: string;
+  budget: number;
+  bidDate: string;
+  participants: { name: string; quotePrice: number; rank: number }[];
+  winner: string;
+  winPrice: number;
+  category: string;
+  result: 'won' | 'lost' | 'pending';
+  lossReason?: string;
+  winReason?: string;
+}
+
+export const projectRecords: ProjectRecord[] = [
+  {
+    id: 'pr1',
+    name: '上海市第一人民医院信息系统等保测评',
+    client: '上海市第一人民医院',
+    clientType: '医疗机构',
+    region: '上海',
+    budget: 85,
+    bidDate: '2026-01-18',
+    participants: [
+      { name: '本公司', quotePrice: 78, rank: 1 },
+      { name: '华安信息技术有限公司', quotePrice: 82, rank: 2 },
+      { name: '中科安全科技股份', quotePrice: 75, rank: 3 },
+    ],
+    winner: '本公司',
+    winPrice: 78,
+    category: '等保测评',
+    result: 'won',
+    winReason: '医疗行业等保测评案例丰富，本地化服务响应快',
+  },
+  {
+    id: 'pr2',
+    name: '浦东新区政务外网安全加固项目',
+    client: '浦东新区政务服务中心',
+    clientType: '政府机关',
+    region: '上海',
+    budget: 180,
+    bidDate: '2025-10-15',
+    participants: [
+      { name: '本公司', quotePrice: 165, rank: 1 },
+      { name: '启明星辰科技', quotePrice: 172, rank: 2 },
+      { name: '深信服科技股份', quotePrice: 168, rank: 3 },
+    ],
+    winner: '本公司',
+    winPrice: 165,
+    category: '安全加固',
+    result: 'won',
+    winReason: '技术方案评分最高，性价比优势明显',
+  },
+  {
+    id: 'pr3',
+    name: '某银行核心系统渗透测试服务',
+    client: '中国工商银行上海分行',
+    clientType: '金融机构',
+    region: '上海',
+    budget: 120,
+    bidDate: '2025-12-05',
+    participants: [
+      { name: '华安信息技术有限公司', quotePrice: 110, rank: 1 },
+      { name: '本公司', quotePrice: 108, rank: 2 },
+      { name: '奇安信科技集团', quotePrice: 115, rank: 3 },
+    ],
+    winner: '华安信息技术有限公司',
+    winPrice: 110,
+    category: '渗透测试',
+    result: 'lost',
+    lossReason: '金融行业案例不足，技术方案评分略低',
+  },
+  {
+    id: 'pr4',
+    name: '上海市大数据中心数据安全治理平台建设',
+    client: '上海市大数据中心',
+    clientType: '事业单位',
+    region: '上海',
+    budget: 350,
+    bidDate: '2025-11-20',
+    participants: [
+      { name: '中科安全科技股份', quotePrice: 328, rank: 1 },
+      { name: '本公司', quotePrice: 335, rank: 2 },
+      { name: '华安信息技术有限公司', quotePrice: 340, rank: 3 },
+      { name: '深信服科技股份', quotePrice: 345, rank: 4 },
+    ],
+    winner: '中科安全科技股份',
+    winPrice: 328,
+    category: '数据安全',
+    result: 'lost',
+    lossReason: '对手在数据治理领域有更多成功案例',
+  },
+  {
+    id: 'pr5',
+    name: '某证券公司网络安全态势感知平台',
+    client: '上海证券交易所',
+    clientType: '金融机构',
+    region: '上海',
+    budget: 280,
+    bidDate: '2026-02-01',
+    participants: [
+      { name: '本公司', quotePrice: 260, rank: 0 },
+      { name: '深信服科技股份', quotePrice: 265, rank: 0 },
+      { name: '启明星辰科技', quotePrice: 270, rank: 0 },
+    ],
+    winner: '',
+    winPrice: 0,
+    category: '安全运维',
+    result: 'pending',
+  },
+];
+
+// Insights for new 3 dimensions
+export const competitionInsights: Record<string, string[]> = {
+  biddingUnit: [
+    '上海市大数据中心是最大客户，年度采购预算超2000万，持续关注其需求',
+    '在浦东新区政务服务中心的中标率达27.8%，属于优势客户',
+    '金融机构客户（工行）竞争最为激烈，华安信息是主要对手',
+    '建议加大教育机构客户拓展力度，竞争相对较弱',
+  ],
+  competitor: [
+    '华安信息是最大竞争对手，但其价格偏高，可从性价比角度突破',
+    '中科安全在数据安全领域有优势，建议加强该领域能力建设',
+    '与华安信息正面竞争中标率35.7%，需要提升技术方案得分',
+    '关注启明星辰在政务领域的扩张，提前布局应对',
+  ],
+  project: [
+    '在等保测评和安全加固类项目中表现最好，中标率超50%',
+    '渗透测试和数据安全类项目中标率偏低，建议重点提升',
+    '丢单主要原因：行业案例不足（40%）、技术方案评分低（35%）',
+    '建议重点培育金融和医疗行业的项目案例',
+  ],
+};

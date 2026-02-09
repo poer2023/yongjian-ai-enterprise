@@ -13,25 +13,80 @@ import {
   Award,
   MessageSquare,
   FileText,
-  Star
+  Star,
+  BarChart3,
+  Trophy,
+  TrendingUp
 } from 'lucide-vue-next';
 import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
 
-// Multiple resumes support
+// View mode: overview or detail
+const viewMode = ref<'overview' | 'detail'>('overview');
+
+// Multiple resumes support (5 resumes)
 const resumes = ref([
-  { id: 1, name: '张三_Java开发工程师.pdf', active: true },
+  { id: 1, name: '张三_Java开发工程师.pdf', active: false },
   { id: 2, name: '李四_前端开发.pdf', active: false },
   { id: 3, name: '王五_项目经理.docx', active: false },
+  { id: 4, name: '赵六_测试工程师.pdf', active: false },
+  { id: 5, name: '孙七_全栈开发.pdf', active: false },
 ]);
 
-const activeResumeId = ref(1);
+const activeResumeId = ref(0);
+
+// Overview mock data
+const resumeSummaries = [
+  { id: 1, name: '张三', fileName: '张三_Java开发工程师.pdf', score: 85, level: 'A' as const, highlights: ['Java技术栈扎实', '团队管理经验'], risks: ['无等保证书'] },
+  { id: 2, name: '李四', fileName: '李四_前端开发.pdf', score: 72, level: 'B' as const, highlights: ['React精通', '有大厂经验'], risks: ['工作年限偏短'] },
+  { id: 3, name: '王五', fileName: '王五_项目经理.docx', score: 91, level: 'A' as const, highlights: ['PMP认证', '10年管理经验'], risks: ['期望薪资偏高'] },
+  { id: 4, name: '赵六', fileName: '赵六_测试工程师.pdf', score: 58, level: 'C' as const, highlights: ['自动化测试经验'], risks: ['学历不符', '技能覆盖不足'] },
+  { id: 5, name: '孙七', fileName: '孙七_全栈开发.pdf', score: 79, level: 'B' as const, highlights: ['全栈能力', '独立项目经验'], risks: ['缺乏大型项目经验'] },
+];
+
+const averageScore = computed(() => {
+  const sum = resumeSummaries.reduce((acc, r) => acc + r.score, 0);
+  return Math.round(sum / resumeSummaries.length);
+});
+
+const recommendCount = computed(() => resumeSummaries.filter(r => r.level === 'A').length);
+
+const top3Candidates = computed(() =>
+  [...resumeSummaries].sort((a, b) => b.score - a.score).slice(0, 3)
+);
+
+const rankedCandidates = computed(() =>
+  [...resumeSummaries].sort((a, b) => b.score - a.score)
+);
+
+const getLevelText = (level: string) => {
+  if (level === 'A') return '强烈推荐';
+  if (level === 'B') return '推荐';
+  return '待定';
+};
+
+const getMatchText = (score: number) => {
+  if (score >= 80) return '高度匹配';
+  if (score >= 60) return '较为匹配';
+  return '匹配度低';
+};
+
+const switchToOverview = () => {
+  viewMode.value = 'overview';
+  activeResumeId.value = 0;
+  resumes.value.forEach(r => r.active = false);
+};
 
 const selectResume = (id: number) => {
+  viewMode.value = 'detail';
   activeResumeId.value = id;
   resumes.value.forEach(r => r.active = r.id === id);
+};
+
+const viewCandidateDetail = (id: number) => {
+  selectResume(id);
 };
 
 // Mock analysis data
@@ -172,6 +227,16 @@ const handleAddToKnowledge = () => {
       <!-- Left Sidebar: File List -->
       <aside class="left-sidebar">
         <div class="file-list">
+          <!-- Overview Button -->
+          <div
+            class="file-item overview-item"
+            :class="{ active: viewMode === 'overview' }"
+            @click="switchToOverview"
+          >
+            <BarChart3 :size="16" />
+            <span class="file-item-name">总览报告</span>
+          </div>
+          <div class="sidebar-divider"></div>
           <div
             v-for="resume in resumes"
             :key="resume.id"
@@ -185,9 +250,159 @@ const handleAddToKnowledge = () => {
         </div>
       </aside>
 
-      <!-- Main Content: Report -->
+      <!-- Main Content -->
       <main class="main-content">
-        <div class="report-container">
+        <!-- Overview Mode -->
+        <div v-if="viewMode === 'overview'" class="report-container">
+          <div class="report-meta">
+            分析时间：2026-02-03 14:30 | 目标岗位：项目经理 | 共 {{ resumeSummaries.length }} 份简历
+          </div>
+
+          <!-- Stats Cards -->
+          <section class="report-section">
+            <h2 class="section-title">
+              <BarChart3 :size="18" />
+              汇总统计
+            </h2>
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-icon blue">
+                  <FileUser :size="24" />
+                </div>
+                <div class="stat-info">
+                  <div class="stat-value">{{ resumeSummaries.length }}</div>
+                  <div class="stat-label">简历总数</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon green">
+                  <TrendingUp :size="24" />
+                </div>
+                <div class="stat-info">
+                  <div class="stat-value">{{ averageScore }}</div>
+                  <div class="stat-label">平均匹配分</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon orange">
+                  <Trophy :size="24" />
+                </div>
+                <div class="stat-info">
+                  <div class="stat-value">{{ recommendCount }}</div>
+                  <div class="stat-label">推荐录用</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Top 3 Candidates -->
+          <section class="report-section">
+            <h2 class="section-title">
+              <Trophy :size="18" />
+              重点推荐 Top 3
+            </h2>
+            <div class="top3-cards">
+              <div
+                v-for="(candidate, index) in top3Candidates"
+                :key="candidate.id"
+                class="top3-card"
+                @click="viewCandidateDetail(candidate.id)"
+              >
+                <div class="top3-rank" :class="'rank-' + (index + 1)">{{ index + 1 }}</div>
+                <div class="top3-header">
+                  <span class="top3-name">{{ candidate.name }}</span>
+                  <span class="top3-score" :class="candidate.score >= 80 ? 'high' : candidate.score >= 60 ? 'medium' : 'low'">
+                    {{ candidate.score }}分
+                  </span>
+                </div>
+                <div class="top3-level">
+                  <span class="recommendation-badge small" :class="'level-' + candidate.level">
+                    {{ candidate.level }}级 · {{ getLevelText(candidate.level) }}
+                  </span>
+                </div>
+                <div class="top3-detail">
+                  <div class="top3-highlights">
+                    <span class="detail-label">核心亮点</span>
+                    <div class="tag-list">
+                      <span v-for="h in candidate.highlights" :key="h" class="tag highlight-tag">{{ h }}</span>
+                    </div>
+                  </div>
+                  <div class="top3-risks">
+                    <span class="detail-label">关键风险</span>
+                    <div class="tag-list">
+                      <span v-for="r in candidate.risks" :key="r" class="tag risk-tag">{{ r }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="top3-action">
+                  查看详情
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Full Ranking Table -->
+          <section class="report-section">
+            <h2 class="section-title">
+              <Star :size="18" />
+              全员匹配度排名
+            </h2>
+            <table class="data-table ranking-table">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>姓名</th>
+                  <th>匹配分</th>
+                  <th>匹配等级</th>
+                  <th>推荐等级</th>
+                  <th>关键标签</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(candidate, index) in rankedCandidates"
+                  :key="candidate.id"
+                  class="ranking-row"
+                  @click="viewCandidateDetail(candidate.id)"
+                >
+                  <td>
+                    <span class="rank-num" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
+                  </td>
+                  <td class="name-cell">{{ candidate.name }}</td>
+                  <td>
+                    <div class="score-bar">
+                      <div class="score-fill" :style="{ width: candidate.score + '%' }"></div>
+                      <span class="score-text">{{ candidate.score }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="match-badge" :class="candidate.score >= 80 ? 'success' : candidate.score >= 60 ? 'info' : 'warning'">
+                      {{ getMatchText(candidate.score) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="recommendation-badge small" :class="'level-' + candidate.level">
+                      {{ candidate.level }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="tag-list inline">
+                      <span v-for="h in candidate.highlights" :key="h" class="tag highlight-tag small">{{ h }}</span>
+                      <span v-for="r in candidate.risks" :key="r" class="tag risk-tag small">{{ r }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="view-link">查看</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+
+        <!-- Detail Mode -->
+        <div v-else class="report-container">
           <div class="report-meta">
             分析时间：2026-02-03 14:30 | 目标岗位：项目经理
           </div>
@@ -548,6 +763,23 @@ const handleAddToKnowledge = () => {
   white-space: nowrap;
 }
 
+/* Overview Item */
+.overview-item {
+  font-weight: 600;
+  color: #475569;
+}
+
+.overview-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
 /* Main Content */
 .main-content {
   flex: 1;
@@ -887,5 +1119,278 @@ const handleAddToKnowledge = () => {
   font-size: 14px;
   color: #475569;
   line-height: 1.7;
+}
+
+/* ===== Overview Mode Styles ===== */
+
+/* Stats Cards */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.stat-icon.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.stat-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Top 3 Cards */
+.top3-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.top3-card {
+  position: relative;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.top3-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
+}
+
+.top3-rank {
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.top3-rank.rank-1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.top3-rank.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+}
+
+.top3-rank.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+}
+
+.top3-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.top3-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.top3-score {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.top3-score.high {
+  color: #16a34a;
+}
+
+.top3-score.medium {
+  color: #2563eb;
+}
+
+.top3-score.low {
+  color: #d97706;
+}
+
+.top3-level {
+  margin-bottom: 12px;
+}
+
+.recommendation-badge.small {
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+.top3-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-right: 6px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.tag-list.inline {
+  display: inline-flex;
+  margin-top: 0;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.tag.small {
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
+.highlight-tag {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.risk-tag {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.top3-action {
+  text-align: center;
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 500;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Ranking Table */
+.ranking-table {
+  cursor: default;
+}
+
+.ranking-row {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ranking-row:hover {
+  background: #f8fafc;
+}
+
+.rank-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.rank-num.rank-1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.rank-num.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: white;
+}
+
+.rank-num.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+  color: white;
+}
+
+.name-cell {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.match-badge.info {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.view-link {
+  color: #2563eb;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.view-link:hover {
+  text-decoration: underline;
 }
 </style>

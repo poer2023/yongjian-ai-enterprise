@@ -756,3 +756,14 @@
   color: #64748b;
 }
 
+/* Interval Range */
+.interval-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.interval-range .limit-input {
+  width: 80px;
+}
+

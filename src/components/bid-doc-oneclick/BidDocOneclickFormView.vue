@@ -18,7 +18,11 @@ import {
   Briefcase,
   Settings,
   MessageSquare,
-  FolderOpen
+  FolderOpen,
+  ListOrdered,
+  Play,
+  Edit3,
+  Package
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
@@ -30,9 +34,10 @@ import {
   bidDocTypes,
   outlineModes,
   matchedTemplates,
-  features
+  features,
+  outlineNodes as defaultOutlineNodes
 } from './mockData';
-import type { Enterprise } from './types';
+import type { Enterprise, GenerateMode, OutlineNode } from './types';
 
 const router = useRouter();
 
@@ -57,6 +62,27 @@ const pageCount = ref(120);
 const aiRecommendedPages = ref(120);
 const additionalInfo = ref('');
 const maxLength = 2000;
+
+// Generate mode: oneclick or node-by-node
+const generateMode = ref<GenerateMode>('oneclick');
+const outlineNodes = ref<OutlineNode[]>([...defaultOutlineNodes]);
+
+// Qualification expiry helpers
+const isExpired = (dateStr?: string) => {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date();
+};
+const isExpiringSoon = (item: { expiringSoon?: boolean }) => {
+  return item.expiringSoon === true;
+};
+
+const getNodeSourceClass = (type: string) => {
+  return { 'ai': 'source-ai', 'material': 'source-material', 'manual': 'source-manual' }[type] || '';
+};
+
+const getNodeStatusClass = (status: string) => {
+  return { 'pending': 'status-pending', 'ready': 'status-ready', 'generated': 'status-generated', 'edited': 'status-edited', 'to-fill': 'status-to-fill' }[status] || '';
+};
 
 const selectEnterprise = (enterprise: Enterprise) => {
   selectedEnterprise.value = enterprise;
@@ -243,7 +269,18 @@ const getRiskLevelText = (level: string) => {
                 <div class="qualification-status matched"><Check :size="12" /></div>
                 <div class="qualification-content">
                   <span class="qualification-require">{{ item.name }}</span>
-                  <span class="qualification-matched">{{ item.matched }}</span>
+                  <div class="qualification-matched-row">
+                    <span class="qualification-matched">{{ item.matched }}</span>
+                    <span v-if="item.expiryDate && isExpired(item.expiryDate)" class="expiry-tag expired">
+                      <AlertTriangle :size="11" /> 已过期 {{ item.expiryDate }}
+                    </span>
+                    <span v-else-if="item.expiryDate && isExpiringSoon(item)" class="expiry-tag expiring">
+                      <Clock :size="11" /> 即将过期 {{ item.expiryDate }}
+                    </span>
+                    <span v-else-if="item.expiryDate" class="expiry-tag valid">
+                      有效期至 {{ item.expiryDate }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -270,6 +307,80 @@ const getRiskLevelText = (level: string) => {
                 <span class="risk-level" :class="getRiskLevelClass(item.level)">{{ getRiskLevelText(item.level) }}</span>
                 <span class="risk-desc">{{ item.desc }}</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Mode Switcher -->
+      <div class="section-card">
+        <div class="card-header">
+          <div class="header-left">
+            <ListOrdered :size="18" class="header-icon" />
+            <span class="header-title">生成模式</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="mode-switcher">
+            <div
+              class="mode-card"
+              :class="{ active: generateMode === 'oneclick' }"
+              @click="generateMode = 'oneclick'"
+            >
+              <div class="mode-icon oneclick"><Zap :size="20" /></div>
+              <div class="mode-info">
+                <span class="mode-label">一键生成</span>
+                <span class="mode-desc">AI 自动完成全部章节，适合时间紧迫的项目</span>
+              </div>
+              <div v-if="generateMode === 'oneclick'" class="mode-check"><Check :size="14" /></div>
+            </div>
+            <div
+              class="mode-card"
+              :class="{ active: generateMode === 'node' }"
+              @click="generateMode = 'node'"
+            >
+              <div class="mode-icon node"><Edit3 :size="20" /></div>
+              <div class="mode-info">
+                <span class="mode-label">逐章节生成</span>
+                <span class="mode-desc">逐章确认和编辑，适合对质量要求高的项目</span>
+              </div>
+              <div v-if="generateMode === 'node'" class="mode-check"><Check :size="14" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node-by-node Outline (visible when mode is 'node') -->
+      <div v-if="generateMode === 'node'" class="section-card">
+        <div class="card-header">
+          <div class="header-left">
+            <FolderOpen :size="18" class="header-icon" />
+            <span class="header-title">章节大纲</span>
+            <span class="auto-fill-tag"><Sparkles :size="12" /> AI 已识别</span>
+          </div>
+          <div class="header-right">
+            <span class="node-summary">
+              <span class="node-count ai">{{ outlineNodes.filter(n => n.sourceType === 'ai').length }} AI生成</span>
+              <span class="node-count material">{{ outlineNodes.filter(n => n.sourceType === 'material').length }} 素材导入</span>
+              <span class="node-count manual">{{ outlineNodes.filter(n => n.sourceType === 'manual').length }} 手动填写</span>
+            </span>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div class="node-list">
+            <div v-for="(node, idx) in outlineNodes" :key="node.id" class="node-item">
+              <span class="node-index">{{ idx + 1 }}</span>
+              <span class="node-name">{{ node.name }}</span>
+              <span class="node-source" :class="getNodeSourceClass(node.sourceType)">
+                <Package v-if="node.sourceType === 'material'" :size="11" />
+                <Sparkles v-else-if="node.sourceType === 'ai'" :size="11" />
+                <Edit3 v-else :size="11" />
+                {{ node.sourceLabel }}
+              </span>
+              <span class="node-status" :class="getNodeStatusClass(node.status)">{{ node.statusLabel }}</span>
+              <button v-if="node.sourceType === 'ai'" class="node-action-btn" title="单独生成此章节">
+                <Play :size="12" />
+              </button>
             </div>
           </div>
         </div>

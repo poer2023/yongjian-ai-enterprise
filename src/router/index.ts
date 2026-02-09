@@ -34,7 +34,8 @@ import BidDocSkeletonView from '../components/bid-doc-skeleton/BidDocSkeletonVie
 import BidDetailView from '../components/BidDetailView.vue';
 import BidDailyReportView from '../components/bid-daily-report/BidDailyReportView.vue';
 import BidSubscriptionView from '../components/bid-subscription/BidSubscriptionView.vue';
-import BidIndustryReportView from '../components/bid-industry-report/BidIndustryReportView.vue';
+import CompetitionAnalysisView from '../components/competition-analysis/CompetitionAnalysisView.vue';
+import CompetitionReportView from '../components/competition-analysis/CompetitionReportView.vue';
 import BidListDetailView from '../components/BidListDetailView.vue';
 import KnowledgeBaseView from '../components/KnowledgeBaseView.vue';
 import EnterpriseMaterialView from '../components/enterprise-material/EnterpriseMaterialView.vue';
@@ -219,10 +220,16 @@ const routes = [
     meta: { title: '标讯列表', fullScreen: true }
   },
   {
-    path: '/bid/industry-report',
-    name: 'bid-industry-report',
-    component: BidIndustryReportView,
-    meta: { title: '行业分析报告', fullScreen: true }
+    path: '/bid/competition-analysis',
+    name: 'competition-analysis',
+    component: CompetitionAnalysisView,
+    meta: { title: '销售策略分析' }
+  },
+  {
+    path: '/bid/competition-analysis/report',
+    name: 'competition-report',
+    component: CompetitionReportView,
+    meta: { title: '销售策略分析报告', fullScreen: true }
   },
 
   // 合同模块

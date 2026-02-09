@@ -70,6 +70,9 @@ export const defaultRpaStrategy: RpaStrategy = {
   startTime: '09:00',
   endTime: '18:00',
   dailyLimit: 100,
+  hourlyLimit: 20,
+  minInterval: 30,
+  maxInterval: 120,
   errorHandling: 'pause',
   enabled: true,
 };

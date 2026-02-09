@@ -390,6 +390,59 @@ const handleSubmit = () => {
           </div>
         </div>
 
+        <!-- Hourly Limit -->
+        <div class="config-row">
+          <label class="config-label">
+            <Clock :size="16" />
+            每小时上限
+          </label>
+          <div class="config-content">
+            <div class="limit-input-wrap">
+              <input
+                v-model.number="rpaStrategy.hourlyLimit"
+                type="number"
+                min="1"
+                max="100"
+                class="limit-input"
+                :disabled="!rpaStrategy.enabled"
+              />
+              <span class="limit-unit">次/小时</span>
+            </div>
+            <span class="config-hint">每小时最多打招呼次数，避免短时间内频繁操作</span>
+          </div>
+        </div>
+
+        <!-- Greeting Interval -->
+        <div class="config-row">
+          <label class="config-label">
+            <Settings :size="16" />
+            打招呼间隔
+          </label>
+          <div class="config-content">
+            <div class="interval-range">
+              <input
+                v-model.number="rpaStrategy.minInterval"
+                type="number"
+                min="5"
+                max="300"
+                class="limit-input"
+                :disabled="!rpaStrategy.enabled"
+              />
+              <span class="time-separator">~</span>
+              <input
+                v-model.number="rpaStrategy.maxInterval"
+                type="number"
+                min="10"
+                max="600"
+                class="limit-input"
+                :disabled="!rpaStrategy.enabled"
+              />
+              <span class="limit-unit">秒</span>
+            </div>
+            <span class="config-hint">每次打招呼间隔时间随机在此区间内，模拟人工操作节奏</span>
+          </div>
+        </div>
+
         <!-- Error Handling -->
         <div class="config-row">
           <label class="config-label">

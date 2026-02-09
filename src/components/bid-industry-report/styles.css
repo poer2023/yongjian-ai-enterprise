@@ -2053,3 +2053,317 @@
   border-color: #94a3b8;
   cursor: not-allowed;
 }
+
+/* ============ Competition Analysis New Styles ============ */
+
+/* Entity Selector (tab-like buttons for switching between items) */
+.entity-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.entity-btn {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.entity-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.entity-btn.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+/* Metrics Grid - four columns variant */
+.metrics-grid.four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Self label highlight in charts */
+.self-label {
+  color: #2563eb !important;
+  font-weight: 600 !important;
+}
+
+/* Head-to-head section */
+.h2h-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.h2h-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.h2h-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.h2h-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.h2h-value.positive {
+  color: #16a34a;
+}
+
+.h2h-value.negative {
+  color: #dc2626;
+}
+
+/* Strengths & Weaknesses Grid */
+.sw-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sw-card {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.sw-card.strengths {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.sw-card.weaknesses {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.sw-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.sw-card.strengths .sw-title {
+  color: #15803d;
+}
+
+.sw-card.weaknesses .sw-title {
+  color: #dc2626;
+}
+
+.sw-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sw-list li {
+  font-size: 13px;
+  color: #334155;
+  padding-left: 14px;
+  position: relative;
+}
+
+.sw-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #94a3b8;
+}
+
+.sw-card.strengths .sw-list li::before {
+  color: #16a34a;
+}
+
+.sw-card.weaknesses .sw-list li::before {
+  color: #dc2626;
+}
+
+/* Project List */
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.project-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.project-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.project-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.result-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.result-badge.result-won {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.result-badge.result-lost {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.result-badge.result-pending {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.category-tag {
+  padding: 2px 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Participants */
+.participants-section {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.participants-header {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.participant-row.is-self {
+  background: #eff6ff;
+}
+
+.participant-row.is-winner {
+  font-weight: 500;
+}
+
+.participant-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #1e293b;
+}
+
+.participant-row.is-self .participant-name {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.winner-icon {
+  color: #f59e0b;
+}
+
+.participant-price {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Loss Reason */
+.loss-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #991b1b;
+}
+
+.loss-reason svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #dc2626;
+}

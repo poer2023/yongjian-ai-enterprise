@@ -1,7 +1,7 @@
 // Mock data for BidDocOneclickFormView
 
 import { Zap, FileText, FileSearch, Bell } from 'lucide-vue-next';
-import type { Enterprise, ScoringItem, Qualification, TimelineItem, RiskItem, ParsedAnalysis, BidDocType, RecentTool, OutlineMode, MatchedTemplate } from './types';
+import type { Enterprise, ScoringItem, Qualification, TimelineItem, RiskItem, ParsedAnalysis, BidDocType, RecentTool, OutlineMode, MatchedTemplate, OutlineNode } from './types';
 
 export const enterprises: Enterprise[] = [
   {
@@ -47,10 +47,10 @@ export const parsedAnalysis: ParsedAnalysis = {
     { name: '商务报价', score: 10, key: '价格竞争力' },
   ],
   qualifications: [
-    { name: '信息系统集成三级及以上资质', status: 'matched', matched: 'ISO 9001质量管理体系认证' },
-    { name: 'CMMI 3级及以上认证', status: 'matched', matched: 'CMMI 3级认证' },
+    { name: '信息系统集成三级及以上资质', status: 'matched', matched: 'ISO 9001质量管理体系认证', expiryDate: '2027-06-15' },
+    { name: 'CMMI 3级及以上认证', status: 'matched', matched: 'CMMI 3级认证', expiryDate: '2026-03-05', expiringSoon: true },
     { name: '近三年同类项目业绩不少于2个', status: 'matched', matched: '已匹配3个同类项目' },
-    { name: '项目经理具备PMP认证', status: 'matched', matched: '张工 - PMP认证' },
+    { name: '项目经理具备PMP认证', status: 'matched', matched: '张工 - PMP认证', expiryDate: '2025-12-01' },
   ],
   timeline: [
     { event: '投标截止', date: '2024-03-15 14:30', urgent: true },
@@ -117,4 +117,17 @@ export const features = [
   '自动匹配企业素材库资料',
   '风险点与时间节点提醒',
   '一键生成专业投标文件',
+];
+
+export const outlineNodes: OutlineNode[] = [
+  { id: 1, name: '投标函', sourceType: 'ai', sourceLabel: 'AI生成', status: 'pending', statusLabel: '待生成' },
+  { id: 2, name: '法人代表授权书', sourceType: 'material', sourceLabel: '素材库导入', status: 'ready', statusLabel: '已就绪' },
+  { id: 3, name: '企业资质证明', sourceType: 'material', sourceLabel: '素材库导入', status: 'ready', statusLabel: '已就绪' },
+  { id: 4, name: '技术方案', sourceType: 'ai', sourceLabel: 'AI生成', status: 'pending', statusLabel: '待生成' },
+  { id: 5, name: '项目实施计划', sourceType: 'ai', sourceLabel: 'AI生成', status: 'pending', statusLabel: '待生成' },
+  { id: 6, name: '售后服务方案', sourceType: 'ai', sourceLabel: 'AI生成', status: 'pending', statusLabel: '待生成' },
+  { id: 7, name: '项目业绩证明', sourceType: 'material', sourceLabel: '素材库导入', status: 'ready', statusLabel: '已就绪' },
+  { id: 8, name: '项目团队配置', sourceType: 'material', sourceLabel: '素材库导入', status: 'ready', statusLabel: '已就绪' },
+  { id: 9, name: '商务报价', sourceType: 'manual', sourceLabel: '手动填写', status: 'to-fill', statusLabel: '待填写' },
+  { id: 10, name: '其他补充材料', sourceType: 'manual', sourceLabel: '手动填写', status: 'to-fill', statusLabel: '待填写' },
 ];

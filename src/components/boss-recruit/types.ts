@@ -41,6 +41,9 @@ export interface RpaStrategy {
   startTime: string;
   endTime: string;
   dailyLimit: number;
+  hourlyLimit: number;
+  minInterval: number;
+  maxInterval: number;
   errorHandling: 'pause' | 'skip' | 'notify';
   enabled: boolean;
 }

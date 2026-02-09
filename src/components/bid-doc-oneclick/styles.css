@@ -427,3 +427,276 @@
   font-size: 12px;
   color: #94a3b8;
 }
+
+/* Qualification Expiry Tags */
+.qualification-matched-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.expiry-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.expiry-tag.expired {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.expiry-tag.expiring {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.expiry-tag.valid {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+/* Generate Mode Switcher */
+.mode-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.mode-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  position: relative;
+}
+
+.mode-card:hover:not(.active) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.mode-card.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.mode-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mode-icon.oneclick {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.mode-icon.node {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.mode-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mode-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.mode-card.active .mode-label {
+  color: #2563eb;
+}
+
+.mode-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.mode-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Node List (node-by-node outline) */
+.header-right {
+  margin-left: auto;
+}
+
+.node-summary {
+  display: flex;
+  gap: 10px;
+}
+
+.node-count {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.node-count.ai {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.node-count.material {
+  color: #0891b2;
+  background: #ecfeff;
+}
+
+.node-count.manual {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.node-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.node-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+.node-item:last-child {
+  border-bottom: none;
+}
+
+.node-item:hover {
+  background: #f8fafc;
+}
+
+.node-index {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.node-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.node-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.node-source.source-ai {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.node-source.source-material {
+  color: #0891b2;
+  background: #ecfeff;
+}
+
+.node-source.source-manual {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.node-status {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.node-status.status-pending {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.node-status.status-ready {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.node-status.status-generated {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.node-status.status-edited {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.node-status.status-to-fill {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.node-action-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.node-action-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
