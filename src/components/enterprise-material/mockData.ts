@@ -467,7 +467,8 @@ export const initialMaterials: Material[] = [
       { key: '用途', value: '标书附件、资格审查' }
     ],
     sourceFileId: 1,
-    pageRange: '第1页'
+    pageRange: '第1页',
+    expiryDate: '2026-12-31'
   },
   {
     id: 'm1-2',
@@ -503,7 +504,8 @@ export const initialMaterials: Material[] = [
       { key: '用途', value: '资质证明附件' }
     ],
     sourceFileId: 2,
-    pageRange: '第1页'
+    pageRange: '第1页',
+    expiryDate: '2026-02-15'
   },
   {
     id: 'm2-2',
@@ -521,7 +523,8 @@ export const initialMaterials: Material[] = [
       { key: '有效期', value: '2023年06月20日 - 2026年06月19日' }
     ],
     sourceFileId: 2,
-    pageRange: '第1页'
+    pageRange: '第1页',
+    expiryDate: '2026-02-15'
   },
 
   // ========== File 3: 高新技术企业证书_2023-2026.pdf → 2个素材 ==========
@@ -537,7 +540,8 @@ export const initialMaterials: Material[] = [
       { key: '用途', value: '资质证明附件' }
     ],
     sourceFileId: 3,
-    pageRange: '第1页'
+    pageRange: '第1页',
+    expiryDate: '2026-04-30'
   },
   {
     id: 'm3-2',
@@ -555,7 +559,8 @@ export const initialMaterials: Material[] = [
       { key: '有效期', value: '2023年 - 2026年（三年）' }
     ],
     sourceFileId: 3,
-    pageRange: '第1页'
+    pageRange: '第1页',
+    expiryDate: '2026-04-30'
   },
 
   // ========== File 4: 软件著作权登记证书汇编.pdf → 10个素材（5证书×2） ==========

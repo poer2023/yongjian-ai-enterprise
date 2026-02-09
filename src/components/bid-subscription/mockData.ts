@@ -1,6 +1,6 @@
 // Mock data for BidSubscriptionView
 
-import type { PolicyGroup, DateOption, BidHighlight, BidItem, DayData, DataByPolicy } from './types';
+import type { PolicyGroup, DateOption, BidHighlight, BidItem, DayData, DataByPolicy, IndustryTag, CompetitorCompany } from './types';
 
 export const policyGroups: PolicyGroup[] = [
   { id: 'security', name: '网络安全组', color: '#10b981', newCount: 8 },

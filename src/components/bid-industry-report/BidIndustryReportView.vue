@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   ChevronLeft,
+  ChevronDown,
   BarChart3,
   Download,
   Users,
   Building2,
   DollarSign,
   MapPin,
-  PieChart
+  PieChart,
+  Factory,
+  Plus,
+  X,
+  Search,
+  Upload,
+  Trash2
 } from 'lucide-vue-next';
 import {
   marketAnalysis,
@@ -18,8 +25,12 @@ import {
   priceAnalysis,
   regionAnalysis,
   customerAnalysis,
-  dimensionInsights
+  dimensionInsights,
+  industryOptions,
+  configuredCompetitors as defaultCompetitors,
+  competitorSearchResults
 } from '../../mocks/bidIndustryReport';
+import type { CompetitorCompany } from '../../mocks/bidIndustryReport';
 
 const router = useRouter();
 
@@ -38,6 +49,72 @@ const dimensions = [
 ];
 
 const activeDimension = ref('market');
+
+// Industry & Competitor configuration
+const selectedIndustry = ref('cyber-security');
+const showIndustryDropdown = ref(false);
+const competitors = ref<CompetitorCompany[]>([...defaultCompetitors]);
+const showAddCompetitorModal = ref(false);
+const competitorSearchQuery = ref('');
+const selectedSearchResults = ref<string[]>([]);
+
+const currentIndustry = computed(() => {
+  return industryOptions.find(i => i.id === selectedIndustry.value);
+});
+
+const selectIndustry = (id: string) => {
+  selectedIndustry.value = id;
+  showIndustryDropdown.value = false;
+};
+
+const removeCompetitor = (id: string) => {
+  competitors.value = competitors.value.filter(c => c.id !== id);
+};
+
+const filteredSearchResults = computed(() => {
+  const existingIds = new Set(competitors.value.map(c => c.id));
+  let results = competitorSearchResults.filter(r => !existingIds.has(r.id));
+  if (competitorSearchQuery.value) {
+    const query = competitorSearchQuery.value.toLowerCase();
+    results = results.filter(r =>
+      r.name.toLowerCase().includes(query) ||
+      r.industry.toLowerCase().includes(query) ||
+      r.region.toLowerCase().includes(query)
+    );
+  }
+  return results;
+});
+
+const toggleSearchResult = (id: string) => {
+  const idx = selectedSearchResults.value.indexOf(id);
+  if (idx >= 0) {
+    selectedSearchResults.value.splice(idx, 1);
+  } else {
+    selectedSearchResults.value.push(id);
+  }
+};
+
+const confirmAddCompetitors = () => {
+  const newCompetitors = competitorSearchResults
+    .filter(r => selectedSearchResults.value.includes(r.id))
+    .map(r => ({
+      id: r.id,
+      name: r.name,
+      industry: r.industry,
+      region: r.region,
+      addedAt: new Date().toISOString().slice(0, 10),
+    }));
+  competitors.value.push(...newCompetitors);
+  selectedSearchResults.value = [];
+  competitorSearchQuery.value = '';
+  showAddCompetitorModal.value = false;
+};
+
+const openAddModal = () => {
+  selectedSearchResults.value = [];
+  competitorSearchQuery.value = '';
+  showAddCompetitorModal.value = true;
+};
 
 const goBack = () => {
   router.push({ name: 'bid-subscription' });
@@ -96,6 +173,57 @@ const maxRegionSize = Math.max(...regionAnalysis.map(r => r.marketSize));
     <div class="report-content">
       <!-- Left Navigation -->
       <div class="nav-panel">
+        <!-- Industry Configuration -->
+        <div class="config-section">
+          <div class="config-label">
+            <Factory :size="14" />
+            <span>关注行业</span>
+          </div>
+          <div class="industry-dropdown-wrapper">
+            <button class="industry-dropdown-trigger" @click="showIndustryDropdown = !showIndustryDropdown">
+              <span class="industry-name">{{ currentIndustry?.name }}</span>
+              <ChevronDown :size="14" :class="{ 'rotate': showIndustryDropdown }" />
+            </button>
+            <div v-if="showIndustryDropdown" class="industry-dropdown-menu">
+              <div
+                v-for="opt in industryOptions"
+                :key="opt.id"
+                :class="['industry-dropdown-item', { active: selectedIndustry === opt.id }]"
+                @click="selectIndustry(opt.id)"
+              >
+                <span class="ind-name">{{ opt.name }}</span>
+                <span class="ind-desc">{{ opt.description }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitor Configuration -->
+        <div class="config-section">
+          <div class="config-label">
+            <Users :size="14" />
+            <span>竞品企业</span>
+            <span class="competitor-count">{{ competitors.length }}</span>
+          </div>
+          <div class="competitor-list">
+            <div v-for="comp in competitors" :key="comp.id" class="competitor-item">
+              <div class="comp-info">
+                <span class="comp-name">{{ comp.name }}</span>
+                <span class="comp-region">{{ comp.region }}</span>
+              </div>
+              <button class="comp-remove-btn" @click="removeCompetitor(comp.id)" title="移除">
+                <X :size="12" />
+              </button>
+            </div>
+          </div>
+          <button class="add-competitor-btn" @click="openAddModal">
+            <Plus :size="14" />
+            添加竞品企业
+          </button>
+        </div>
+
+        <div class="config-divider"></div>
+
         <div class="nav-title">分析维度</div>
         <div class="nav-list">
           <div
@@ -416,6 +544,79 @@ const maxRegionSize = Math.max(...regionAnalysis.map(r => r.marketSize));
               <li v-for="(insight, idx) in dimensionInsights.customer" :key="idx">{{ insight }}</li>
             </ul>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Competitor Modal -->
+    <div v-if="showAddCompetitorModal" class="modal-overlay" @click.self="showAddCompetitorModal = false">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <Plus :size="18" />
+            添加竞品企业
+          </h3>
+          <button class="modal-close" @click="showAddCompetitorModal = false">
+            <X :size="18" />
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="search-bar">
+            <Search :size="16" />
+            <input
+              type="text"
+              v-model="competitorSearchQuery"
+              placeholder="搜索企业名称、行业、地区..."
+              class="search-input"
+            />
+          </div>
+
+          <div class="search-results">
+            <div class="results-header">
+              <span>搜索结果</span>
+              <span class="results-count">{{ filteredSearchResults.length }} 家企业</span>
+            </div>
+            <div class="results-list">
+              <div
+                v-for="result in filteredSearchResults"
+                :key="result.id"
+                :class="['result-item', { selected: selectedSearchResults.includes(result.id) }]"
+                @click="toggleSearchResult(result.id)"
+              >
+                <div class="result-checkbox">
+                  <div :class="['checkbox', { checked: selectedSearchResults.includes(result.id) }]"></div>
+                </div>
+                <div class="result-info">
+                  <span class="result-name">{{ result.name }}</span>
+                  <div class="result-meta">
+                    <span class="result-industry">{{ result.industry }}</span>
+                    <span class="result-region">{{ result.region }}</span>
+                    <span class="result-bids">投标 {{ result.bidCount }} 次</span>
+                  </div>
+                </div>
+              </div>
+              <div v-if="filteredSearchResults.length === 0" class="no-results">
+                暂无匹配的企业
+              </div>
+            </div>
+          </div>
+
+          <div class="import-hint">
+            <Upload :size="14" />
+            <span>支持批量导入：上传包含企业名称的 Excel 文件</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="modal-btn cancel" @click="showAddCompetitorModal = false">取消</button>
+          <button
+            class="modal-btn confirm"
+            :disabled="selectedSearchResults.length === 0"
+            @click="confirmAddCompetitors"
+          >
+            添加已选 ({{ selectedSearchResults.length }})
+          </button>
         </div>
       </div>
     </div>

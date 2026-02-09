@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Image, FileType, FileText, Pencil, Trash2 } from 'lucide-vue-next';
-import type { Material } from '../types';
+import { computed } from 'vue';
+import { Image, FileType, FileText, Pencil, Trash2, AlertTriangle, Clock, CalendarClock } from 'lucide-vue-next';
+import type { Material, ExpiryInfo, ExpiryLevel } from '../types';
 
 const props = defineProps<{
   material: Material;
@@ -11,6 +12,36 @@ const emit = defineEmits<{
   navigate: [pageRange: string];
   'update:name': [value: string];
 }>();
+
+const expiryInfo = computed<ExpiryInfo | null>(() => {
+  if (!props.material.expiryDate) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const expiry = new Date(props.material.expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  const diffMs = expiry.getTime() - now.getTime();
+  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  let level: ExpiryLevel;
+  let label: string;
+  if (daysLeft < 0) {
+    level = 'expired';
+    label = `已过期 ${Math.abs(daysLeft)} 天`;
+  } else if (daysLeft <= 7) {
+    level = 'week';
+    label = daysLeft === 0 ? '今日到期' : `${daysLeft} 天后到期`;
+  } else if (daysLeft <= 30) {
+    level = 'month';
+    label = `${daysLeft} 天后到期`;
+  } else if (daysLeft <= 90) {
+    level = 'quarter';
+    label = `${daysLeft} 天后到期`;
+  } else {
+    level = 'normal';
+    label = `有效期至 ${props.material.expiryDate}`;
+  }
+  return { level, label, daysLeft };
+});
 
 const handleNameInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -49,6 +80,19 @@ const handleNavigate = () => {
       />
       <Pencil :size="14" class="title-edit-icon" />
     </div>
+    <!-- Expiry alert banner -->
+    <div v-if="expiryInfo && expiryInfo.level !== 'normal'" class="expiry-alert" :class="'expiry-' + expiryInfo.level" @click.stop>
+      <div class="expiry-alert-left">
+        <AlertTriangle v-if="expiryInfo.level === 'expired' || expiryInfo.level === 'week'" :size="16" />
+        <Clock v-else-if="expiryInfo.level === 'month'" :size="16" />
+        <CalendarClock v-else :size="16" />
+        <span class="expiry-label">{{ expiryInfo.label }}</span>
+      </div>
+      <span class="expiry-action">
+        {{ expiryInfo.level === 'expired' ? '请尽快补充更新' : expiryInfo.level === 'week' ? '即将到期，请尽快续期' : expiryInfo.level === 'month' ? '请安排续期事宜' : '建议提前准备续期材料' }}
+      </span>
+    </div>
+
     <!-- Image type: show simulated thumbnail -->
     <div v-if="material.contentType === 'image'" class="material-thumbnail" @click.stop>
       <div class="thumbnail-doc">
@@ -281,5 +325,63 @@ const handleNavigate = () => {
 .delete-material-btn:hover {
   background: #fee2e2;
   color: #dc2626;
+}
+
+/* Expiry Alert Styles */
+.expiry-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.expiry-alert-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.expiry-label {
+  white-space: nowrap;
+}
+
+.expiry-action {
+  font-size: 12px;
+  font-weight: 400;
+  text-align: right;
+}
+
+/* Expired - red */
+.expiry-expired {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+/* Within 1 week - red/orange urgent */
+.expiry-week {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+}
+
+/* Within 1 month - amber warning */
+.expiry-month {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #d97706;
+}
+
+/* Within 3 months - blue notice */
+.expiry-quarter {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
 }
 </style>

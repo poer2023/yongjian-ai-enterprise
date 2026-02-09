@@ -595,3 +595,56 @@ export const businessOpportunities: BusinessOpportunity[] = [
     tags: ['数据安全', '金融', '证券'],
   },
 ];
+
+// ============ Industry & Competitor Configuration ============
+
+export interface IndustryOption {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface CompetitorCompany {
+  id: string;
+  name: string;
+  industry: string;
+  region: string;
+  addedAt: string;
+}
+
+export interface CompetitorSearchResult {
+  id: string;
+  name: string;
+  industry: string;
+  region: string;
+  bidCount: number;
+}
+
+export const industryOptions: IndustryOption[] = [
+  { id: 'cyber-security', name: '网络安全', description: '等保测评、渗透测试、安全运维等' },
+  { id: 'software-dev', name: '软件开发', description: '定制软件、平台开发、系统集成等' },
+  { id: 'system-integration', name: '系统集成', description: 'IT基础设施、数据中心、网络建设等' },
+  { id: 'cloud-service', name: '云计算服务', description: '云平台、云迁移、SaaS服务等' },
+  { id: 'data-service', name: '数据服务', description: '大数据分析、数据治理、BI服务等' },
+  { id: 'ai-service', name: '人工智能', description: 'AI应用、机器学习、智能决策等' },
+  { id: 'iot', name: '物联网', description: '智能硬件、工业互联网、车联网等' },
+];
+
+export const configuredCompetitors: CompetitorCompany[] = [
+  { id: 'c1', name: '华安信息技术有限公司', industry: '网络安全', region: '北京', addedAt: '2025-12-01' },
+  { id: 'c2', name: '中科安全科技股份', industry: '网络安全', region: '北京', addedAt: '2025-12-01' },
+  { id: 'c3', name: '启明星辰科技', industry: '网络安全', region: '北京', addedAt: '2025-12-15' },
+  { id: 'c4', name: '深信服科技股份', industry: '网络安全', region: '广东', addedAt: '2026-01-05' },
+  { id: 'c5', name: '奇安信科技集团', industry: '网络安全', region: '北京', addedAt: '2026-01-05' },
+];
+
+export const competitorSearchResults: CompetitorSearchResult[] = [
+  { id: 's1', name: '天融信科技集团', industry: '网络安全', region: '北京', bidCount: 95 },
+  { id: 's2', name: '绿盟科技集团', industry: '网络安全', region: '北京', bidCount: 82 },
+  { id: 's3', name: '安恒信息技术', industry: '网络安全', region: '浙江', bidCount: 75 },
+  { id: 's4', name: '蓝盾信息安全', industry: '网络安全', region: '广东', bidCount: 68 },
+  { id: 's5', name: '山石网科技术', industry: '网络安全', region: '北京', bidCount: 56 },
+  { id: 's6', name: '新华三技术有限公司', industry: '系统集成', region: '浙江', bidCount: 120 },
+  { id: 's7', name: '紫光股份有限公司', industry: '系统集成', region: '北京', bidCount: 98 },
+  { id: 's8', name: '东软集团股份', industry: '软件开发', region: '辽宁', bidCount: 88 },
+];

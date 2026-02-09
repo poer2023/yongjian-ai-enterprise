@@ -37,9 +37,20 @@ export interface Material {
   idCardScan?: AttachmentRef;
   diplomaScan?: AttachmentRef;
   certScans?: AttachmentRef[];
+  // Expiry date for certificates (ISO date string, e.g. '2026-06-19')
+  expiryDate?: string;
   // Project case fields
   projectType?: '等保测评' | '密评' | '安全服务' | '系统集成' | '软件开发' | '运维服务' | '咨询规划';
   proofDocuments?: AttachmentRef[];
+}
+
+// Expiry alert level
+export type ExpiryLevel = 'expired' | 'week' | 'month' | 'quarter' | 'normal';
+
+export interface ExpiryInfo {
+  level: ExpiryLevel;
+  label: string;
+  daysLeft: number;
 }
 
 export interface FilePreview {

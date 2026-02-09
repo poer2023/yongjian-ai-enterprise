@@ -39,6 +39,18 @@ export interface DayData {
 export type PolicyData = Record<string, DayData>;
 export type DataByPolicy = Record<string, PolicyData>;
 
+export interface IndustryTag {
+  id: string;
+  name: string;
+  selected: boolean;
+}
+
+export interface CompetitorCompany {
+  id: string;
+  name: string;
+  source: 'manual' | 'import';
+}
+
 export interface BidDetail extends BidItem {
   deadline: string;
   location: string;

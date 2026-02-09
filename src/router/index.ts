@@ -27,6 +27,7 @@ import BidAnalysisFormView from '../components/BidAnalysisFormView.vue';
 import BidAnalysisResultView from '../components/bid-analysis-result/BidAnalysisResultView.vue';
 import BidDocFormView from '../components/bid-doc-form/BidDocFormView.vue';
 import BidDocSmartFormView from '../components/bid-doc-smart/BidDocSmartFormView.vue';
+import BidDocOneclickFormView from '../components/bid-doc-oneclick/BidDocOneclickFormView.vue';
 import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
 import BidDocSkeletonView from '../components/bid-doc-skeleton/BidDocSkeletonView.vue';
@@ -168,6 +169,12 @@ const routes = [
     name: 'bid-doc-smart-form',
     component: BidDocSmartFormView,
     meta: { title: 'AI标书生成' }
+  },
+  {
+    path: '/bid/doc/oneclick',
+    name: 'bid-doc-oneclick-form',
+    component: BidDocOneclickFormView,
+    meta: { title: 'AI标书生成（一键版）' }
   },
   {
     path: '/bid/doc/generating',

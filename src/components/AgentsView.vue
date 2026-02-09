@@ -62,6 +62,15 @@ const allAgents = [
     color: '#8b5cf6',
     bgColor: '#f5f3ff',
     routeName: 'bid-doc-smart-form'
+  },
+  {
+    id: 7,
+    name: 'AI标书生成（一键版）',
+    description: '一键上传招标文件，全自动生成投标文件',
+    icon: Zap,
+    color: '#f59e0b',
+    bgColor: '#fffbeb',
+    routeName: 'bid-doc-oneclick-form'
   }
 ];
 
