@@ -36,6 +36,7 @@ import BidDailyReportView from '../components/bid-daily-report/BidDailyReportVie
 import BidSubscriptionView from '../components/bid-subscription/BidSubscriptionView.vue';
 import CompetitionAnalysisView from '../components/competition-analysis/CompetitionAnalysisView.vue';
 import CompetitionReportView from '../components/competition-analysis/CompetitionReportView.vue';
+import BidIndustryReportView from '../components/bid-industry-report/BidIndustryReportView.vue';
 import BidListDetailView from '../components/BidListDetailView.vue';
 import KnowledgeBaseView from '../components/KnowledgeBaseView.vue';
 import EnterpriseMaterialView from '../components/enterprise-material/EnterpriseMaterialView.vue';
@@ -218,6 +219,12 @@ const routes = [
     name: 'bid-list-detail',
     component: BidListDetailView,
     meta: { title: '标讯列表', fullScreen: true }
+  },
+  {
+    path: '/bid/industry-report',
+    name: 'bid-industry-report',
+    component: BidIndustryReportView,
+    meta: { title: '行业分析报告', fullScreen: true }
   },
   {
     path: '/bid/competition-analysis',

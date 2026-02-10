@@ -9,12 +9,108 @@ import {
   Zap,
   Sparkles,
   ScrollText,
-  Calendar
+  Calendar,
+  ChevronDown,
+  MapPin,
+  Filter,
+  X
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const searchQuery = ref('');
+
+// Filter states
+const showAdvancedFilters = ref(false);
+const activeInfoType = ref('all');
+const activeRegion = ref('all');
+const activeTimeRange = ref('all');
+const activeBudget = ref('all');
+const activeIndustry = ref('all');
+const activeSearchMode = ref('smart');
+
+// Filter options
+const infoTypes = [
+  { value: 'all', label: '全部' },
+  { value: 'tender', label: '招标公告' },
+  { value: 'pretender', label: '招标预告' },
+  { value: 'change', label: '变更公告' },
+  { value: 'result', label: '中标公告' },
+  { value: 'purchase', label: '采购公告' },
+  { value: 'cancel', label: '废标公告' }
+];
+
+const regions = [
+  { value: 'all', label: '全国' },
+  { value: 'beijing', label: '北京' },
+  { value: 'shanghai', label: '上海' },
+  { value: 'guangdong', label: '广东' },
+  { value: 'zhejiang', label: '浙江' },
+  { value: 'jiangsu', label: '江苏' },
+  { value: 'sichuan', label: '四川' },
+  { value: 'hubei', label: '湖北' },
+  { value: 'shandong', label: '山东' },
+  { value: 'fujian', label: '福建' },
+  { value: 'hunan', label: '湖南' }
+];
+
+const timeRanges = [
+  { value: 'all', label: '不限' },
+  { value: '3d', label: '近3天' },
+  { value: '1w', label: '近一周' },
+  { value: '1m', label: '近一月' },
+  { value: '3m', label: '近三月' },
+  { value: '6m', label: '近半年' }
+];
+
+const budgets = [
+  { value: 'all', label: '不限' },
+  { value: '0-50', label: '50万以下' },
+  { value: '50-100', label: '50-100万' },
+  { value: '100-500', label: '100-500万' },
+  { value: '500-1000', label: '500-1000万' },
+  { value: '1000+', label: '1000万以上' }
+];
+
+const industries = [
+  { value: 'all', label: '全部行业' },
+  { value: 'it', label: '信息技术' },
+  { value: 'security', label: '网络安全' },
+  { value: 'construction', label: '工程建设' },
+  { value: 'medical', label: '医疗卫生' },
+  { value: 'education', label: '教育文化' },
+  { value: 'finance', label: '金融服务' },
+  { value: 'energy', label: '能源化工' },
+  { value: 'transport', label: '交通运输' },
+  { value: 'environmental', label: '环保绿化' }
+];
+
+const searchModes = [
+  { value: 'smart', label: '智能检索', desc: '匹配同义词和近义词' },
+  { value: 'fuzzy', label: '模糊检索', desc: '智能分词匹配' },
+  { value: 'exact', label: '精确检索', desc: '完全匹配关键词' }
+];
+
+// Count active filters
+const activeFilterCount = computed(() => {
+  let count = 0;
+  if (activeInfoType.value !== 'all') count++;
+  if (activeRegion.value !== 'all') count++;
+  if (activeTimeRange.value !== 'all') count++;
+  if (activeBudget.value !== 'all') count++;
+  if (activeIndustry.value !== 'all') count++;
+  if (activeSearchMode.value !== 'smart') count++;
+  return count;
+});
+
+const clearAllFilters = () => {
+  activeInfoType.value = 'all';
+  activeRegion.value = 'all';
+  activeTimeRange.value = 'all';
+  activeBudget.value = 'all';
+  activeIndustry.value = 'all';
+  activeSearchMode.value = 'smart';
+};
 
 // 策略组数据接口
 interface PolicyGroup {
@@ -149,12 +245,118 @@ const handleTagClick = (tag: string) => {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="搜索招标项目、关键词、地区..."
+            placeholder="输入项目名称、招标单位、关键词..."
             class="search-input"
             @keyup.enter="handleSearch"
           />
           <button class="search-btn" @click="handleSearch">搜索</button>
         </div>
+
+        <!-- Quick filter bar -->
+        <div class="quick-filter-bar">
+          <div class="filter-left">
+            <!-- Info type pills -->
+            <div class="filter-pills">
+              <span
+                v-for="item in infoTypes"
+                :key="item.value"
+                :class="['filter-pill', { active: activeInfoType === item.value }]"
+                @click="activeInfoType = item.value"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </div>
+          <div class="filter-right">
+            <button
+              :class="['advanced-filter-btn', { active: showAdvancedFilters }]"
+              @click="showAdvancedFilters = !showAdvancedFilters"
+            >
+              <Filter :size="14" />
+              <span>高级筛选</span>
+              <span v-if="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
+              <ChevronDown :size="14" :class="['chevron-icon', { rotated: showAdvancedFilters }]" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced filters panel -->
+        <div v-if="showAdvancedFilters" class="advanced-filters">
+          <div class="filter-row">
+            <span class="filter-label"><MapPin :size="14" /> 地区</span>
+            <div class="filter-options">
+              <span
+                v-for="item in regions"
+                :key="item.value"
+                :class="['filter-option', { active: activeRegion === item.value }]"
+                @click="activeRegion = item.value"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label"><Calendar :size="14" /> 时间</span>
+            <div class="filter-options">
+              <span
+                v-for="item in timeRanges"
+                :key="item.value"
+                :class="['filter-option', { active: activeTimeRange === item.value }]"
+                @click="activeTimeRange = item.value"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label">预算</span>
+            <div class="filter-options">
+              <span
+                v-for="item in budgets"
+                :key="item.value"
+                :class="['filter-option', { active: activeBudget === item.value }]"
+                @click="activeBudget = item.value"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label">行业</span>
+            <div class="filter-options">
+              <span
+                v-for="item in industries"
+                :key="item.value"
+                :class="['filter-option', { active: activeIndustry === item.value }]"
+                @click="activeIndustry = item.value"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label"><Search :size="14" /> 搜索模式</span>
+            <div class="filter-options">
+              <span
+                v-for="item in searchModes"
+                :key="item.value"
+                :class="['filter-option mode-option', { active: activeSearchMode === item.value }]"
+                @click="activeSearchMode = item.value"
+                :title="item.desc"
+              >
+                {{ item.label }}
+                <span class="mode-desc">{{ item.desc }}</span>
+              </span>
+            </div>
+          </div>
+          <div v-if="activeFilterCount > 0" class="filter-actions">
+            <button class="clear-filters-btn" @click="clearAllFilters">
+              <X :size="14" />
+              清除所有筛选
+            </button>
+          </div>
+        </div>
+
         <div class="quick-tags">
           <span class="tags-label">热门：</span>
           <span
@@ -299,6 +501,202 @@ const handleTagClick = (tag: string) => {
 
 .hot-tag:hover {
   background: #bfdbfe;
+}
+
+/* Quick filter bar */
+.quick-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  gap: 12px;
+}
+
+.filter-left {
+  flex: 1;
+  overflow: hidden;
+}
+
+.filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 5px 14px;
+  font-size: 13px;
+  color: #64748b;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.filter-pill:hover {
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+.filter-pill.active {
+  color: #3b82f6;
+  background: #dbeafe;
+  font-weight: 600;
+}
+
+.advanced-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.advanced-filter-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.advanced-filter-btn.active {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #3b82f6;
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #3b82f6;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+}
+
+.chevron-icon {
+  transition: transform 0.2s;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Advanced filters panel */
+.advanced-filters {
+  margin-top: 12px;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.filter-row:last-of-type {
+  border-bottom: none;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.filter-options {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.filter-option {
+  padding: 4px 12px;
+  font-size: 13px;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filter-option:hover {
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+.filter-option.active {
+  color: #3b82f6;
+  background: #dbeafe;
+  font-weight: 600;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.mode-option.active .mode-desc {
+  color: #60a5fa;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.clear-filters-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clear-filters-btn:hover {
+  color: #ef4444;
 }
 
 /* 双栏卡片区 */
