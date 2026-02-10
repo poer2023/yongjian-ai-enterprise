@@ -1,9 +1,12 @@
 // Mock data for BidDocSkeletonView.vue
 
+export type OutlineSourceType = 'ai' | 'material' | 'manual';
+
 export interface OutlineItem {
   id: string;
   title: string;
   level: 1 | 2 | 3;
+  sourceType?: OutlineSourceType;
   children?: OutlineItem[];
 }
 
@@ -30,6 +33,8 @@ export interface EnterpriseMaterial {
   meta?: Record<string, string>;
   inserted: boolean;
   insertedSectionId?: string;
+  expiryDate?: string;
+  expiringSoon?: boolean;
 }
 
 export interface ManualUpload {
@@ -1159,7 +1164,9 @@ export const enterpriseMaterialsData: EnterpriseMaterial[] = [
     content: '证书编号：DJCP-2023-XXXX\n\n机构名称：金盾检测技术股份有限公司\n\n经审核，该机构符合《网络安全等级保护测评机构管理办法》规定的条件，准予从事网络安全等级保护测评活动。\n\n测评业务范围：第二级、第三级信息系统',
     meta: { '有效期': '2023-03-01 至 2026-02-28', '发证单位': '公安部网络安全保卫局' },
     inserted: true,
-    insertedSectionId: 'section-2-13'
+    insertedSectionId: 'section-2-13',
+    expiryDate: '2026-02-28',
+    expiringSoon: true
   },
   {
     id: 'em2',
@@ -1169,7 +1176,8 @@ export const enterpriseMaterialsData: EnterpriseMaterial[] = [
     content: '证书编号：CN-ISO9001-2023XXXX\n\n兹证明：金盾检测技术股份有限公司\n\n已通过 GB/T 19001-2016/ISO 9001:2015 质量管理体系认证\n\n认证范围：信息安全测评服务、网络安全等级保护测评服务、信息系统安全咨询服务',
     meta: { '有效期': '2023-06-01 至 2026-05-31', '认证机构': '中国质量认证中心' },
     inserted: true,
-    insertedSectionId: 'section-2-16'
+    insertedSectionId: 'section-2-16',
+    expiryDate: '2026-05-31'
   },
   {
     id: 'em3',
@@ -1178,7 +1186,8 @@ export const enterpriseMaterialsData: EnterpriseMaterial[] = [
     description: '信息安全管理体系认证证书',
     content: '证书编号：CN-ISO27001-2023XXXX\n\n兹证明：金盾检测技术股份有限公司\n\n已通过 GB/T 22080-2016/ISO/IEC 27001:2013 信息安全管理体系认证\n\n认证范围：信息安全测评服务的信息安全管理',
     meta: { '有效期': '2023-08-01 至 2026-07-31', '认证机构': '中国信息安全认证中心' },
-    inserted: false
+    inserted: false,
+    expiryDate: '2026-07-31'
   },
   {
     id: 'em4',
@@ -1187,7 +1196,8 @@ export const enterpriseMaterialsData: EnterpriseMaterial[] = [
     description: '信息系统集成及服务资质证书',
     content: '资质证书编号：XZ3-2023-XXXX\n\n企业名称：金盾检测技术股份有限公司\n资质等级：三级\n\n业务范围：\n1. 信息系统集成服务\n2. 信息系统运维服务\n3. 信息安全服务',
     meta: { '有效期': '2023-01-01 至 2026-12-31', '发证单位': '中国电子信息行业联合会' },
-    inserted: false
+    inserted: false,
+    expiryDate: '2026-12-31'
   },
   {
     id: 'em5',
@@ -1260,75 +1270,75 @@ export const manualUploadsData: ManualUpload[] = [
 // Outline items structure (based on actual bid document)
 export const outlineItemsData: OutlineItem[] = [
   { id: 'section-1', title: '1. 投标文件基本文件', level: 1, children: [
-    { id: 'section-1-1', title: '1.1. 公章对投标专用章的授权函（不适用）', level: 2 },
-    { id: 'section-1-2', title: '1.2. 投标函', level: 2 },
-    { id: 'section-1-3', title: '1.3. 开标一览表', level: 2 },
-    { id: 'section-1-4', title: '1.4. 分项报价表', level: 2 },
-    { id: 'section-1-5', title: '1.5. 投标保证金缴纳凭证', level: 2 },
-    { id: 'section-1-6', title: '1.6. 投标保证金退款账户信息', level: 2 },
-    { id: 'section-1-7', title: '1.7. 中标服务费承诺书', level: 2 },
+    { id: 'section-1-1', title: '1.1. 公章对投标专用章的授权函（不适用）', level: 2, sourceType: 'ai' },
+    { id: 'section-1-2', title: '1.2. 投标函', level: 2, sourceType: 'ai' },
+    { id: 'section-1-3', title: '1.3. 开标一览表', level: 2, sourceType: 'ai' },
+    { id: 'section-1-4', title: '1.4. 分项报价表', level: 2, sourceType: 'manual' },
+    { id: 'section-1-5', title: '1.5. 投标保证金缴纳凭证', level: 2, sourceType: 'material' },
+    { id: 'section-1-6', title: '1.6. 投标保证金退款账户信息', level: 2, sourceType: 'ai' },
+    { id: 'section-1-7', title: '1.7. 中标服务费承诺书', level: 2, sourceType: 'ai' },
   ]},
   { id: 'section-2', title: '2. 商务响应文件', level: 1, children: [
-    { id: 'section-2-1', title: '2.1. 企业法人营业执照副本', level: 2 },
-    { id: 'section-2-2', title: '2.2. 工商变更登记文件', level: 2 },
-    { id: 'section-2-3', title: '2.3. 法定代表人授权书', level: 2 },
-    { id: 'section-2-4', title: '2.4. 廉洁承诺书', level: 2, children: [
-      { id: 'section-2-4-1', title: '2.4.1. "信用中国"网站截图', level: 3 },
+    { id: 'section-2-1', title: '2.1. 企业法人营业执照副本', level: 2, sourceType: 'material' },
+    { id: 'section-2-2', title: '2.2. 工商变更登记文件', level: 2, sourceType: 'material' },
+    { id: 'section-2-3', title: '2.3. 法定代表人授权书', level: 2, sourceType: 'ai' },
+    { id: 'section-2-4', title: '2.4. 廉洁承诺书', level: 2, sourceType: 'ai', children: [
+      { id: 'section-2-4-1', title: '2.4.1. "信用中国"网站截图', level: 3, sourceType: 'material' },
     ]},
-    { id: 'section-2-5', title: '2.5. 投标人关联关系单位披露表', level: 2 },
-    { id: 'section-2-6', title: '2.6. 网络安全等级测评与检测评估机构服务认证证书', level: 2 },
-    { id: 'section-2-7', title: '2.7. 全国网络安全等级测评与检测评估机构目录截图', level: 2 },
-    { id: 'section-2-8', title: '2.8. 从业年限（10年（含）以上）', level: 2 },
-    { id: 'section-2-9', title: '2.9. 资质认证', level: 2, children: [
-      { id: 'section-2-9-1', title: '2.9.1. 资质认证列表', level: 3 },
-      { id: 'section-2-9-2', title: '2.9.2. 资质认证复印件', level: 3 },
+    { id: 'section-2-5', title: '2.5. 投标人关联关系单位披露表', level: 2, sourceType: 'ai' },
+    { id: 'section-2-6', title: '2.6. 网络安全等级测评与检测评估机构服务认证证书', level: 2, sourceType: 'material' },
+    { id: 'section-2-7', title: '2.7. 全国网络安全等级测评与检测评估机构目录截图', level: 2, sourceType: 'material' },
+    { id: 'section-2-8', title: '2.8. 从业年限（10年（含）以上）', level: 2, sourceType: 'material' },
+    { id: 'section-2-9', title: '2.9. 资质认证', level: 2, sourceType: 'material', children: [
+      { id: 'section-2-9-1', title: '2.9.1. 资质认证列表', level: 3, sourceType: 'ai' },
+      { id: 'section-2-9-2', title: '2.9.2. 资质认证复印件', level: 3, sourceType: 'material' },
     ]},
-    { id: 'section-2-10', title: '2.10. 业绩案例', level: 2, children: [
-      { id: 'section-2-10-1', title: '2.10.1. 业绩案例列表（基本资质要求）', level: 3 },
-      { id: 'section-2-10-2', title: '2.10.2. 业绩案例证明文件', level: 3 },
-      { id: 'section-2-10-3', title: '2.10.3. 业绩案例列表（评标办法）', level: 3 },
-      { id: 'section-2-10-4', title: '2.10.4. 业绩案例证明文件', level: 3 },
+    { id: 'section-2-10', title: '2.10. 业绩案例', level: 2, sourceType: 'material', children: [
+      { id: 'section-2-10-1', title: '2.10.1. 业绩案例列表（基本资质要求）', level: 3, sourceType: 'ai' },
+      { id: 'section-2-10-2', title: '2.10.2. 业绩案例证明文件', level: 3, sourceType: 'material' },
+      { id: 'section-2-10-3', title: '2.10.3. 业绩案例列表（评标办法）', level: 3, sourceType: 'ai' },
+      { id: 'section-2-10-4', title: '2.10.4. 业绩案例证明文件', level: 3, sourceType: 'material' },
     ]},
-    { id: 'section-2-11', title: '2.11. 技术/服务需求响应偏离表', level: 2 },
-    { id: 'section-2-12', title: '2.12. 合同条款响应偏离表', level: 2 },
-    { id: 'section-2-13', title: '2.13. 投标人情况介绍', level: 2, children: [
-      { id: 'section-2-13-1', title: '2.13.1. 投标人公司简介、业务范围、规模', level: 3 },
-      { id: 'section-2-13-2', title: '2.13.2. 投标人从事类似服务领域年限', level: 3 },
-      { id: 'section-2-13-3', title: '2.13.3. 投标人服务体系、服务模式', level: 3 },
-      { id: 'section-2-13-4', title: '2.13.4. 投标人所获得荣誉奖项等', level: 3 },
-      { id: 'section-2-13-5', title: '2.13.5. 投标人认为需要说明的其他内容', level: 3 },
+    { id: 'section-2-11', title: '2.11. 技术/服务需求响应偏离表', level: 2, sourceType: 'ai' },
+    { id: 'section-2-12', title: '2.12. 合同条款响应偏离表', level: 2, sourceType: 'ai' },
+    { id: 'section-2-13', title: '2.13. 投标人情况介绍', level: 2, sourceType: 'ai', children: [
+      { id: 'section-2-13-1', title: '2.13.1. 投标人公司简介、业务范围、规模', level: 3, sourceType: 'ai' },
+      { id: 'section-2-13-2', title: '2.13.2. 投标人从事类似服务领域年限', level: 3, sourceType: 'ai' },
+      { id: 'section-2-13-3', title: '2.13.3. 投标人服务体系、服务模式', level: 3, sourceType: 'ai' },
+      { id: 'section-2-13-4', title: '2.13.4. 投标人所获得荣誉奖项等', level: 3, sourceType: 'material' },
+      { id: 'section-2-13-5', title: '2.13.5. 投标人认为需要说明的其他内容', level: 3, sourceType: 'manual' },
     ]},
-    { id: 'section-2-14', title: '2.14. 财务状况及财务报告', level: 2, children: [
-      { id: 'section-2-14-1', title: '2.14.1. 投标人2022、2023、2024年度财务状况', level: 3 },
-      { id: 'section-2-14-2', title: '2.14.2. 2022年财务报告', level: 3 },
-      { id: 'section-2-14-3', title: '2.14.3. 2023年财务报告', level: 3 },
-      { id: 'section-2-14-4', title: '2.14.4. 2024年财务报告', level: 3 },
-      { id: 'section-2-14-5', title: '2.14.5. 年报财务数据承诺书', level: 3 },
+    { id: 'section-2-14', title: '2.14. 财务状况及财务报告', level: 2, sourceType: 'material', children: [
+      { id: 'section-2-14-1', title: '2.14.1. 投标人2022、2023、2024年度财务状况', level: 3, sourceType: 'ai' },
+      { id: 'section-2-14-2', title: '2.14.2. 2022年财务报告', level: 3, sourceType: 'material' },
+      { id: 'section-2-14-3', title: '2.14.3. 2023年财务报告', level: 3, sourceType: 'material' },
+      { id: 'section-2-14-4', title: '2.14.4. 2024年财务报告', level: 3, sourceType: 'material' },
+      { id: 'section-2-14-5', title: '2.14.5. 年报财务数据承诺书', level: 3, sourceType: 'ai' },
     ]},
   ]},
   { id: 'section-3', title: '3. 技术响应文件', level: 1, children: [
-    { id: 'section-3-1', title: '3.1. 《技术要求与服务内容》点对点应答', level: 2 },
-    { id: 'section-3-2', title: '3.2. 投标人所投服务符合招标文件规定的其他证明文件', level: 2 },
-    { id: 'section-3-3', title: '3.3. 《技术要求与服务内容》中要求的相关承诺书', level: 2 },
-    { id: 'section-3-4', title: '3.4. 人员配置', level: 2, children: [
-      { id: 'section-3-4-1', title: '3.4.1. 服务团队人员资质文件', level: 3 },
+    { id: 'section-3-1', title: '3.1. 《技术要求与服务内容》点对点应答', level: 2, sourceType: 'ai' },
+    { id: 'section-3-2', title: '3.2. 投标人所投服务符合招标文件规定的其他证明文件', level: 2, sourceType: 'material' },
+    { id: 'section-3-3', title: '3.3. 《技术要求与服务内容》中要求的相关承诺书', level: 2, sourceType: 'ai' },
+    { id: 'section-3-4', title: '3.4. 人员配置', level: 2, sourceType: 'material', children: [
+      { id: 'section-3-4-1', title: '3.4.1. 服务团队人员资质文件', level: 3, sourceType: 'material' },
     ]},
-    { id: 'section-3-5', title: '3.5. 项目方案', level: 2, children: [
-      { id: 'section-3-5-1', title: '3.5.1. 项目方案', level: 3, children: [
-        { id: 'section-3-5-1-1', title: '1. 需求理解', level: 3 },
-        { id: 'section-3-5-1-2', title: '2. 等保测评实施方案', level: 3 },
-        { id: 'section-3-5-1-3', title: '3. 测评工具', level: 3 },
-        { id: 'section-3-5-1-4', title: '4. 安全培训方案', level: 3 },
-        { id: 'section-3-5-1-5', title: '5. 服务质量控制措施', level: 3 },
-        { id: 'section-3-5-1-6', title: '6. 保密措施等', level: 3 },
-        { id: 'section-3-5-1-7', title: '7. 验收方案', level: 3 },
-        { id: 'section-3-5-1-8', title: '8. 服务承诺', level: 3 },
-        { id: 'section-3-5-1-9', title: '9. 增值服务', level: 3 },
+    { id: 'section-3-5', title: '3.5. 项目方案', level: 2, sourceType: 'ai', children: [
+      { id: 'section-3-5-1', title: '3.5.1. 项目方案', level: 3, sourceType: 'ai', children: [
+        { id: 'section-3-5-1-1', title: '1. 需求理解', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-2', title: '2. 等保测评实施方案', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-3', title: '3. 测评工具', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-4', title: '4. 安全培训方案', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-5', title: '5. 服务质量控制措施', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-6', title: '6. 保密措施等', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-7', title: '7. 验收方案', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-8', title: '8. 服务承诺', level: 3, sourceType: 'ai' },
+        { id: 'section-3-5-1-9', title: '9. 增值服务', level: 3, sourceType: 'ai' },
       ]},
-      { id: 'section-3-5-2', title: '3.5.2. 增值服务方案', level: 3 },
+      { id: 'section-3-5-2', title: '3.5.2. 增值服务方案', level: 3, sourceType: 'ai' },
     ]},
-    { id: 'section-3-6', title: '3.6. 招标人需配合的各项前期准备工作', level: 2 },
-    { id: 'section-3-7', title: '3.7. 利益冲突说明', level: 2 },
+    { id: 'section-3-6', title: '3.6. 招标人需配合的各项前期准备工作', level: 2, sourceType: 'ai' },
+    { id: 'section-3-7', title: '3.7. 利益冲突说明', level: 2, sourceType: 'ai' },
   ]},
 ];
 

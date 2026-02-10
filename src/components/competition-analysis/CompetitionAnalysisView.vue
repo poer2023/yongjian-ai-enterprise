@@ -7,34 +7,30 @@ import {
   Building2,
   Users,
   Plus,
-  X,
-  Search,
-  Upload,
   Bookmark,
   Play,
   Factory,
-  Lightbulb,
   MapPin,
   FileText,
-  Calendar,
-  DollarSign,
+  Search,
 } from 'lucide-vue-next';
-import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
+import { TemplateSidebar, InfoSidebar, FormPageLayout, RegionSelector, ChecklistSelector } from '../shared';
 import {
   industryOptions,
-  configuredCompetitors as defaultCompetitors,
+  configuredCompetitors,
   competitorSearchResults,
-  configuredBiddingUnits as defaultBiddingUnits,
+  configuredBiddingUnits,
   biddingUnitSearchResults,
   recentTools,
   features,
-  regionOptions,
   savedStrategies as defaultStrategies,
   projectRecords,
   bidNoticeSearchResults,
+  extraBiddingUnits,
+  extraCompetitors,
+  extraBidNotices,
 } from './mockData';
-import type { CompetitorCompany, BiddingUnit } from '../../mocks/bidIndustryReport';
-import type { AnalysisStrategy, SelectedBidNotice } from './types';
+import type { AnalysisStrategy } from './types';
 
 const router = useRouter();
 
@@ -46,153 +42,128 @@ const timeRanges = ['本月', '本季度', '本年度', '近两年'];
 
 // Region selection
 const selectedRegions = ref<string[]>(['全国']);
-const toggleRegion = (name: string) => {
-  if (name === '全国') {
-    selectedRegions.value = ['全国'];
-    return;
+
+// Search queries
+const buSearch = ref('');
+const compSearch = ref('');
+const bnSearch = ref('');
+
+// Dynamic items added from search
+const addedBiddingUnits = ref<{ id: string; name: string; desc: string }[]>([]);
+const addedCompetitors = ref<{ id: string; name: string; desc: string }[]>([]);
+const addedBidNotices = ref<{ id: string; name: string; desc: string }[]>([]);
+
+// Bidding units - base recommend list
+const baseBiddingUnits = computed(() => {
+  const ids = new Set<string>();
+  const items: { id: string; name: string; desc: string }[] = [];
+  for (const bu of configuredBiddingUnits) {
+    ids.add(bu.id);
+    items.push({ id: bu.id, name: bu.name, desc: `${bu.type} · ${bu.region}` });
   }
-  // Remove '全国' when selecting specific region
-  selectedRegions.value = selectedRegions.value.filter(r => r !== '全国');
-  const idx = selectedRegions.value.indexOf(name);
-  if (idx >= 0) {
-    selectedRegions.value.splice(idx, 1);
-    if (selectedRegions.value.length === 0) {
-      selectedRegions.value = ['全国'];
+  for (const bu of biddingUnitSearchResults) {
+    if (!ids.has(bu.id)) {
+      items.push({ id: bu.id, name: bu.name, desc: `${bu.type} · ${bu.region}` });
     }
-  } else {
-    selectedRegions.value.push(name);
   }
-};
-
-// Bidding units
-const biddingUnits = ref<BiddingUnit[]>([...defaultBiddingUnits]);
-const showAddBiddingUnitModal = ref(false);
-const biddingUnitSearchQuery = ref('');
-const selectedBUSearchResults = ref<string[]>([]);
-
-// Recommended bidding units
-const recommendedBiddingUnits = computed(() => {
-  const existingIds = new Set(biddingUnits.value.map(b => b.id));
-  return biddingUnitSearchResults.filter(r => !existingIds.has(r.id)).slice(0, 3);
+  return items;
 });
-
-const addRecommendedBU = (result: typeof biddingUnitSearchResults[0]) => {
-  biddingUnits.value.push({
-    id: result.id,
-    name: result.name,
-    type: result.type,
-    region: result.region,
-    addedAt: new Date().toISOString().slice(0, 10),
-  });
-};
-
-// Competitors
-const competitors = ref<CompetitorCompany[]>([...defaultCompetitors]);
-const showAddCompetitorModal = ref(false);
-const competitorSearchQuery = ref('');
-const selectedSearchResults = ref<string[]>([]);
-
-// Recommended competitors
-const recommendedCompetitors = computed(() => {
-  const existingIds = new Set(competitors.value.map(c => c.id));
-  return competitorSearchResults
-    .filter(r => !existingIds.has(r.id))
-    .sort((a, b) => b.bidCount - a.bidCount)
-    .slice(0, 2);
+const allBiddingUnits = computed(() => {
+  const baseIds = new Set(baseBiddingUnits.value.map(i => i.id));
+  const extra = addedBiddingUnits.value.filter(i => !baseIds.has(i.id));
+  return [...baseBiddingUnits.value, ...extra];
 });
+const selectedBiddingUnitIds = ref<string[]>(configuredBiddingUnits.map(b => b.id));
 
-const addRecommendedCompetitor = (result: typeof competitorSearchResults[0]) => {
-  competitors.value.push({
-    id: result.id,
-    name: result.name,
-    industry: result.industry,
-    region: result.region,
-    addedAt: new Date().toISOString().slice(0, 10),
-  });
-};
-
-// Bid notices (标讯/项目)
-const bidNotices = ref<SelectedBidNotice[]>([]);
-const showAddBidNoticeModal = ref(false);
-const bidNoticeSearchQuery = ref('');
-const selectedBNSearchResults = ref<string[]>([]);
-
-// Recommended bid notices - pending projects from projectRecords
-const recommendedBidNotices = computed(() => {
-  const existingIds = new Set(bidNotices.value.map(b => b.id));
-  return projectRecords
-    .filter(p => p.result === 'pending' && !existingIds.has(p.id))
-    .slice(0, 3)
-    .map(p => ({
-      id: p.id,
-      name: p.name,
-      client: p.client,
-      budget: p.budget,
-      bidDate: p.bidDate,
-      category: p.category,
-    }));
+// Search results for bidding units
+const buSearchResults = computed(() => {
+  if (!buSearch.value.trim()) return [];
+  const q = buSearch.value.toLowerCase();
+  const existingIds = new Set(allBiddingUnits.value.map(i => i.id));
+  return extraBiddingUnits
+    .filter(bu => !existingIds.has(bu.id) && (bu.name.toLowerCase().includes(q) || bu.type.toLowerCase().includes(q) || bu.region.toLowerCase().includes(q)))
+    .map(bu => ({ id: bu.id, name: bu.name, desc: `${bu.type} · ${bu.region}` }));
 });
-
-const addRecommendedBidNotice = (item: SelectedBidNotice) => {
-  bidNotices.value.push({ ...item });
+const addBuFromSearch = (item: { id: string; name: string; desc: string }) => {
+  addedBiddingUnits.value.push(item);
+  selectedBiddingUnitIds.value.push(item.id);
+  buSearch.value = '';
 };
 
-const removeBidNotice = (id: string) => {
-  bidNotices.value = bidNotices.value.filter(b => b.id !== id);
-};
-
-// All searchable bid notices (projectRecords + extra from bidNoticeSearchResults)
-const allSearchableBidNotices = computed(() => {
-  const fromProjects: SelectedBidNotice[] = projectRecords.map(p => ({
-    id: p.id,
-    name: p.name,
-    client: p.client,
-    budget: p.budget,
-    bidDate: p.bidDate,
-    category: p.category,
-  }));
-  // Merge, avoiding duplicates by id
-  const ids = new Set(fromProjects.map(p => p.id));
-  const extras = bidNoticeSearchResults.filter(b => !ids.has(b.id));
-  return [...fromProjects, ...extras];
-});
-
-const filteredBNSearchResults = computed(() => {
-  const existingIds = new Set(bidNotices.value.map(b => b.id));
-  let results = allSearchableBidNotices.value.filter(r => !existingIds.has(r.id));
-  if (bidNoticeSearchQuery.value) {
-    const query = bidNoticeSearchQuery.value.toLowerCase();
-    results = results.filter(r =>
-      r.name.toLowerCase().includes(query) ||
-      r.client.toLowerCase().includes(query) ||
-      r.category.toLowerCase().includes(query)
-    );
+// Competitors - base recommend list
+const baseCompetitors = computed(() => {
+  const ids = new Set<string>();
+  const items: { id: string; name: string; desc: string }[] = [];
+  for (const c of configuredCompetitors) {
+    ids.add(c.id);
+    items.push({ id: c.id, name: c.name, desc: `${c.industry} · ${c.region}` });
   }
-  return results;
-});
-
-const toggleBNSearchResult = (id: string) => {
-  const idx = selectedBNSearchResults.value.indexOf(id);
-  if (idx >= 0) {
-    selectedBNSearchResults.value.splice(idx, 1);
-  } else {
-    selectedBNSearchResults.value.push(id);
+  for (const c of competitorSearchResults) {
+    if (!ids.has(c.id)) {
+      items.push({ id: c.id, name: c.name, desc: `${c.industry} · ${c.region}` });
+    }
   }
+  return items;
+});
+const allCompetitors = computed(() => {
+  const baseIds = new Set(baseCompetitors.value.map(i => i.id));
+  const extra = addedCompetitors.value.filter(i => !baseIds.has(i.id));
+  return [...baseCompetitors.value, ...extra];
+});
+const selectedCompetitorIds = ref<string[]>(configuredCompetitors.map(c => c.id));
+
+// Search results for competitors
+const compSearchResults = computed(() => {
+  if (!compSearch.value.trim()) return [];
+  const q = compSearch.value.toLowerCase();
+  const existingIds = new Set(allCompetitors.value.map(i => i.id));
+  return extraCompetitors
+    .filter(c => !existingIds.has(c.id) && (c.name.toLowerCase().includes(q) || c.industry.toLowerCase().includes(q) || c.region.toLowerCase().includes(q)))
+    .map(c => ({ id: c.id, name: c.name, desc: `${c.industry} · ${c.region}` }));
+});
+const addCompFromSearch = (item: { id: string; name: string; desc: string }) => {
+  addedCompetitors.value.push(item);
+  selectedCompetitorIds.value.push(item.id);
+  compSearch.value = '';
 };
 
-const confirmAddBidNotices = () => {
-  const newNotices = allSearchableBidNotices.value
-    .filter(r => selectedBNSearchResults.value.includes(r.id));
-  bidNotices.value.push(...newNotices);
-  selectedBNSearchResults.value = [];
-  bidNoticeSearchQuery.value = '';
-  showAddBidNoticeModal.value = false;
-};
+// Bid notices - base recommend list
+const baseBidNotices = computed(() => {
+  const ids = new Set<string>();
+  const items: { id: string; name: string; desc: string }[] = [];
+  for (const p of projectRecords) {
+    ids.add(p.id);
+    items.push({ id: p.id, name: p.name, desc: `${p.client} · ${p.budget}万 · ${p.bidDate}` });
+  }
+  for (const b of bidNoticeSearchResults) {
+    if (!ids.has(b.id)) {
+      items.push({ id: b.id, name: b.name, desc: `${b.client} · ${b.budget}万 · ${b.bidDate}` });
+    }
+  }
+  return items;
+});
+const allBidNotices = computed(() => {
+  const baseIds = new Set(baseBidNotices.value.map(i => i.id));
+  const extra = addedBidNotices.value.filter(i => !baseIds.has(i.id));
+  return [...baseBidNotices.value, ...extra];
+});
+const selectedBidNoticeIds = ref<string[]>(
+  projectRecords.filter(p => p.result === 'pending').map(p => p.id)
+);
 
-const openAddBidNoticeModal = () => {
-  selectedBNSearchResults.value = [];
-  bidNoticeSearchQuery.value = '';
-  showAddBidNoticeModal.value = true;
+// Search results for bid notices
+const bnSearchResults = computed(() => {
+  if (!bnSearch.value.trim()) return [];
+  const q = bnSearch.value.toLowerCase();
+  const existingIds = new Set(allBidNotices.value.map(i => i.id));
+  return extraBidNotices
+    .filter(b => !existingIds.has(b.id) && (b.name.toLowerCase().includes(q) || b.client.toLowerCase().includes(q) || b.category.toLowerCase().includes(q)))
+    .map(b => ({ id: b.id, name: b.name, desc: `${b.client} · ${b.budget}万 · ${b.bidDate}` }));
+});
+const addBnFromSearch = (item: { id: string; name: string; desc: string }) => {
+  addedBidNotices.value.push(item);
+  selectedBidNoticeIds.value.push(item.id);
+  bnSearch.value = '';
 };
 
 // Strategies - collapsible
@@ -207,13 +178,13 @@ const currentIndustry = computed(() => {
 
 const canSubmit = computed(() => {
   return selectedIndustry.value && selectedTimeRange.value &&
-    (biddingUnits.value.length > 0 || competitors.value.length > 0 || bidNotices.value.length > 0);
+    (selectedBiddingUnitIds.value.length > 0 || selectedCompetitorIds.value.length > 0 || selectedBidNoticeIds.value.length > 0);
 });
 
 const configSummary = computed(() => {
-  const buCount = biddingUnits.value.length;
-  const compCount = competitors.value.length;
-  const bnCount = bidNotices.value.length;
+  const buCount = selectedBiddingUnitIds.value.length;
+  const compCount = selectedCompetitorIds.value.length;
+  const bnCount = selectedBidNoticeIds.value.length;
   const parts: string[] = [];
   if (buCount > 0) parts.push(`${buCount} 个招标单位`);
   if (compCount > 0) parts.push(`${compCount} 家竞品企业`);
@@ -226,106 +197,6 @@ const configSummary = computed(() => {
 const selectIndustry = (id: string) => {
   selectedIndustry.value = id;
   showIndustryDropdown.value = false;
-};
-
-// Bidding Unit management
-const removeBiddingUnit = (id: string) => {
-  biddingUnits.value = biddingUnits.value.filter(b => b.id !== id);
-};
-
-const filteredBUSearchResults = computed(() => {
-  const existingIds = new Set(biddingUnits.value.map(b => b.id));
-  let results = biddingUnitSearchResults.filter(r => !existingIds.has(r.id));
-  if (biddingUnitSearchQuery.value) {
-    const query = biddingUnitSearchQuery.value.toLowerCase();
-    results = results.filter(r =>
-      r.name.toLowerCase().includes(query) ||
-      r.type.toLowerCase().includes(query) ||
-      r.region.toLowerCase().includes(query)
-    );
-  }
-  return results;
-});
-
-const toggleBUSearchResult = (id: string) => {
-  const idx = selectedBUSearchResults.value.indexOf(id);
-  if (idx >= 0) {
-    selectedBUSearchResults.value.splice(idx, 1);
-  } else {
-    selectedBUSearchResults.value.push(id);
-  }
-};
-
-const confirmAddBiddingUnits = () => {
-  const newUnits = biddingUnitSearchResults
-    .filter(r => selectedBUSearchResults.value.includes(r.id))
-    .map(r => ({
-      id: r.id,
-      name: r.name,
-      type: r.type,
-      region: r.region,
-      addedAt: new Date().toISOString().slice(0, 10),
-    }));
-  biddingUnits.value.push(...newUnits);
-  selectedBUSearchResults.value = [];
-  biddingUnitSearchQuery.value = '';
-  showAddBiddingUnitModal.value = false;
-};
-
-const openAddBiddingUnitModal = () => {
-  selectedBUSearchResults.value = [];
-  biddingUnitSearchQuery.value = '';
-  showAddBiddingUnitModal.value = true;
-};
-
-// Competitor management
-const removeCompetitor = (id: string) => {
-  competitors.value = competitors.value.filter(c => c.id !== id);
-};
-
-const filteredSearchResults = computed(() => {
-  const existingIds = new Set(competitors.value.map(c => c.id));
-  let results = competitorSearchResults.filter(r => !existingIds.has(r.id));
-  if (competitorSearchQuery.value) {
-    const query = competitorSearchQuery.value.toLowerCase();
-    results = results.filter(r =>
-      r.name.toLowerCase().includes(query) ||
-      r.industry.toLowerCase().includes(query) ||
-      r.region.toLowerCase().includes(query)
-    );
-  }
-  return results;
-});
-
-const toggleSearchResult = (id: string) => {
-  const idx = selectedSearchResults.value.indexOf(id);
-  if (idx >= 0) {
-    selectedSearchResults.value.splice(idx, 1);
-  } else {
-    selectedSearchResults.value.push(id);
-  }
-};
-
-const confirmAddCompetitors = () => {
-  const newCompetitors = competitorSearchResults
-    .filter(r => selectedSearchResults.value.includes(r.id))
-    .map(r => ({
-      id: r.id,
-      name: r.name,
-      industry: r.industry,
-      region: r.region,
-      addedAt: new Date().toISOString().slice(0, 10),
-    }));
-  competitors.value.push(...newCompetitors);
-  selectedSearchResults.value = [];
-  competitorSearchQuery.value = '';
-  showAddCompetitorModal.value = false;
-};
-
-const openAddCompetitorModal = () => {
-  selectedSearchResults.value = [];
-  competitorSearchQuery.value = '';
-  showAddCompetitorModal.value = true;
 };
 
 // Strategy management
@@ -344,19 +215,14 @@ const saveCurrentStrategy = () => {
     name,
     description: `${currentIndustry.value?.name || ''} - ${selectedTimeRange.value}`,
     industry: selectedIndustry.value,
-    biddingUnitIds: biddingUnits.value.map(b => b.id),
-    competitorIds: competitors.value.map(c => c.id),
+    biddingUnitIds: [...selectedBiddingUnitIds.value],
+    competitorIds: [...selectedCompetitorIds.value],
     timeRange: selectedTimeRange.value,
     regions: [...selectedRegions.value],
     createdAt: new Date().toISOString().slice(0, 10),
   };
   strategies.value.push(newStrategy);
   activeStrategyId.value = newStrategy.id;
-};
-
-// Batch import
-const handleBatchImport = () => {
-  alert('批量导入功能：支持导入Excel/CSV格式的企业名单');
 };
 
 // Submit
@@ -366,9 +232,9 @@ const handleSubmit = () => {
     query: {
       industry: selectedIndustry.value,
       timeRange: selectedTimeRange.value,
-      hasBiddingUnits: biddingUnits.value.length > 0 ? '1' : '',
-      hasCompetitors: competitors.value.length > 0 ? '1' : '',
-      hasProjects: bidNotices.value.length > 0 ? '1' : '',
+      hasBiddingUnits: selectedBiddingUnitIds.value.length > 0 ? '1' : '',
+      hasCompetitors: selectedCompetitorIds.value.length > 0 ? '1' : '',
+      hasProjects: selectedBidNoticeIds.value.length > 0 ? '1' : '',
     },
   });
 };
@@ -431,16 +297,14 @@ const handleSubmit = () => {
         <!-- Region Selection -->
         <div class="form-group" style="margin-bottom: 0;">
           <label class="form-label"><MapPin :size="13" style="display:inline;vertical-align:-2px;" /> 关注地区</label>
-          <div class="region-pills">
-            <button
-              v-for="region in regionOptions"
-              :key="region.id"
-              :class="['region-pill', { active: selectedRegions.includes(region.name) }]"
-              @click="toggleRegion(region.name)"
-            >
-              {{ region.name }}
-            </button>
-          </div>
+          <RegionSelector
+            v-model="selectedRegions"
+            national-label="全国范围"
+            national-desc="关注全国各地区招投标动态"
+            regional-label="指定地区"
+            regional-desc="选择特定省市进行重点分析"
+            selector-label="选择关注地区"
+          />
         </div>
       </div>
     </div>
@@ -452,50 +316,35 @@ const handleSubmit = () => {
           <Building2 :size="18" class="header-icon" />
           <span class="header-title">关注的招标单位</span>
           <span class="optional-tag">选填</span>
+          <span v-if="selectedBiddingUnitIds.length" class="selected-count">{{ selectedBiddingUnitIds.length }}</span>
         </div>
-        <span v-if="biddingUnits.length" class="competitor-count">{{ biddingUnits.length }}</span>
+        <div class="header-search">
+          <Search :size="12" />
+          <input type="text" v-model="buSearch" placeholder="搜索招标单位..." class="header-search-input" />
+        </div>
       </div>
       <div class="card-body">
-        <div v-if="biddingUnits.length" class="competitor-list">
-          <div v-for="unit in biddingUnits" :key="unit.id" class="competitor-item">
-            <div class="comp-info">
-              <span class="comp-name">{{ unit.name }}</span>
-              <span class="comp-region">{{ unit.type }} · {{ unit.region }}</span>
-            </div>
-            <button class="comp-remove-btn" @click="removeBiddingUnit(unit.id)" title="移除">
-              <X :size="12" />
+        <!-- Search results grid -->
+        <div v-if="buSearch.trim()" class="search-section">
+          <div class="search-section-label">搜索结果</div>
+          <div v-if="buSearchResults.length" class="search-grid">
+            <button
+              v-for="item in buSearchResults"
+              :key="item.id"
+              class="search-grid-item"
+              @click="addBuFromSearch(item)"
+            >
+              <Plus :size="11" class="search-grid-add" />
+              <span class="search-grid-name">{{ item.name }}</span>
+              <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
+          <div v-else class="search-empty">暂无匹配结果</div>
         </div>
-
-        <!-- Recommended bidding units -->
-        <div v-if="recommendedBiddingUnits.length" class="recommend-section">
-          <div class="tip-banner">
-            <Lightbulb :size="14" />
-            <span>不知道关注谁？系统已根据行业和地区推荐了热门招标单位</span>
-          </div>
-          <div class="recommend-header">推荐关注</div>
-          <div v-for="item in recommendedBiddingUnits" :key="item.id" class="recommend-item">
-            <div>
-              <div class="recommend-name">{{ item.name }}</div>
-              <div class="recommend-meta">{{ item.type }} · {{ item.region }} · {{ item.projectCount }} 个项目</div>
-            </div>
-            <button class="recommend-add-btn" @click="addRecommendedBU(item)" title="添加">
-              <Plus :size="12" />
-            </button>
-          </div>
-        </div>
-
-        <div class="btn-row" style="margin-top: 8px;">
-          <button class="add-competitor-btn" @click="openAddBiddingUnitModal">
-            <Plus :size="14" />
-            添加招标单位
-          </button>
-          <button class="batch-import-btn" @click="handleBatchImport">
-            <Upload :size="14" />
-            批量导入
-          </button>
-        </div>
+        <ChecklistSelector
+          :items="allBiddingUnits"
+          v-model="selectedBiddingUnitIds"
+        />
       </div>
     </div>
 
@@ -506,304 +355,78 @@ const handleSubmit = () => {
           <Users :size="18" class="header-icon" />
           <span class="header-title">竞品企业</span>
           <span class="optional-tag">选填</span>
+          <span v-if="selectedCompetitorIds.length" class="selected-count">{{ selectedCompetitorIds.length }}</span>
         </div>
-        <span v-if="competitors.length" class="competitor-count">{{ competitors.length }}</span>
+        <div class="header-search">
+          <Search :size="12" />
+          <input type="text" v-model="compSearch" placeholder="搜索竞品企业..." class="header-search-input" />
+        </div>
       </div>
       <div class="card-body">
-        <div v-if="competitors.length" class="competitor-list">
-          <div v-for="comp in competitors" :key="comp.id" class="competitor-item">
-            <div class="comp-info">
-              <span class="comp-name">{{ comp.name }}</span>
-              <span class="comp-region">{{ comp.region }}</span>
-            </div>
-            <button class="comp-remove-btn" @click="removeCompetitor(comp.id)" title="移除">
-              <X :size="12" />
+        <div v-if="compSearch.trim()" class="search-section">
+          <div class="search-section-label">搜索结果</div>
+          <div v-if="compSearchResults.length" class="search-grid">
+            <button
+              v-for="item in compSearchResults"
+              :key="item.id"
+              class="search-grid-item"
+              @click="addCompFromSearch(item)"
+            >
+              <Plus :size="11" class="search-grid-add" />
+              <span class="search-grid-name">{{ item.name }}</span>
+              <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
+          <div v-else class="search-empty">暂无匹配结果</div>
         </div>
-
-        <!-- Recommended competitors -->
-        <div v-if="recommendedCompetitors.length" class="recommend-section">
-          <div class="recommend-header">经常交锋的对手</div>
-          <div v-for="item in recommendedCompetitors" :key="item.id" class="recommend-item">
-            <div>
-              <div class="recommend-name">{{ item.name }}</div>
-              <div class="recommend-meta">{{ item.region }} · 投标 {{ item.bidCount }} 次</div>
-            </div>
-            <button class="recommend-add-btn" @click="addRecommendedCompetitor(item)" title="添加">
-              <Plus :size="12" />
-            </button>
-          </div>
-        </div>
-
-        <button class="add-competitor-btn" style="margin-top: 8px;" @click="openAddCompetitorModal">
-          <Plus :size="14" />
-          添加竞品企业
-        </button>
+        <ChecklistSelector
+          :items="allCompetitors"
+          v-model="selectedCompetitorIds"
+        />
       </div>
     </div>
 
-    <!-- Section 4: Bid Notices (关注的标讯) -->
+    <!-- Section 4: Bid Notices -->
     <div class="section-card">
       <div class="card-header">
         <div class="header-left">
           <FileText :size="18" class="header-icon" />
           <span class="header-title">关注的标讯</span>
           <span class="optional-tag">选填</span>
+          <span v-if="selectedBidNoticeIds.length" class="selected-count">{{ selectedBidNoticeIds.length }}</span>
         </div>
-        <span v-if="bidNotices.length" class="competitor-count">{{ bidNotices.length }}</span>
+        <div class="header-search">
+          <Search :size="12" />
+          <input type="text" v-model="bnSearch" placeholder="搜索标讯..." class="header-search-input" />
+        </div>
       </div>
       <div class="card-body">
-        <div v-if="bidNotices.length" class="competitor-list">
-          <div v-for="notice in bidNotices" :key="notice.id" class="bid-notice-item">
-            <div class="bid-notice-info">
-              <span class="bid-notice-name">{{ notice.name }}</span>
-              <div class="bid-notice-meta">
-                <span>{{ notice.client }}</span>
-                <span class="budget-tag">{{ notice.budget }}万</span>
-                <span>{{ notice.bidDate }}</span>
-              </div>
-            </div>
-            <button class="comp-remove-btn" @click="removeBidNotice(notice.id)" title="移除">
-              <X :size="12" />
+        <div v-if="bnSearch.trim()" class="search-section">
+          <div class="search-section-label">搜索结果</div>
+          <div v-if="bnSearchResults.length" class="search-grid">
+            <button
+              v-for="item in bnSearchResults"
+              :key="item.id"
+              class="search-grid-item"
+              @click="addBnFromSearch(item)"
+            >
+              <Plus :size="11" class="search-grid-add" />
+              <span class="search-grid-name">{{ item.name }}</span>
+              <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
+          <div v-else class="search-empty">暂无匹配结果</div>
         </div>
-
-        <!-- Recommended bid notices -->
-        <div v-if="recommendedBidNotices.length" class="recommend-section">
-          <div class="tip-banner">
-            <Lightbulb :size="14" />
-            <span>以下是您关注行业中即将开标的项目，可一键添加分析</span>
-          </div>
-          <div class="recommend-header">待开标项目推荐</div>
-          <div v-for="item in recommendedBidNotices" :key="item.id" class="recommend-item">
-            <div>
-              <div class="recommend-name">{{ item.name }}</div>
-              <div class="recommend-meta">{{ item.client }} · {{ item.budget }}万 · {{ item.bidDate }}</div>
-            </div>
-            <button class="recommend-add-btn" @click="addRecommendedBidNotice(item)" title="添加">
-              <Plus :size="12" />
-            </button>
-          </div>
-        </div>
-
-        <button class="add-competitor-btn" style="margin-top: 8px;" @click="openAddBidNoticeModal">
-          <Plus :size="14" />
-          添加标讯
-        </button>
-      </div>
-    </div>
-
-    <!-- Section 5: Saved Strategies (Collapsible) -->
-    <div class="section-card section-collapsible">
-      <div class="card-header" @click="isStrategyCollapsed = !isStrategyCollapsed">
-        <div class="header-left">
-          <Bookmark :size="18" class="header-icon" />
-          <span class="header-title">我的策略</span>
-          <span class="optional-tag">选填</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span v-if="strategies.length" class="competitor-count">{{ strategies.length }}</span>
-          <ChevronDown :size="14" :class="['collapse-icon', { expanded: !isStrategyCollapsed }]" />
-        </div>
-      </div>
-      <div v-if="!isStrategyCollapsed" class="card-body">
-        <div v-if="strategies.length" class="strategy-list">
-          <div
-            v-for="st in strategies"
-            :key="st.id"
-            :class="['strategy-item', { active: activeStrategyId === st.id }]"
-            @click="loadStrategy(st)"
-          >
-            <div class="strategy-info">
-              <span class="strategy-name">{{ st.name }}</span>
-              <span class="strategy-meta-line">
-                <span>{{ industryOptions.find(i => i.id === st.industry)?.name }}</span>
-                <span>·</span>
-                <span>{{ st.timeRange }}</span>
-                <span>·</span>
-                <span>{{ st.createdAt }}</span>
-              </span>
-            </div>
-            <button class="strategy-load-btn" title="加载策略">
-              <Play :size="10" />
-            </button>
-          </div>
-        </div>
-        <button class="save-strategy-btn" @click="saveCurrentStrategy">
-          <Plus :size="14" />
-          保存当前配置为策略
-        </button>
+        <ChecklistSelector
+          :items="allBidNotices"
+          v-model="selectedBidNoticeIds"
+        />
       </div>
     </div>
 
     <!-- Submit -->
     <div class="submit-container">
       <button class="submit-btn" :disabled="!canSubmit" @click="handleSubmit">生成销售策略分析报告</button>
-      <div class="config-summary">{{ configSummary }}</div>
-    </div>
-
-    <!-- Add Bidding Unit Modal -->
-    <div v-if="showAddBiddingUnitModal" class="modal-overlay" @click.self="showAddBiddingUnitModal = false">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            <Plus :size="18" />
-            添加关注的招标单位
-          </h3>
-          <button class="modal-close" @click="showAddBiddingUnitModal = false">
-            <X :size="18" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="search-bar">
-            <Search :size="16" />
-            <input type="text" v-model="biddingUnitSearchQuery" placeholder="搜索招标单位名称、类型、地区..." class="search-input" />
-          </div>
-          <div class="search-results">
-            <div class="results-header">
-              <span>搜索结果</span>
-              <span class="results-count">{{ filteredBUSearchResults.length }} 个单位</span>
-            </div>
-            <div class="results-list">
-              <div
-                v-for="result in filteredBUSearchResults"
-                :key="result.id"
-                :class="['result-item', { selected: selectedBUSearchResults.includes(result.id) }]"
-                @click="toggleBUSearchResult(result.id)"
-              >
-                <div class="result-checkbox">
-                  <div :class="['checkbox', { checked: selectedBUSearchResults.includes(result.id) }]"></div>
-                </div>
-                <div class="result-info">
-                  <span class="result-name">{{ result.name }}</span>
-                  <div class="result-meta">
-                    <span class="result-industry">{{ result.type }}</span>
-                    <span class="result-region">{{ result.region }}</span>
-                    <span class="result-bids">{{ result.projectCount }} 个项目</span>
-                  </div>
-                </div>
-              </div>
-              <div v-if="filteredBUSearchResults.length === 0" class="no-results">暂无匹配的招标单位</div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="modal-btn cancel" @click="showAddBiddingUnitModal = false">取消</button>
-          <button class="modal-btn confirm" :disabled="selectedBUSearchResults.length === 0" @click="confirmAddBiddingUnits">
-            添加已选 ({{ selectedBUSearchResults.length }})
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Competitor Modal -->
-    <div v-if="showAddCompetitorModal" class="modal-overlay" @click.self="showAddCompetitorModal = false">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            <Plus :size="18" />
-            添加竞品企业
-          </h3>
-          <button class="modal-close" @click="showAddCompetitorModal = false">
-            <X :size="18" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="search-bar">
-            <Search :size="16" />
-            <input type="text" v-model="competitorSearchQuery" placeholder="搜索企业名称、行业、地区..." class="search-input" />
-          </div>
-          <div class="search-results">
-            <div class="results-header">
-              <span>搜索结果</span>
-              <span class="results-count">{{ filteredSearchResults.length }} 家企业</span>
-            </div>
-            <div class="results-list">
-              <div
-                v-for="result in filteredSearchResults"
-                :key="result.id"
-                :class="['result-item', { selected: selectedSearchResults.includes(result.id) }]"
-                @click="toggleSearchResult(result.id)"
-              >
-                <div class="result-checkbox">
-                  <div :class="['checkbox', { checked: selectedSearchResults.includes(result.id) }]"></div>
-                </div>
-                <div class="result-info">
-                  <span class="result-name">{{ result.name }}</span>
-                  <div class="result-meta">
-                    <span class="result-industry">{{ result.industry }}</span>
-                    <span class="result-region">{{ result.region }}</span>
-                    <span class="result-bids">投标 {{ result.bidCount }} 次</span>
-                  </div>
-                </div>
-              </div>
-              <div v-if="filteredSearchResults.length === 0" class="no-results">暂无匹配的企业</div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="modal-btn cancel" @click="showAddCompetitorModal = false">取消</button>
-          <button class="modal-btn confirm" :disabled="selectedSearchResults.length === 0" @click="confirmAddCompetitors">
-            添加已选 ({{ selectedSearchResults.length }})
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Bid Notice Modal -->
-    <div v-if="showAddBidNoticeModal" class="modal-overlay" @click.self="showAddBidNoticeModal = false">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3 class="modal-title">
-            <Plus :size="18" />
-            添加关注的标讯
-          </h3>
-          <button class="modal-close" @click="showAddBidNoticeModal = false">
-            <X :size="18" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="search-bar">
-            <Search :size="16" />
-            <input type="text" v-model="bidNoticeSearchQuery" placeholder="搜索标讯名称、客户、类别..." class="search-input" />
-          </div>
-          <div class="search-results">
-            <div class="results-header">
-              <span>搜索结果</span>
-              <span class="results-count">{{ filteredBNSearchResults.length }} 条标讯</span>
-            </div>
-            <div class="results-list">
-              <div
-                v-for="result in filteredBNSearchResults"
-                :key="result.id"
-                :class="['result-item', { selected: selectedBNSearchResults.includes(result.id) }]"
-                @click="toggleBNSearchResult(result.id)"
-              >
-                <div class="result-checkbox">
-                  <div :class="['checkbox', { checked: selectedBNSearchResults.includes(result.id) }]"></div>
-                </div>
-                <div class="result-info">
-                  <span class="result-name">{{ result.name }}</span>
-                  <div class="result-meta">
-                    <span class="result-industry">{{ result.category }}</span>
-                    <span class="result-region">{{ result.client }}</span>
-                    <span class="result-bids">{{ result.budget }}万 · {{ result.bidDate }}</span>
-                  </div>
-                </div>
-              </div>
-              <div v-if="filteredBNSearchResults.length === 0" class="no-results">暂无匹配的标讯</div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="modal-btn cancel" @click="showAddBidNoticeModal = false">取消</button>
-          <button class="modal-btn confirm" :disabled="selectedBNSearchResults.length === 0" @click="confirmAddBidNotices">
-            添加已选 ({{ selectedBNSearchResults.length }})
-          </button>
-        </div>
-      </div>
     </div>
 
     <template #info-sidebar>
@@ -814,4 +437,133 @@ const handleSubmit = () => {
 
 <style scoped>
 @import './styles.css';
+
+/* Selected count badge next to title */
+.selected-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #2563eb;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+  margin-left: 2px;
+}
+
+/* Header search */
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: all 0.2s;
+  min-width: 180px;
+}
+
+.header-search:focus-within {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.header-search svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.header-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: #1e293b;
+  outline: none;
+  min-width: 0;
+}
+
+.header-search-input::placeholder {
+  color: #c0c9d4;
+}
+
+/* Search section inside card body */
+.search-section {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.search-section-label {
+  font-size: 11px;
+  color: #3b82f6;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.search-grid-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 10px;
+  padding-right: 28px;
+  background: #f0f7ff;
+  border: 1px dashed #93c5fd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  position: relative;
+}
+
+.search-grid-item:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  border-style: solid;
+}
+
+.search-grid-add {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3b82f6;
+}
+
+.search-grid-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1e40af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 16px;
+}
+
+.search-grid-desc {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-empty {
+  text-align: center;
+  padding: 10px;
+  color: #94a3b8;
+  font-size: 12px;
+}
 </style>

@@ -24,6 +24,38 @@ export type {
   ProjectRecord,
 } from '../../mocks/bidIndustryReport';
 
+// Extra searchable data (not shown in recommend grid by default)
+export const extraBiddingUnits = [
+  { id: 'bux1', name: '杭州市数据资源管理局', type: '政府机关', region: '浙江' },
+  { id: 'bux2', name: '南京大学', type: '教育机构', region: '江苏' },
+  { id: 'bux3', name: '中国农业银行上海分行', type: '金融机构', region: '上海' },
+  { id: 'bux4', name: '上海市交通委员会', type: '政府机关', region: '上海' },
+  { id: 'bux5', name: '同济大学', type: '教育机构', region: '上海' },
+  { id: 'bux6', name: '苏州工业园区管委会', type: '政府机关', region: '江苏' },
+  { id: 'bux7', name: '招商银行上海分行', type: '金融机构', region: '上海' },
+  { id: 'bux8', name: '浙江省公安厅', type: '政府机关', region: '浙江' },
+];
+
+export const extraCompetitors = [
+  { id: 'cx1', name: '知道创宇科技', industry: '网络安全', region: '北京' },
+  { id: 'cx2', name: '长亭科技有限公司', industry: '网络安全', region: '北京' },
+  { id: 'cx3', name: '微步在线科技', industry: '威胁情报', region: '北京' },
+  { id: 'cx4', name: '安天科技集团', industry: '网络安全', region: '黑龙江' },
+  { id: 'cx5', name: '迪普科技股份', industry: '网络安全', region: '浙江' },
+  { id: 'cx6', name: '亚信安全科技', industry: '网络安全', region: '北京' },
+  { id: 'cx7', name: '瑞星安全科技', industry: '终端安全', region: '北京' },
+  { id: 'cx8', name: '卫士通信息产业', industry: '密码安全', region: '四川' },
+];
+
+export const extraBidNotices: SelectedBidNotice[] = [
+  { id: 'bnx1', name: '某省交通厅网络安全等保测评', client: '浙江省交通厅', budget: 220, bidDate: '2026-03-15', category: '等保测评' },
+  { id: 'bnx2', name: '某高校校园网安全加固项目', client: '华东师范大学', budget: 85, bidDate: '2026-03-20', category: '安全加固' },
+  { id: 'bnx3', name: '某银行数据中心安全评估', client: '兴业银行上海分行', budget: 160, bidDate: '2026-04-01', category: '安全评估' },
+  { id: 'bnx4', name: '某市应急管理局态势感知建设', client: '上海市应急管理局', budget: 300, bidDate: '2026-04-10', category: '态势感知' },
+  { id: 'bnx5', name: '某区医院信息安全运维服务', client: '长宁区中心医院', budget: 75, bidDate: '2026-03-25', category: '安全运维' },
+  { id: 'bnx6', name: '某国企工控安全检测项目', client: '上海电气集团', budget: 250, bidDate: '2026-04-15', category: '工控安全' },
+];
+
 // Bid notice search results for the "关注的标讯" section
 export const bidNoticeSearchResults: SelectedBidNotice[] = [
   { id: 'bn1', name: '某省级医院信息系统安全评估', client: '浙江省人民医院', budget: 95, bidDate: '2026-02-15', category: '安全评估' },

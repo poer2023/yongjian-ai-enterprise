@@ -15,10 +15,9 @@ import {
   Briefcase
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
-import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
+import { TemplateSidebar, InfoSidebar, FormPageLayout, RegionSelector } from '../shared';
 import {
   jobCategories,
-  provinces,
   tenureOptions,
   defaultEmployees,
   features,
@@ -27,15 +26,16 @@ import {
 
 const router = useRouter();
 
+// Survey mode
+const surveyMode = ref<'external_only' | 'benchmark'>('external_only');
+
 // Form data - Job Info
 const jobName = ref('');
 const jobCategory = ref('tech');
 const workLocation = ref('上海');
 
 // Collection scope
-const scopeType = ref<'national' | 'regional'>('national');
 const selectedRegions = ref<string[]>(['北京', '上海', '广东', '深圳']);
-const showRegionDropdown = ref(false);
 
 // Salary basis
 const salaryBasis = ref('before_tax');
@@ -57,28 +57,6 @@ const recentTools = [
   { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
   { icon: DollarSign, label: '薪酬调查', active: true, route: 'salary-survey-form' },
 ];
-
-// Region selection
-const toggleRegion = (region: string) => {
-  const index = selectedRegions.value.indexOf(region);
-  if (index > -1) {
-    selectedRegions.value.splice(index, 1);
-  } else {
-    selectedRegions.value.push(region);
-  }
-};
-
-const isRegionSelected = (region: string) => {
-  return selectedRegions.value.includes(region);
-};
-
-const selectAllRegions = () => {
-  if (selectedRegions.value.length === provinces.length) {
-    selectedRegions.value = [];
-  } else {
-    selectedRegions.value = [...provinces];
-  }
-};
 
 // Employee management
 const addEmployee = () => {
@@ -134,7 +112,7 @@ const getTenureLabel = (value: string) => {
 };
 
 const canSubmit = computed(() => {
-  return jobName.value.trim() && employees.value.length > 0;
+  return jobName.value.trim();
 });
 
 const handleSubmit = () => {
@@ -205,64 +183,55 @@ const handleSubmit = () => {
           </div>
         </div>
 
-        <!-- Section 2: Collection Scope -->
+        <!-- Section 2: Survey Mode -->
         <div class="config-section">
           <h3 class="section-title">
             <span class="step-badge">2</span>
-            采集范围
+            调查模式
           </h3>
+          <p class="section-hint">选择薪酬调查的模式，决定是否需要录入公司员工薪资进行内外对标</p>
 
           <div class="scope-options">
-            <label class="radio-card" :class="{ active: scopeType === 'national' }">
-              <input type="radio" v-model="scopeType" value="national" />
+            <label class="radio-card" :class="{ active: surveyMode === 'external_only' }">
+              <input type="radio" v-model="surveyMode" value="external_only" />
               <div class="radio-content">
-                <span class="radio-title">全国范围</span>
-                <span class="radio-desc">采集全国各地区薪酬数据</span>
+                <span class="radio-title">仅外部调查</span>
+                <span class="radio-desc">只采集市场薪酬数据，了解行业薪酬水平</span>
               </div>
-              <Check v-if="scopeType === 'national'" :size="18" class="check-icon" />
+              <Check v-if="surveyMode === 'external_only'" :size="18" class="check-icon" />
             </label>
 
-            <label class="radio-card" :class="{ active: scopeType === 'regional' }">
-              <input type="radio" v-model="scopeType" value="regional" />
+            <label class="radio-card" :class="{ active: surveyMode === 'benchmark' }">
+              <input type="radio" v-model="surveyMode" value="benchmark" />
               <div class="radio-content">
-                <span class="radio-title">指定地区</span>
-                <span class="radio-desc">选择特定省市进行对比分析</span>
+                <span class="radio-title">内外对标分析</span>
+                <span class="radio-desc">录入公司员工薪资，与市场数据进行对标比较</span>
               </div>
-              <Check v-if="scopeType === 'regional'" :size="18" class="check-icon" />
+              <Check v-if="surveyMode === 'benchmark'" :size="18" class="check-icon" />
             </label>
-          </div>
-
-          <!-- Region selector -->
-          <div v-if="scopeType === 'regional'" class="region-selector">
-            <div class="region-header">
-              <span class="region-label">选择对比地区</span>
-              <button class="select-all-btn" @click="selectAllRegions">
-                {{ selectedRegions.length === provinces.length ? '取消全选' : '全选' }}
-              </button>
-            </div>
-            <div class="region-grid">
-              <button
-                v-for="region in provinces"
-                :key="region"
-                class="region-tag"
-                :class="{ selected: isRegionSelected(region) }"
-                @click="toggleRegion(region)"
-              >
-                {{ region }}
-                <Check v-if="isRegionSelected(region)" :size="12" />
-              </button>
-            </div>
-            <p class="region-hint">已选择 {{ selectedRegions.length }} 个地区</p>
           </div>
         </div>
 
-        <!-- Section 3: Employee Salary Entry -->
+        <!-- Section 3: Collection Scope -->
         <div class="config-section">
           <h3 class="section-title">
             <span class="step-badge">3</span>
+            采集范围
+          </h3>
+
+          <RegionSelector
+            v-model="selectedRegions"
+            national-desc="采集全国各地区薪酬数据"
+          />
+        </div>
+
+        <!-- Section 4: Employee Salary Entry (only for benchmark mode) -->
+        <div v-if="surveyMode === 'benchmark'" class="config-section">
+          <h3 class="section-title">
+            <span class="step-badge">4</span>
             员工薪酬录入
           </h3>
-          <p class="section-hint">录入公司员工薪资，用于与市场数据对标分析</p>
+          <p class="section-hint">录入公司员工薪资，用于与市场数据对标分析（可选）</p>
 
           <!-- Add employee form -->
           <div class="add-employee-form">
@@ -471,133 +440,6 @@ const handleSubmit = () => {
 
 .field-input.with-icon {
   padding-left: 38px;
-}
-
-/* Scope Options */
-.scope-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.radio-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.radio-card input {
-  display: none;
-}
-
-.radio-card:hover {
-  border-color: #cbd5e1;
-}
-
-.radio-card.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-}
-
-.radio-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.radio-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.radio-desc {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.check-icon {
-  color: #2563eb;
-}
-
-/* Region Selector */
-.region-selector {
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.region-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.region-label {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.select-all-btn {
-  padding: 4px 12px;
-  background: transparent;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.select-all-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-}
-
-.region-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.region-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.region-tag:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-}
-
-.region-tag.selected {
-  background: #eff6ff;
-  border-color: #2563eb;
-  color: #2563eb;
-}
-
-.region-hint {
-  font-size: 12px;
-  color: #94a3b8;
-  margin: 12px 0 0 0;
 }
 
 /* Basis Grid */

@@ -2039,6 +2039,57 @@
   transform: rotate(180deg);
 }
 
+/* Dimension Tabs */
+.dimension-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dimension-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dimension-tab:hover {
+  color: #334155;
+  background: #f8fafc;
+}
+
+.dimension-tab.active {
+  color: #ef4444;
+  border-bottom-color: #ef4444;
+}
+
+.dimension-tab svg {
+  flex-shrink: 0;
+}
+
+.tab-count {
+  padding: 1px 7px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.dimension-tab:not(.active) .tab-count {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 /* Config Summary */
 .config-summary {
   text-align: center;

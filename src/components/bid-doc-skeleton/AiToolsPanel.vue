@@ -43,6 +43,10 @@ const getMaterialTypeIcon = (type: string): string => {
   return { 'cert': '📄', 'case': '📁', 'team': '👤' }[type] || '📄';
 };
 
+const isExpired = (dateStr: string) => {
+  return new Date(dateStr) < new Date();
+};
+
 const filteredEnterpriseMaterials = computed(() => {
   if (!props.materialSearchQuery) return props.enterpriseMaterials;
   const query = props.materialSearchQuery.toLowerCase();
@@ -128,8 +132,13 @@ const filteredEnterpriseMaterials = computed(() => {
         >
           <div class="em-icon">{{ getMaterialTypeIcon(em.type) }}</div>
           <div class="em-content">
-            <div class="em-name">{{ em.name }}</div>
+            <div class="em-name-row">
+              <span class="em-name">{{ em.name }}</span>
+              <span v-if="em.expiryDate && isExpired(em.expiryDate)" class="expiry-tag expired">已过期</span>
+              <span v-else-if="em.expiringSoon" class="expiry-tag expiring">即将到期</span>
+            </div>
             <div class="em-desc">{{ em.description }}</div>
+            <div v-if="em.expiryDate" class="em-expiry">有效期至 {{ em.expiryDate }}</div>
             <div v-if="em.inserted" class="em-location">
               已插入至：<span class="location-link" @click="$emit('jump-to-section', em.insertedSectionId || '')">{{ em.insertedSectionId }}</span>
             </div>
@@ -313,6 +322,37 @@ const filteredEnterpriseMaterials = computed(() => {
   font-size: 13px;
   font-weight: 500;
   color: #334155;
+}
+
+.em-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.expiry-tag {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.expiry-tag.expired {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.expiry-tag.expiring {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.em-expiry {
+  font-size: 11px;
+  color: #94a3b8;
   margin-bottom: 4px;
 }
 

@@ -67,10 +67,11 @@ const maxLength = 2000;
 const generateMode = ref<GenerateMode>('oneclick');
 const outlineNodes = ref<OutlineNode[]>([...defaultOutlineNodes]);
 
-// Qualification expiry helpers
+// Qualification expiry helpers - compare against bid deadline, not current date
+const bidDeadline = new Date(parsedAnalysis.timeline[0]?.date || '');
 const isExpired = (dateStr?: string) => {
-  if (!dateStr) return false;
-  return new Date(dateStr) < new Date();
+  if (!dateStr || isNaN(bidDeadline.getTime())) return false;
+  return new Date(dateStr) < bidDeadline;
 };
 const isExpiringSoon = (item: { expiringSoon?: boolean }) => {
   return item.expiringSoon === true;

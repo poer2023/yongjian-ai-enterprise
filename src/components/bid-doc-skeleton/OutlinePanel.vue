@@ -12,6 +12,14 @@ interface Emits {
 
 defineProps<Props>();
 defineEmits<Emits>();
+
+const getSourceLabel = (type?: string) => {
+  return { 'ai': 'AI', 'material': '素材', 'manual': '手动' }[type || ''] || '';
+};
+
+const getSourceClass = (type?: string) => {
+  return { 'ai': 'source-ai', 'material': 'source-material', 'manual': 'source-manual' }[type || ''] || '';
+};
 </script>
 
 <template>
@@ -35,7 +43,8 @@ defineEmits<Emits>();
               :class="{ active: activeOutlineId === sub.id }"
               @click="$emit('select', sub.id)"
             >
-              {{ sub.title }}
+              <span class="outline-item-text">{{ sub.title }}</span>
+              <span v-if="sub.sourceType" class="source-tag" :class="getSourceClass(sub.sourceType)">{{ getSourceLabel(sub.sourceType) }}</span>
             </div>
             <!-- Level 3 -->
             <template v-if="sub.children">
@@ -45,7 +54,8 @@ defineEmits<Emits>();
                   :class="{ active: activeOutlineId === sub3.id }"
                   @click="$emit('select', sub3.id)"
                 >
-                  {{ sub3.title }}
+                  <span class="outline-item-text">{{ sub3.title }}</span>
+                  <span v-if="sub3.sourceType" class="source-tag" :class="getSourceClass(sub3.sourceType)">{{ getSourceLabel(sub3.sourceType) }}</span>
                 </div>
                 <!-- Level 4 -->
                 <template v-if="sub3.children">
@@ -56,7 +66,8 @@ defineEmits<Emits>();
                     :class="{ active: activeOutlineId === sub4.id }"
                     @click="$emit('select', sub4.id)"
                   >
-                    {{ sub4.title }}
+                    <span class="outline-item-text">{{ sub4.title }}</span>
+                    <span v-if="sub4.sourceType" class="source-tag" :class="getSourceClass(sub4.sourceType)">{{ getSourceLabel(sub4.sourceType) }}</span>
                   </div>
                 </template>
               </template>
@@ -93,6 +104,9 @@ defineEmits<Emits>();
 }
 
 .outline-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 12px 12px;
   border-radius: 6px;
   font-size: 13px;
@@ -101,6 +115,14 @@ defineEmits<Emits>();
   transition: all 0.15s;
   line-height: 1.6;
   margin-bottom: 2px;
+}
+
+.outline-item-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .outline-item:hover {
@@ -134,5 +156,30 @@ defineEmits<Emits>();
   padding-left: 60px;
   font-size: 12px;
   color: #999;
+}
+
+/* Source Type Tags */
+.source-tag {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.source-tag.source-ai {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.source-tag.source-material {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.source-tag.source-manual {
+  background: #fff7ed;
+  color: #c2410c;
 }
 </style>

@@ -18,7 +18,8 @@ import {
   FileText,
   X,
   Maximize2,
-  BarChart3
+  Target,
+  Zap
 } from 'lucide-vue-next';
 import { policyGroups as defaultPolicyGroups, dateOptions, dataByPolicyAndDate } from './mockData';
 import type { BidDetail } from './types';
@@ -119,8 +120,8 @@ const getMatchScoreClass = (score: number) => {
   return 'score-low';
 };
 
-const goToIndustryReport = () => {
-  router.push({ name: 'bid-industry-report' });
+const goToSalesStrategy = () => {
+  router.push({ name: 'competition-analysis' });
 };
 </script>
 
@@ -173,11 +174,6 @@ const goToIndustryReport = () => {
               class="date-input"
             />
           </label>
-
-          <button class="industry-report-btn" @click="goToIndustryReport">
-            <BarChart3 :size="16" />
-            行业分析报告
-          </button>
         </div>
       </div>
 
@@ -259,6 +255,40 @@ const goToIndustryReport = () => {
 
         <!-- Right column: All bids -->
         <div class="right-column">
+          <!-- Sales Strategy Quick Trigger -->
+          <div class="strategy-trigger">
+            <div class="strategy-trigger-top">
+              <div class="strategy-trigger-icon">
+                <Target :size="20" />
+              </div>
+              <div class="strategy-trigger-text">
+                <span class="strategy-trigger-title">销售策略分析</span>
+                <span class="strategy-trigger-desc">基于竞争数据，智能生成针对性销售策略</span>
+              </div>
+            </div>
+            <div class="strategy-trigger-stats">
+              <div class="trigger-stat">
+                <span class="trigger-stat-value">5</span>
+                <span class="trigger-stat-label">跟踪对手</span>
+              </div>
+              <div class="trigger-stat-divider"></div>
+              <div class="trigger-stat">
+                <span class="trigger-stat-value">37.5%</span>
+                <span class="trigger-stat-label">综合胜率</span>
+              </div>
+              <div class="trigger-stat-divider"></div>
+              <div class="trigger-stat">
+                <span class="trigger-stat-value">2</span>
+                <span class="trigger-stat-label">待开标项目</span>
+              </div>
+            </div>
+            <button class="strategy-cta-btn" @click="goToSalesStrategy">
+              <Zap :size="15" />
+              一键生成策略报告
+              <ChevronRight :size="14" class="cta-arrow" />
+            </button>
+          </div>
+
           <section class="list-card">
             <div class="card-header">
               <div class="header-title">

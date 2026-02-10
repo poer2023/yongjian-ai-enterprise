@@ -10,10 +10,7 @@ import {
   Sparkles,
   ScrollText,
   Calendar,
-  ChevronDown,
-  MapPin,
-  Filter,
-  X
+  MapPin
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
@@ -21,7 +18,6 @@ const router = useRouter();
 const searchQuery = ref('');
 
 // Filter states
-const showAdvancedFilters = ref(false);
 const activeInfoType = ref('all');
 const activeRegion = ref('all');
 const activeTimeRange = ref('all');
@@ -91,26 +87,6 @@ const searchModes = [
   { value: 'exact', label: '精确检索', desc: '完全匹配关键词' }
 ];
 
-// Count active filters
-const activeFilterCount = computed(() => {
-  let count = 0;
-  if (activeInfoType.value !== 'all') count++;
-  if (activeRegion.value !== 'all') count++;
-  if (activeTimeRange.value !== 'all') count++;
-  if (activeBudget.value !== 'all') count++;
-  if (activeIndustry.value !== 'all') count++;
-  if (activeSearchMode.value !== 'smart') count++;
-  return count;
-});
-
-const clearAllFilters = () => {
-  activeInfoType.value = 'all';
-  activeRegion.value = 'all';
-  activeTimeRange.value = 'all';
-  activeBudget.value = 'all';
-  activeIndustry.value = 'all';
-  activeSearchMode.value = 'smart';
-};
 
 // 策略组数据接口
 interface PolicyGroup {
@@ -215,9 +191,6 @@ const agentCards = [
   }
 ];
 
-// 热门搜索标签
-const hotTags = ['网络安全', '等保测评', '渗透测试', '密评服务', '安全运维'];
-
 const navigateTo = (routeName: string) => {
   router.push({ name: routeName });
 };
@@ -227,10 +200,6 @@ const handleSearch = () => {
   router.push({ name: 'bid-info-daily' });
 };
 
-const handleTagClick = (tag: string) => {
-  searchQuery.value = tag;
-  handleSearch();
-};
 </script>
 
 <template>
@@ -252,36 +221,21 @@ const handleTagClick = (tag: string) => {
           <button class="search-btn" @click="handleSearch">搜索</button>
         </div>
 
-        <!-- Quick filter bar -->
-        <div class="quick-filter-bar">
-          <div class="filter-left">
-            <!-- Info type pills -->
-            <div class="filter-pills">
+        <!-- Filters panel -->
+        <div class="advanced-filters">
+          <div class="filter-row">
+            <span class="filter-label"><ScrollText :size="14" /> 类型</span>
+            <div class="filter-options">
               <span
                 v-for="item in infoTypes"
                 :key="item.value"
-                :class="['filter-pill', { active: activeInfoType === item.value }]"
+                :class="['filter-option', { active: activeInfoType === item.value }]"
                 @click="activeInfoType = item.value"
               >
                 {{ item.label }}
               </span>
             </div>
           </div>
-          <div class="filter-right">
-            <button
-              :class="['advanced-filter-btn', { active: showAdvancedFilters }]"
-              @click="showAdvancedFilters = !showAdvancedFilters"
-            >
-              <Filter :size="14" />
-              <span>高级筛选</span>
-              <span v-if="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
-              <ChevronDown :size="14" :class="['chevron-icon', { rotated: showAdvancedFilters }]" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Advanced filters panel -->
-        <div v-if="showAdvancedFilters" class="advanced-filters">
           <div class="filter-row">
             <span class="filter-label"><MapPin :size="14" /> 地区</span>
             <div class="filter-options">
@@ -349,25 +303,8 @@ const handleTagClick = (tag: string) => {
               </span>
             </div>
           </div>
-          <div v-if="activeFilterCount > 0" class="filter-actions">
-            <button class="clear-filters-btn" @click="clearAllFilters">
-              <X :size="14" />
-              清除所有筛选
-            </button>
-          </div>
         </div>
 
-        <div class="quick-tags">
-          <span class="tags-label">热门：</span>
-          <span
-            v-for="tag in hotTags"
-            :key="tag"
-            class="hot-tag"
-            @click="handleTagClick(tag)"
-          >
-            {{ tag }}
-          </span>
-        </div>
       </div>
     </section>
     </div>
@@ -394,7 +331,7 @@ const handleTagClick = (tag: string) => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding-top: calc(38.2vh - 100px);
+  padding-top: calc(23.6vh - 60px);
 }
 
 /* Hero 搜索区 */
@@ -475,132 +412,13 @@ const handleTagClick = (tag: string) => {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.quick-tags {
-  margin-top: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tags-label {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.hot-tag {
-  font-size: 13px;
-  color: #3b82f6;
-  padding: 4px 12px;
-  background: #dbeafe;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.hot-tag:hover {
-  background: #bfdbfe;
-}
-
-/* Quick filter bar */
-.quick-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
-  gap: 12px;
-}
-
-.filter-left {
-  flex: 1;
-  overflow: hidden;
-}
-
-.filter-pills {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.filter-pill {
-  padding: 5px 14px;
-  font-size: 13px;
-  color: #64748b;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
-.filter-pill:hover {
-  color: #3b82f6;
-  background: #eff6ff;
-}
-
-.filter-pill.active {
-  color: #3b82f6;
-  background: #dbeafe;
-  font-weight: 600;
-}
-
-.advanced-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.advanced-filter-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.advanced-filter-btn.active {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #3b82f6;
-}
-
-.filter-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  background: #3b82f6;
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 9px;
-}
-
-.chevron-icon {
-  transition: transform 0.2s;
-}
-
-.chevron-icon.rotated {
-  transform: rotate(180deg);
-}
-
-/* Advanced filters panel */
+/* Filters panel */
 .advanced-filters {
-  margin-top: 12px;
-  padding: 16px 20px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  margin-top: 16px;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e8ecf1;
   border-radius: 12px;
   text-align: left;
 }
@@ -674,26 +492,6 @@ const handleTagClick = (tag: string) => {
   color: #60a5fa;
 }
 
-.filter-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 10px;
-  margin-top: 4px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.clear-filters-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 12px;
-  cursor: pointer;
-  transition: color 0.2s;
-}
 
 .clear-filters-btn:hover {
   color: #ef4444;
