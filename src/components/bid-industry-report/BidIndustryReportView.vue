@@ -301,7 +301,7 @@ const handleAddToKnowledge = () => {
         <!-- Report body -->
         <div class="doc-body">
           <div
-            v-for="(section, idx) in currentReport.sections"
+            v-for="(section, idx) in currentReport?.sections"
             :key="idx"
             :id="'section-' + idx"
             class="doc-section"
