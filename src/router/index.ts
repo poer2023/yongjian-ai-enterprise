@@ -291,6 +291,7 @@ const routes = [
   // 系统管理
   {
     path: '/team',
+    name: 'team',
     component: TeamManageView,
     meta: { title: '团队管理' },
     redirect: { name: 'team-overview' },

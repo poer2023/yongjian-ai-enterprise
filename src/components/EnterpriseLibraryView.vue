@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Database, Building2, Users, FileText, Plus, X, Edit3, Check } from 'lucide-vue-next';
+import { Database, Building2, Users, FileText, Plus, X, Check } from 'lucide-vue-next';
+
+const activeTab = ref<'bidding-units' | 'competitors' | 'bid-notices'>('bidding-units');
+
+const tabs = [
+  { id: 'bidding-units' as const, label: '招标单位', icon: Building2 },
+  { id: 'competitors' as const, label: '竞品企业', icon: Users },
+  { id: 'bid-notices' as const, label: '关注标讯', icon: FileText },
+];
 
 interface LibraryItem {
   id: string;
   name: string;
   type: string;
   region: string;
-  editing?: boolean;
 }
 
 // ===== Bidding Units =====
@@ -53,7 +60,6 @@ interface BidNoticeItem {
   name: string;
   client: string;
   budget: string;
-  editing?: boolean;
 }
 const bnItems = ref<BidNoticeItem[]>([
   { id: 'bn1', name: '某证券公司网络安全态势感知平台', client: '上海证券交易所', budget: '280万' },
@@ -70,7 +76,23 @@ const addBn = () => {
 };
 const removeBn = (id: string) => { bnItems.value = bnItems.value.filter(i => i.id !== id); };
 
-const totalCount = computed(() => buItems.value.length + compItems.value.length + bnItems.value.length);
+const tabCounts = computed(() => ({
+  'bidding-units': buItems.value.length,
+  'competitors': compItems.value.length,
+  'bid-notices': bnItems.value.length,
+}));
+
+const currentAdding = computed(() => {
+  if (activeTab.value === 'bidding-units') return buAdding.value;
+  if (activeTab.value === 'competitors') return compAdding.value;
+  return bnAdding.value;
+});
+
+const toggleAdding = () => {
+  if (activeTab.value === 'bidding-units') buAdding.value = !buAdding.value;
+  else if (activeTab.value === 'competitors') compAdding.value = !compAdding.value;
+  else bnAdding.value = !bnAdding.value;
+};
 </script>
 
 <template>
@@ -81,22 +103,33 @@ const totalCount = computed(() => buItems.value.length + compItems.value.length 
       </div>
       <div>
         <h1 class="page-title">企业总库</h1>
-        <p class="page-subtitle">管理关注的招标单位、竞品企业和标讯，供团队成员在销售策略分析中使用 · 共 {{ totalCount }} 条</p>
+        <p class="page-subtitle">管理关注的招标单位、竞品企业和标讯，供团队成员在销售策略分析中使用</p>
       </div>
     </div>
 
     <div class="config-card">
-      <!-- 招标单位 -->
-      <div class="lib-section">
-        <div class="lib-header">
-          <div class="lib-header-left">
-            <Building2 :size="16" class="lib-icon" />
-            <span class="lib-title">招标单位</span>
-            <span class="lib-count">{{ buItems.length }}</span>
-          </div>
-          <button class="add-btn" @click="buAdding = !buAdding"><Plus :size="14" />录入</button>
-        </div>
-        <!-- Add form -->
+      <!-- Tabs -->
+      <div class="lib-tabs">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          :class="['lib-tab', { active: activeTab === tab.id }]"
+          @click="activeTab = tab.id"
+        >
+          <component :is="tab.icon" :size="15" />
+          <span>{{ tab.label }}</span>
+          <span class="tab-count">{{ tabCounts[tab.id] }}</span>
+        </button>
+      </div>
+
+      <!-- Tab toolbar -->
+      <div class="tab-toolbar">
+        <span class="toolbar-hint">共 {{ tabCounts[activeTab] }} 条记录</span>
+        <button class="add-btn" @click="toggleAdding"><Plus :size="14" />录入</button>
+      </div>
+
+      <!-- Tab: 招标单位 -->
+      <div v-if="activeTab === 'bidding-units'">
         <div v-if="buAdding" class="add-form">
           <div class="add-form-row">
             <input v-model="buNewName" placeholder="单位名称（必填）" class="add-input main" @keyup.enter="addBu" />
@@ -106,7 +139,6 @@ const totalCount = computed(() => buItems.value.length + compItems.value.length 
             <button class="add-cancel" @click="buAdding = false"><X :size="14" /></button>
           </div>
         </div>
-        <!-- Item list -->
         <div class="item-list">
           <div v-for="item in buItems" :key="item.id" class="item-row">
             <div class="item-info">
@@ -120,16 +152,8 @@ const totalCount = computed(() => buItems.value.length + compItems.value.length 
         </div>
       </div>
 
-      <!-- 竞品企业 -->
-      <div class="lib-section">
-        <div class="lib-header">
-          <div class="lib-header-left">
-            <Users :size="16" class="lib-icon" />
-            <span class="lib-title">竞品企业</span>
-            <span class="lib-count">{{ compItems.length }}</span>
-          </div>
-          <button class="add-btn" @click="compAdding = !compAdding"><Plus :size="14" />录入</button>
-        </div>
+      <!-- Tab: 竞品企业 -->
+      <div v-else-if="activeTab === 'competitors'">
         <div v-if="compAdding" class="add-form">
           <div class="add-form-row">
             <input v-model="compNewName" placeholder="企业名称（必填）" class="add-input main" @keyup.enter="addComp" />
@@ -152,16 +176,8 @@ const totalCount = computed(() => buItems.value.length + compItems.value.length 
         </div>
       </div>
 
-      <!-- 关注标讯 -->
-      <div class="lib-section">
-        <div class="lib-header">
-          <div class="lib-header-left">
-            <FileText :size="16" class="lib-icon" />
-            <span class="lib-title">关注的标讯</span>
-            <span class="lib-count">{{ bnItems.length }}</span>
-          </div>
-          <button class="add-btn" @click="bnAdding = !bnAdding"><Plus :size="14" />录入</button>
-        </div>
+      <!-- Tab: 关注标讯 -->
+      <div v-else>
         <div v-if="bnAdding" class="add-form">
           <div class="add-form-row">
             <input v-model="bnNewName" placeholder="项目名称（必填）" class="add-input main" @keyup.enter="addBn" />
@@ -196,14 +212,18 @@ const totalCount = computed(() => buItems.value.length + compItems.value.length 
 
 .config-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
 
-/* Library sections */
-.lib-section { padding-top: 20px; margin-top: 20px; border-top: 1px solid #f1f5f9; }
-.lib-section:first-child { padding-top: 0; margin-top: 0; border-top: none; }
-.lib-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.lib-header-left { display: flex; align-items: center; gap: 6px; }
-.lib-icon { color: #3b82f6; }
-.lib-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-.lib-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: #2563eb; color: white; font-size: 11px; font-weight: 600; border-radius: 9px; }
+/* Tabs */
+.lib-tabs { display: flex; gap: 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; }
+.lib-tab { display: flex; align-items: center; gap: 6px; padding: 10px 18px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.lib-tab:hover { color: #334155; background: #f8fafc; }
+.lib-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+.lib-tab svg { flex-shrink: 0; }
+.tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 600; border-radius: 9px; }
+.lib-tab.active .tab-count { background: #dbeafe; color: #3b82f6; }
+
+/* Toolbar */
+.tab-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.toolbar-hint { font-size: 12px; color: #94a3b8; }
 
 .add-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; background: white; border: 1px dashed #93c5fd; border-radius: 6px; color: #3b82f6; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
 .add-btn:hover { background: #eff6ff; border-style: solid; }
