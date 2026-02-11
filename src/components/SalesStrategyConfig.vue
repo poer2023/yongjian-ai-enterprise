@@ -1,27 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Building2, Users, FileText, Search, Plus, Check, Target, Bell } from 'lucide-vue-next';
+import { Building2, Users, FileText, Search, Plus, Target, AlertCircle, Database } from 'lucide-vue-next';
 import { ChecklistSelector } from './shared';
-
-// ===== Strategy Groups (from BidSubscription) =====
-interface StrategyGroup {
-  id: string;
-  name: string;
-  keywords: string[];
-  regions: string[];
-  memberCount: number;
-}
-
-const strategyGroups = ref<StrategyGroup[]>([
-  { id: '1', name: '安全业务组', keywords: ['网络安全', '渗透测试', '安全运维'], regions: ['全国', '北京', '上海'], memberCount: 3 },
-  { id: '2', name: '等保测评组', keywords: ['等保测评', '等级保护', '信息安全'], regions: ['全国'], memberCount: 2 },
-]);
-const selectedGroupIds = ref<string[]>(['1']);
-const toggleGroup = (id: string) => {
-  selectedGroupIds.value.includes(id)
-    ? selectedGroupIds.value = selectedGroupIds.value.filter(x => x !== id)
-    : selectedGroupIds.value.push(id);
-};
 
 // ===== Bidding Units =====
 const buSearch = ref('');
@@ -94,11 +74,11 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
   <div class="sales-strategy-config">
     <div class="content-header">
       <div class="header-icon">
-        <Target :size="22" />
+        <Database :size="22" />
       </div>
       <div>
-        <h1 class="page-title">销售策略</h1>
-        <p class="page-subtitle">配置关注的招标单位、竞品企业和标讯，系统将智能生成针对性销售策略</p>
+        <h1 class="page-title">企业总库</h1>
+        <p class="page-subtitle">管理关注的招标单位、竞品企业和标讯，供团队成员在销售策略分析中使用</p>
       </div>
     </div>
 
@@ -127,7 +107,10 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
                 <span class="track-result-desc">{{ item.desc }}</span>
               </button>
             </div>
-            <div v-else class="track-results-empty">暂无匹配结果</div>
+            <div v-else class="track-results-empty-guide">
+              <AlertCircle :size="14" class="track-empty-icon" />
+              <span>暂无匹配，可手动录入</span>
+            </div>
           </div>
           <ChecklistSelector :items="buItems" v-model="selectedBuIds" />
         </div>
@@ -157,7 +140,10 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
                 <span class="track-result-desc">{{ item.desc }}</span>
               </button>
             </div>
-            <div v-else class="track-results-empty">暂无匹配结果</div>
+            <div v-else class="track-results-empty-guide">
+              <AlertCircle :size="14" class="track-empty-icon" />
+              <span>暂无匹配，可手动录入</span>
+            </div>
           </div>
           <ChecklistSelector :items="compItems" v-model="selectedCompIds" />
         </div>
@@ -187,46 +173,12 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
                 <span class="track-result-desc">{{ item.desc }}</span>
               </button>
             </div>
-            <div v-else class="track-results-empty">暂无匹配结果</div>
+            <div v-else class="track-results-empty-guide">
+              <AlertCircle :size="14" class="track-empty-icon" />
+              <span>暂无匹配，可手动录入</span>
+            </div>
           </div>
           <ChecklistSelector :items="bnItems" v-model="selectedBnIds" />
-        </div>
-      </div>
-
-      <!-- 关联策略组 -->
-      <div class="groups-section">
-        <div class="groups-header">
-          <div class="groups-header-left">
-            <Bell :size="16" class="track-icon" />
-            <span class="groups-title">关联策略组</span>
-            <span class="track-tag">选填</span>
-            <span v-if="selectedGroupIds.length" class="track-count">{{ selectedGroupIds.length }}</span>
-          </div>
-          <span class="groups-hint">选择需要生成销售策略的标讯订阅策略组</span>
-        </div>
-        <div class="group-list">
-          <div
-            v-for="group in strategyGroups"
-            :key="group.id"
-            class="group-item"
-            :class="{ selected: selectedGroupIds.includes(group.id) }"
-            @click="toggleGroup(group.id)"
-          >
-            <div class="group-checkbox">
-              <div class="checkbox" :class="{ checked: selectedGroupIds.includes(group.id) }">
-                <Check v-if="selectedGroupIds.includes(group.id)" :size="12" />
-              </div>
-            </div>
-            <div class="group-info">
-              <div class="group-name">{{ group.name }}</div>
-              <div class="group-tags">
-                <span class="group-tag" v-for="k in group.keywords.slice(0, 3)" :key="k">{{ k }}</span>
-                <span class="group-tag region" v-for="r in group.regions.slice(0, 2)" :key="r">{{ r }}</span>
-              </div>
-            </div>
-            <span class="group-member-count">{{ group.memberCount }} 人</span>
-          </div>
-          <div v-if="strategyGroups.length === 0" class="group-empty">暂无策略组，请先在标讯订阅中创建</div>
         </div>
       </div>
     </div>
@@ -270,26 +222,23 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
 .track-result-desc { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .track-results-empty { text-align: center; padding: 10px; color: #94a3b8; font-size: 12px; }
 
-/* Strategy Groups */
-.groups-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
-.groups-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.groups-header-left { display: flex; align-items: center; gap: 6px; }
-.groups-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-.groups-hint { font-size: 12px; color: #94a3b8; }
-.group-list { display: flex; flex-direction: column; gap: 8px; }
-.group-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-.group-item:hover { border-color: #cbd5e1; background: #f8fafc; }
-.group-item.selected { border-color: #3b82f6; background: #eff6ff; }
-.group-checkbox { flex-shrink: 0; }
-.checkbox { width: 20px; height: 20px; border: 2px solid #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.checkbox.checked { background: #3b82f6; border-color: #3b82f6; color: white; }
-.group-info { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.group-name { font-size: 14px; font-weight: 600; color: #1e293b; }
-.group-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.group-tag { font-size: 11px; padding: 2px 8px; background: #f1f5f9; color: #64748b; border-radius: 4px; }
-.group-tag.region { background: #eff6ff; color: #3b82f6; }
-.group-member-count { font-size: 13px; color: #64748b; flex-shrink: 0; }
-.group-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+.track-results-empty-guide {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.track-empty-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
 
 /* Actions */
 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }

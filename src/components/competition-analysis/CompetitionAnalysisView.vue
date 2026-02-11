@@ -13,6 +13,7 @@ import {
   MapPin,
   FileText,
   Search,
+  AlertCircle,
 } from 'lucide-vue-next';
 import { TemplateSidebar, InfoSidebar, FormPageLayout, RegionSelector, ChecklistSelector } from '../shared';
 import {
@@ -339,7 +340,10 @@ const handleSubmit = () => {
               <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
-          <div v-else class="search-empty">暂无匹配结果</div>
+          <div v-else class="search-empty-guide">
+            <AlertCircle :size="14" class="search-empty-icon" />
+            <span>未找到匹配结果，请联系管理员在「团队管理 > 企业总库」中添加</span>
+          </div>
         </div>
         <ChecklistSelector
           :items="allBiddingUnits"
@@ -377,7 +381,10 @@ const handleSubmit = () => {
               <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
-          <div v-else class="search-empty">暂无匹配结果</div>
+          <div v-else class="search-empty-guide">
+            <AlertCircle :size="14" class="search-empty-icon" />
+            <span>未找到匹配结果，请联系管理员在「团队管理 > 企业总库」中添加</span>
+          </div>
         </div>
         <ChecklistSelector
           :items="allCompetitors"
@@ -415,7 +422,10 @@ const handleSubmit = () => {
               <span class="search-grid-desc">{{ item.desc }}</span>
             </button>
           </div>
-          <div v-else class="search-empty">暂无匹配结果</div>
+          <div v-else class="search-empty-guide">
+            <AlertCircle :size="14" class="search-empty-icon" />
+            <span>未找到匹配结果，请联系管理员在「团队管理 > 企业总库」中添加</span>
+          </div>
         </div>
         <ChecklistSelector
           :items="allBidNotices"
@@ -560,11 +570,22 @@ const handleSubmit = () => {
   text-overflow: ellipsis;
 }
 
-.search-empty {
-  text-align: center;
-  padding: 10px;
-  color: #94a3b8;
+.search-empty-guide {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.search-empty-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
 }
 </style>
 

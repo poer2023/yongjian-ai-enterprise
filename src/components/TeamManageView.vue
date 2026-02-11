@@ -8,7 +8,8 @@ import {
   Coins,
   Bell,
   Edit3,
-  Target
+  Target,
+  Database
 } from 'lucide-vue-next';
 import BidSubscription from './BidSubscription.vue';
 import SalesStrategyConfig from './SalesStrategyConfig.vue';
@@ -20,7 +21,8 @@ const menuItems = [
   { icon: UsersRound, label: '小组管理', id: 'groups' },
   { icon: Bot, label: '智能体管理', id: 'agents' },
   { icon: Coins, label: '权益明细', id: 'benefits' },
-  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' }
+  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' },
+  { icon: Database, label: '企业总库', id: 'enterprise-library' }
 ];
 
 const activeMenu = ref('overview');
@@ -95,8 +97,8 @@ const handleMenuClick = (id: string) => {
         <BidSubscription />
       </template>
 
-      <!-- Sales Strategy -->
-      <template v-else-if="activeMenu === 'sales-strategy'">
+      <!-- Enterprise Library -->
+      <template v-else-if="activeMenu === 'enterprise-library'">
         <SalesStrategyConfig />
       </template>
 
