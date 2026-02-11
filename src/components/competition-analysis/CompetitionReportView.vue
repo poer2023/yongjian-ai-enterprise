@@ -329,10 +329,10 @@ const configStats = computed(() => {
                     <div v-if="activeCompetitorId === comp.id && howToWin[comp.id]" class="how-to-win-card embedded">
                       <h4 class="how-to-win-title">
                         <Trophy :size="14" />
-                        {{ howToWin[comp.id].title }}
+                        {{ howToWin[comp.id]!.title }}
                       </h4>
                       <ul class="how-to-win-list">
-                        <li v-for="(tip, i) in howToWin[comp.id].tips" :key="i">{{ tip }}</li>
+                        <li v-for="(tip, i) in howToWin[comp.id]!.tips" :key="i">{{ tip }}</li>
                       </ul>
                     </div>
                     <div v-if="activeCompetitorId === comp.id && !howToWin[comp.id]" class="no-strategy-hint">

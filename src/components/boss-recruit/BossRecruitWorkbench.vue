@@ -91,7 +91,7 @@ onMounted(() => {
       currentAccount.value = account;
       // Auto-select first following JD
       if (followingJds.value.length > 0) {
-        selectedJdId.value = followingJds.value[0].id;
+        selectedJdId.value = followingJds.value[0]!.id;
       }
       return;
     }
@@ -128,7 +128,7 @@ const unfollowJd = (jd: BossJD) => {
   jd.todayResumes = undefined;
   jd.totalResumes = undefined;
   if (selectedJdId.value === jd.id) {
-    selectedJdId.value = followingJds.value.length > 0 ? followingJds.value[0].id : null;
+    selectedJdId.value = followingJds.value.length > 0 ? followingJds.value[0]!.id : null;
   }
 };
 

@@ -267,12 +267,12 @@ const handleAddToKnowledge = () => {
         <!-- Cover / Title -->
         <div class="doc-cover">
           <div class="doc-cover-badge">AI 生成报告</div>
-          <h1 class="doc-title">{{ currentReport.title }}</h1>
-          <p class="doc-subtitle">{{ currentReport.subtitle }}</p>
+          <h1 class="doc-title">{{ currentReport?.title }}</h1>
+          <p class="doc-subtitle">{{ currentReport?.subtitle }}</p>
           <div class="doc-meta-bar">
-            <span>报告周期：{{ currentReport.period }}</span>
+            <span>报告周期：{{ currentReport?.period }}</span>
             <span class="meta-divider">|</span>
-            <span>生成时间：{{ currentReport.generatedAt }}</span>
+            <span>生成时间：{{ currentReport?.generatedAt }}</span>
           </div>
         </div>
 
@@ -283,7 +283,7 @@ const handleAddToKnowledge = () => {
           <h3 class="toc-title">目录</h3>
           <div class="toc-list">
             <div
-              v-for="(section, idx) in currentReport.sections"
+              v-for="(section, idx) in currentReport?.sections"
               :key="idx"
               class="toc-item"
             >
@@ -321,7 +321,7 @@ const handleAddToKnowledge = () => {
         <hr class="doc-divider" />
         <div class="doc-footer">
           <p>本报告由 AI 智能体基于「{{ currentGroup?.name }}」策略组订阅数据自动生成，仅供参考。</p>
-          <p>涌见 AI · 行业分析报告 · {{ currentReport.generatedAt }}</p>
+          <p>涌见 AI · 行业分析报告 · {{ currentReport?.generatedAt }}</p>
         </div>
       </div>
     </div>
