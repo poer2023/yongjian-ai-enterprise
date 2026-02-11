@@ -4,6 +4,9 @@ import AiQnaView from '../components/AiQnaView.vue';
 import AgentsView from '../components/AgentsView.vue';
 import EnterpriseSearchView from '../components/EnterpriseSearchView.vue';
 import TeamManageView from '../components/TeamManageView.vue';
+import TeamOverviewView from '../components/TeamOverviewView.vue';
+import BidSubscription from '../components/BidSubscription.vue';
+import SalesStrategyConfig from '../components/SalesStrategyConfig.vue';
 
 // 素材库模块
 import CompanyInfoView from '../components/CompanyInfoView.vue';
@@ -140,7 +143,7 @@ const routes = [
   {
     path: '/bid/info',
     name: 'bid-info-form',
-    redirect: { name: 'team', query: { menu: 'bid-subscription' } }
+    redirect: { name: 'team-bid-subscription' }
   },
   {
     path: '/bid/info/daily',
@@ -288,9 +291,18 @@ const routes = [
   // 系统管理
   {
     path: '/team',
-    name: 'team',
     component: TeamManageView,
-    meta: { title: '团队管理' }
+    meta: { title: '团队管理' },
+    redirect: { name: 'team-overview' },
+    children: [
+      { path: '', name: 'team-overview', component: TeamOverviewView, meta: { title: '团队概览' } },
+      { path: 'members', name: 'team-members', component: PlaceholderView, meta: { title: '成员管理' } },
+      { path: 'groups', name: 'team-groups', component: PlaceholderView, meta: { title: '小组管理' } },
+      { path: 'agents', name: 'team-agents', component: PlaceholderView, meta: { title: '智能体管理' } },
+      { path: 'benefits', name: 'team-benefits', component: PlaceholderView, meta: { title: '权益明细' } },
+      { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '标讯订阅' } },
+      { path: 'enterprise-library', name: 'team-enterprise-library', component: SalesStrategyConfig, meta: { title: '企业总库' } },
+    ]
   },
   {
     path: '/profile',
