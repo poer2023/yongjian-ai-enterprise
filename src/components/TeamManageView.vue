@@ -20,8 +20,7 @@ const menuItems = [
   { icon: UsersRound, label: '小组管理', id: 'groups' },
   { icon: Bot, label: '智能体管理', id: 'agents' },
   { icon: Coins, label: '权益明细', id: 'benefits' },
-  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' },
-  { icon: Target, label: '销售策略', id: 'sales-strategy' }
+  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' }
 ];
 
 const activeMenu = ref('overview');
