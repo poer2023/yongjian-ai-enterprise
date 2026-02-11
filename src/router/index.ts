@@ -6,7 +6,7 @@ import EnterpriseSearchView from '../components/EnterpriseSearchView.vue';
 import TeamManageView from '../components/TeamManageView.vue';
 import TeamOverviewView from '../components/TeamOverviewView.vue';
 import BidSubscription from '../components/BidSubscription.vue';
-import SalesStrategyConfig from '../components/SalesStrategyConfig.vue';
+import EnterpriseLibraryView from '../components/EnterpriseLibraryView.vue';
 
 // 素材库模块
 import CompanyInfoView from '../components/CompanyInfoView.vue';
@@ -301,7 +301,7 @@ const routes = [
       { path: 'agents', name: 'team-agents', component: PlaceholderView, meta: { title: '智能体管理' } },
       { path: 'benefits', name: 'team-benefits', component: PlaceholderView, meta: { title: '权益明细' } },
       { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '标讯订阅' } },
-      { path: 'enterprise-library', name: 'team-enterprise-library', component: SalesStrategyConfig, meta: { title: '企业总库' } },
+      { path: 'enterprise-library', name: 'team-enterprise-library', component: EnterpriseLibraryView, meta: { title: '企业总库' } },
     ]
   },
   {
