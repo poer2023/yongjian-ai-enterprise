@@ -6,6 +6,9 @@ import { ChecklistSelector } from './shared';
 
 const router = useRouter();
 
+// Active sub-tab within subscription editor
+const activeSubTab = ref('push-config');
+
 interface Policy {
   id: string;
   name: string;
@@ -210,7 +213,21 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
     <!-- Editor -->
     <div v-else class="policy-editor">
       <div class="editor-header"><h2>{{ editingPolicy ? '编辑策略组' : '新建策略组' }}</h2></div>
-      <div class="config-card">
+
+      <!-- Sub tabs -->
+      <div class="sub-tabs">
+        <button :class="['sub-tab', { active: activeSubTab === 'push-config' }]" @click="activeSubTab = 'push-config'">
+          <Search :size="14" />
+          <span>推送配置</span>
+        </button>
+        <button :class="['sub-tab', { active: activeSubTab === 'sales-strategy' }]" @click="activeSubTab = 'sales-strategy'">
+          <Building2 :size="14" />
+          <span>销售策略</span>
+        </button>
+      </div>
+
+      <!-- Tab: 推送配置 (监控配置 + 推送成员) -->
+      <div v-if="activeSubTab === 'push-config'" class="config-card">
         <div class="form-row">
           <label>策略名称</label>
           <div class="input-wrap"><input v-model="policyName" maxlength="15" placeholder="输入策略名称" /><span class="count">{{ policyName.length }}/15</span></div>
@@ -256,8 +273,32 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
           </div>
         </div>
 
-        <!-- Bidding Units -->
-        <div class="track-section">
+        <!-- 推送成员 -->
+        <div class="members-section">
+          <div class="members-header"><span>推送成员</span><span class="hint">至少选择1人</span></div>
+          <div class="members-table">
+            <div class="table-header"><span class="col-name">成员姓名</span><span class="col-email">邮箱</span><span class="col-check">选择</span></div>
+            <div v-for="m in pagedMembers" :key="m.id" class="member-row" @click="toggleMember(m.id)">
+              <div class="col-name"><div class="avatar">{{ m.avatar }}</div><span>{{ m.name }}</span></div>
+              <span class="col-email">{{ m.email || '未填写' }}</span>
+              <div class="col-check"><div class="checkbox" :class="{ checked: selectedMembers.includes(m.id) }"><Check v-if="selectedMembers.includes(m.id)" :size="12" /></div></div>
+            </div>
+          </div>
+          <div class="members-footer">
+            <span>已选 {{ selectedMemberCount }} 人</span>
+            <div v-if="totalPages > 1" class="pagination">
+              <button :disabled="memberPage <= 1" @click="memberPage--">&lt;</button>
+              <span>{{ memberPage }} / {{ totalPages }}</span>
+              <button :disabled="memberPage >= totalPages" @click="memberPage++">&gt;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: 销售策略 (招标单位 + 竞品企业 + 关注标讯) -->
+      <div v-else-if="activeSubTab === 'sales-strategy'" class="config-card">
+        <!-- 招标单位 -->
+        <div class="track-section-standalone">
           <div class="track-header">
             <div class="track-header-left">
               <Building2 :size="16" class="track-icon" />
@@ -286,7 +327,7 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
           </div>
         </div>
 
-        <!-- Competitors -->
+        <!-- 竞品企业 -->
         <div class="track-section">
           <div class="track-header">
             <div class="track-header-left">
@@ -316,7 +357,7 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
           </div>
         </div>
 
-        <!-- Bid Notices -->
+        <!-- 关注标讯 -->
         <div class="track-section">
           <div class="track-header">
             <div class="track-header-left">
@@ -345,27 +386,8 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
             <ChecklistSelector :items="bnItems" v-model="selectedBnIds" />
           </div>
         </div>
-
-        <div class="members-section">
-          <div class="members-header"><span>推送成员</span><span class="hint">至少选择1人</span></div>
-          <div class="members-table">
-            <div class="table-header"><span class="col-name">成员姓名</span><span class="col-email">邮箱</span><span class="col-check">选择</span></div>
-            <div v-for="m in pagedMembers" :key="m.id" class="member-row" @click="toggleMember(m.id)">
-              <div class="col-name"><div class="avatar">{{ m.avatar }}</div><span>{{ m.name }}</span></div>
-              <span class="col-email">{{ m.email || '未填写' }}</span>
-              <div class="col-check"><div class="checkbox" :class="{ checked: selectedMembers.includes(m.id) }"><Check v-if="selectedMembers.includes(m.id)" :size="12" /></div></div>
-            </div>
-          </div>
-          <div class="members-footer">
-            <span>已选 {{ selectedMemberCount }} 人</span>
-            <div v-if="totalPages > 1" class="pagination">
-              <button :disabled="memberPage <= 1" @click="memberPage--">&lt;</button>
-              <span>{{ memberPage }} / {{ totalPages }}</span>
-              <button :disabled="memberPage >= totalPages" @click="memberPage++">&gt;</button>
-            </div>
-          </div>
-        </div>
       </div>
+
       <div class="form-actions"><button class="cancel" @click="showEditor = false">取消</button><button class="save" @click="handleSave">保存策略</button></div>
     </div>
   </div>
@@ -475,4 +497,35 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
 .track-result-name { font-size: 12px; font-weight: 500; color: #1e40af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 16px; }
 .track-result-desc { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .track-results-empty { text-align: center; padding: 10px; color: #94a3b8; font-size: 12px; }
+
+/* Sub tabs */
+.sub-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.sub-tab { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.sub-tab:hover { color: #334155; background: #f8fafc; }
+.sub-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+.sub-tab svg { flex-shrink: 0; }
+.sub-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: #dbeafe; color: #3b82f6; font-size: 11px; font-weight: 600; border-radius: 9px; }
+.sub-tab.active .sub-tab-count { background: #3b82f6; color: white; }
+
+/* Standalone sections (no top border) */
+.track-section-standalone { }
+.members-section-standalone { }
+</style>
+
+<!-- Unscoped styles to override child component ChecklistSelector -->
+<style>
+.bid-subscription .policy-editor .checklist-item {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.bid-subscription .policy-editor .checklist-remove {
+  opacity: 1;
+  color: #3b82f6;
+}
+
+.bid-subscription .policy-editor .checklist-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
 </style>

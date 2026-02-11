@@ -268,18 +268,18 @@ const goToSalesStrategy = () => {
             </div>
             <div class="strategy-trigger-stats">
               <div class="trigger-stat">
-                <span class="trigger-stat-value">5</span>
-                <span class="trigger-stat-label">跟踪对手</span>
+                <span class="trigger-stat-value">{{ activePolicy?.salesStrategy?.biddingUnits ?? 0 }}</span>
+                <span class="trigger-stat-label">招标单位</span>
               </div>
               <div class="trigger-stat-divider"></div>
               <div class="trigger-stat">
-                <span class="trigger-stat-value">37.5%</span>
-                <span class="trigger-stat-label">综合胜率</span>
+                <span class="trigger-stat-value">{{ activePolicy?.salesStrategy?.competitors ?? 0 }}</span>
+                <span class="trigger-stat-label">竞品企业</span>
               </div>
               <div class="trigger-stat-divider"></div>
               <div class="trigger-stat">
-                <span class="trigger-stat-value">2</span>
-                <span class="trigger-stat-label">待开标项目</span>
+                <span class="trigger-stat-value">{{ activePolicy?.salesStrategy?.bidNotices ?? 0 }}</span>
+                <span class="trigger-stat-label">关注标讯</span>
               </div>
             </div>
             <button class="strategy-cta-btn" @click="goToSalesStrategy">

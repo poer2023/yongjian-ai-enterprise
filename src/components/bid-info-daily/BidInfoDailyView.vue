@@ -8,7 +8,7 @@ import {
   FileSearch,
   BrainCircuit,
   Search,
-  BookmarkPlus
+  FileText
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { aiSummary, bidInfoList, defaultExpandedGroups } from './mockData';
@@ -103,8 +103,11 @@ const viewDetail = (bid: any) => {
   router.push({ name: 'bid-detail', query: { id: bid.id } });
 };
 
-const addToKnowledge = (bid: any) => {
-  console.log('添加到知识库:', bid.title);
+const goToDocGenerate = (bid: any) => {
+  router.push({
+    name: 'bid-doc-oneclick-form',
+    query: { bidId: bid.id, title: bid.title },
+  });
 };
 
 const formatDate = (dateStr: string) => {
@@ -379,13 +382,13 @@ const hasActiveFilters = computed(() => {
                 <div class="item-summary">{{ bid.matchReason }}</div>
               </div>
               <div class="item-actions">
-                <button class="action-btn primary" @click="viewAnalysis(bid)">
+                <button class="action-btn secondary" @click="viewAnalysis(bid)">
                   <FileSearch :size="14" />
-                  AI解读
+                  标讯解读
                 </button>
-                <button class="action-btn" @click="addToKnowledge(bid)">
-                  <BookmarkPlus :size="14" />
-                  添加到知识库
+                <button class="action-btn primary" @click="goToDocGenerate(bid)">
+                  <FileText :size="14" />
+                  生成标书
                 </button>
               </div>
             </div>

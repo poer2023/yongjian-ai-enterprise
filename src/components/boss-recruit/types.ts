@@ -1,10 +1,22 @@
-export type AuthStatus = 'idle' | 'scanning' | 'success' | 'error';
+export type AuthStatus = 'idle' | 'scanning' | 'success' | 'error' | 'expired';
 export type AuthMethod = 'phone' | 'qrcode';
 
 export interface AccountInfo {
   name: string;
   company: string;
   avatar: string;
+  expiresAt?: string;
+}
+
+export interface BossAccount {
+  id: string;
+  name: string;
+  company: string;
+  avatar: string;
+  expiresAt: string;
+  status: 'active' | 'expired';
+  followingCount: number;
+  todayResumes: number;
 }
 
 export interface BossJD {
@@ -17,7 +29,13 @@ export interface BossJD {
   publishDate: string;
   viewCount: number;
   resumeCount: number;
-  isMonitoring: boolean;
+  isFollowing: boolean;
+  followStatus?: 'running' | 'paused';
+  todayGreetings?: number;
+  todayResumes?: number;
+  totalResumes?: number;
+  jobStatus?: 'active' | 'closed';
+  closedDate?: string;
 }
 
 export interface RecentTool {
@@ -46,4 +64,18 @@ export interface RpaStrategy {
   maxInterval: number;
   errorHandling: 'pause' | 'skip' | 'notify';
   enabled: boolean;
+}
+
+// Resume interface for workbench
+export interface Resume {
+  id: number;
+  name: string;
+  position: string;
+  experience: string;
+  education: string;
+  matchScore: number;
+  status: 'pending' | 'collected' | 'interview' | 'rejected';
+  salary: string;
+  company: string;
+  lastActive: string;
 }

@@ -100,12 +100,12 @@ const getMaterialTypeLabel = (type: string) => {
     <!-- AI button inside section block -->
     <button
       v-if="isActive && !hasContent && !isGenerating"
-      class="section-ai-btn"
+      class="section-ai-btn current"
       contenteditable="false"
       @click.prevent.stop="$emit('generate', sectionId)"
     >
       <Sparkles :size="14" />
-      AI生成
+      生成当前节点
     </button>
   </div>
 </template>
@@ -269,7 +269,7 @@ const getMaterialTypeLabel = (type: string) => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 7px 14px;
   background: linear-gradient(135deg, #4b83f0 0%, #7c3aed 100%);
   border: none;
   border-radius: 6px;

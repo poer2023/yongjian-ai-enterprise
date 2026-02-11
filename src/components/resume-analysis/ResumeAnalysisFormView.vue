@@ -9,7 +9,8 @@ import {
   Briefcase,
   Check,
   Eye,
-  Pencil
+  Pencil,
+  MessageSquare
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
@@ -28,6 +29,8 @@ const router = useRouter();
 const uploadedResumes = ref<File[]>([]);
 const maxResumes = 50;
 const selectedJdId = ref<number | null>(null);
+const additionalRequirements = ref('');
+const maxLength = 500;
 
 // JD Library
 const jdLibrary = ref<JobDescription[]>([...defaultJdLibrary]);
@@ -351,6 +354,24 @@ const handleSubmit = () => {
             </span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Additional Requirements -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          补充要求
+        </h3>
+      </div>
+      <div class="textarea-wrapper">
+        <textarea
+          v-model="additionalRequirements"
+          class="form-textarea"
+          :maxlength="maxLength"
+          placeholder="请输入补充筛选要求，如：优先考虑有大厂经验的候选人、需要有团队管理经验等..."
+        ></textarea>
+        <span class="char-count">{{ additionalRequirements.length }} / {{ maxLength }}</span>
       </div>
     </div>
 

@@ -1,345 +1,194 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import {
   UserCheck,
-  FileUser,
-  QrCode,
-  CheckCircle,
-  Loader2,
-  Briefcase,
-  Eye,
-  Play,
-  RefreshCw,
-  Smartphone,
+  Clock,
   Filter,
   Settings,
-  Clock,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  ArrowRight,
+  Briefcase,
+  FileUser,
+  RefreshCw
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { TemplateSidebar, InfoSidebar, FormPageLayout } from '../shared';
-import type { AuthStatus, AuthMethod, AccountInfo, BossJD, RpaStrategy } from './types';
 import {
-  mockJdList,
   recentTools,
   features,
+  defaultRpaStrategy,
   errorHandlingOptions,
-  defaultRpaStrategy
+  mockAccounts
 } from './mockData';
+import type { BossAccount, AccountInfo, RpaStrategy } from './types';
+import AuthOverlay from './AuthOverlay.vue';
 
 const router = useRouter();
 
-// Authentication state
-const authStatus = ref<AuthStatus>('idle');
-const authMethod = ref<AuthMethod>('phone');
-const accountInfo = ref<AccountInfo>({
-  name: '',
-  company: '',
-  avatar: ''
-});
+// Accounts
+const accounts = ref<BossAccount[]>([...mockAccounts]);
 
-// Phone auth state
-const phoneNumber = ref('');
-const verifyCode = ref('');
-const codeSent = ref(false);
-const countdown = ref(0);
-let countdownTimer: ReturnType<typeof setInterval> | null = null;
+// Auth overlay
+const showAuthOverlay = ref(false);
+const isReauth = ref(false);
+const reauthAccountId = ref<string | null>(null);
 
-// Send verification code
-const sendCode = () => {
-  if (!phoneNumber.value || phoneNumber.value.length !== 11) return;
-  codeSent.value = true;
-  countdown.value = 60;
-  countdownTimer = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      if (countdownTimer) clearInterval(countdownTimer);
-      codeSent.value = false;
-    }
-  }, 1000);
-};
-
-// Phone login
-const phoneLogin = () => {
-  if (!phoneNumber.value || !verifyCode.value) return;
-  authStatus.value = 'scanning';
-  setTimeout(() => {
-    authStatus.value = 'success';
-    accountInfo.value = {
-      name: '张招聘',
-      company: 'XX科技有限公司',
-      avatar: ''
-    };
-    jdList.value = [...mockJdList];
-  }, 1000);
-};
-
-// JD list from Boss
-const jdList = ref<BossJD[]>([]);
-const selectedJdIds = ref<number[]>([]);
-
-// Start authentication
-const startAuth = () => {
-  authStatus.value = 'scanning';
-  setTimeout(() => {
-    authStatus.value = 'success';
-    accountInfo.value = {
-      name: '张招聘',
-      company: 'XX科技有限公司',
-      avatar: ''
-    };
-    jdList.value = [...mockJdList];
-  }, 2000);
-};
-
-// Refresh JD list
-const refreshJdList = () => {
-  jdList.value = [...mockJdList];
-};
-
-// Toggle JD selection
-const toggleJdSelection = (id: number) => {
-  const index = selectedJdIds.value.indexOf(id);
-  if (index > -1) {
-    selectedJdIds.value.splice(index, 1);
-  } else {
-    selectedJdIds.value.push(id);
-  }
-};
-
-// Select all
-const selectAll = () => {
-  if (selectedJdIds.value.length === jdList.value.length) {
-    selectedJdIds.value = [];
-  } else {
-    selectedJdIds.value = jdList.value.map(jd => jd.id);
-  }
-};
-
-const isAllSelected = computed(() => {
-  return jdList.value.length > 0 && selectedJdIds.value.length === jdList.value.length;
-});
-
-// RPA strategy state
+// RPA strategy
 const rpaStrategy = ref<RpaStrategy>({ ...defaultRpaStrategy });
+
+// Enter workbench for an account
+const enterWorkbench = (account: BossAccount) => {
+  router.push({ name: 'boss-recruit-workbench', query: { accountId: account.id } });
+};
+
+// Open auth overlay for new account
+const addNewAccount = () => {
+  isReauth.value = false;
+  reauthAccountId.value = null;
+  showAuthOverlay.value = true;
+};
+
+// Reauthorize an expired account
+const reauthorize = (account: BossAccount) => {
+  isReauth.value = true;
+  reauthAccountId.value = account.id;
+  showAuthOverlay.value = true;
+};
+
+// Handle auth success
+const handleAuthSuccess = (info: AccountInfo) => {
+  showAuthOverlay.value = false;
+  if (isReauth.value && reauthAccountId.value) {
+    // Update existing account
+    const acc = accounts.value.find(a => a.id === reauthAccountId.value);
+    if (acc) {
+      acc.status = 'active';
+      acc.expiresAt = info.expiresAt || '';
+      acc.name = info.name;
+      acc.company = info.company;
+    }
+  } else {
+    // Add new account
+    accounts.value.push({
+      id: `acc-${Date.now()}`,
+      name: info.name,
+      company: info.company,
+      avatar: info.avatar,
+      expiresAt: info.expiresAt || '',
+      status: 'active',
+      followingCount: 0,
+      todayResumes: 0,
+    });
+  }
+  reauthAccountId.value = null;
+};
 
 // Toggle RPA enabled
 const toggleRpaEnabled = () => {
   rpaStrategy.value.enabled = !rpaStrategy.value.enabled;
 };
-
-// Submit and start monitoring
-const handleSubmit = () => {
-  router.push({
-    name: 'boss-recruit-result',
-    query: {
-      jdIds: selectedJdIds.value.join(','),
-    },
-  });
-};
 </script>
 
 <template>
-  <FormPageLayout :icon="UserCheck" title="Boss直聘招聘" subtitle="授权账号后自动获取岗位，开启智能招聘监控">
+  <FormPageLayout :icon="UserCheck" title="Boss直聘智能招聘" subtitle="授权管理Boss账号，配置RPA自动化招聘策略">
     <template #sidebar>
       <TemplateSidebar :recent-tools="recentTools" :active-index="0" />
     </template>
 
-    <!-- Step 1: Authentication -->
+    <!-- Section 1: Account Management -->
     <div class="form-section">
       <div class="section-header">
         <h3 class="section-title">
-          <span class="step-number">1</span>
-          账号授权
+          <span class="step-badge">1</span>
+          账号管理
         </h3>
-        <span v-if="authStatus === 'success'" class="auth-status success">
-          <CheckCircle :size="14" />
-          已授权
-        </span>
       </div>
+      <p class="section-hint">管理已授权的Boss直聘账号，点击进入对应工作台</p>
 
-      <!-- Not authenticated -->
-      <div v-if="authStatus === 'idle'" class="auth-area">
-        <!-- Auth method tabs -->
-        <div class="auth-method-tabs">
-          <button
-            class="auth-tab"
-            :class="{ active: authMethod === 'phone' }"
-            @click="authMethod = 'phone'"
-          >
-            <Smartphone :size="16" />
-            手机验证码登录
-          </button>
-          <button
-            class="auth-tab"
-            :class="{ active: authMethod === 'qrcode' }"
-            @click="authMethod = 'qrcode'"
-          >
-            <QrCode :size="16" />
-            扫码登录
-          </button>
-        </div>
-
-        <!-- Phone login form -->
-        <div v-if="authMethod === 'phone'" class="phone-login-form">
-          <div class="phone-input-group">
-            <input
-              v-model="phoneNumber"
-              type="tel"
-              placeholder="请输入手机号"
-              maxlength="11"
-              class="phone-input"
-            />
+      <div class="account-cards">
+        <div
+          v-for="account in accounts"
+          :key="account.id"
+          class="account-card"
+          :class="{ expired: account.status === 'expired' }"
+        >
+          <div class="account-card-header">
+            <div class="account-avatar">
+              <UserCheck :size="20" />
+            </div>
+            <div class="account-info">
+              <div class="account-name-row">
+                <span class="account-name">{{ account.name }}</span>
+                <span class="account-sep">&middot;</span>
+                <span class="account-company">{{ account.company }}</span>
+              </div>
+              <div v-if="account.status === 'active'" class="account-session">
+                <Clock :size="12" />
+                会话有效至 {{ account.expiresAt }}
+              </div>
+              <div v-else class="account-expired-tag">
+                <AlertCircle :size="12" />
+                会话已过期
+              </div>
+            </div>
           </div>
-          <div class="code-input-group">
-            <input
-              v-model="verifyCode"
-              type="text"
-              placeholder="请输入验证码"
-              maxlength="6"
-              class="code-input"
-            />
+
+          <div v-if="account.status === 'active'" class="account-card-stats">
+            <span class="stat-item">
+              <Briefcase :size="13" />
+              {{ account.followingCount }} 个关注中岗位
+            </span>
+            <span class="stat-divider">&middot;</span>
+            <span class="stat-item">
+              <FileUser :size="13" />
+              {{ account.todayResumes }} 条新简历
+            </span>
+          </div>
+
+          <div class="account-card-actions">
             <button
-              class="send-code-btn"
-              :disabled="!phoneNumber || phoneNumber.length !== 11 || codeSent"
-              @click="sendCode"
+              v-if="account.status === 'active'"
+              class="enter-workbench-btn"
+              @click="enterWorkbench(account)"
             >
-              {{ codeSent ? `${countdown}s后重发` : '获取验证码' }}
+              进入工作台
+              <ArrowRight :size="14" />
+            </button>
+            <button
+              v-else
+              class="reauth-btn"
+              @click="reauthorize(account)"
+            >
+              <RefreshCw :size="14" />
+              重新授权
             </button>
           </div>
-          <button
-            class="phone-login-btn"
-            :disabled="!phoneNumber || !verifyCode"
-            @click="phoneLogin"
-          >
-            登录授权
-          </button>
-        </div>
-
-        <!-- QR code login -->
-        <div v-else class="qrcode-login">
-          <div class="qr-placeholder">
-            <QrCode :size="48" />
-          </div>
-          <div class="auth-text">
-            <p class="auth-main">使用Boss直聘APP扫码授权</p>
-            <p class="auth-hint">授权后将自动获取您发布的岗位信息</p>
-          </div>
-          <button class="auth-btn" @click="startAuth">
-            开始授权
-          </button>
         </div>
       </div>
 
-      <!-- Scanning / Loading -->
-      <div v-else-if="authStatus === 'scanning'" class="auth-area loading">
-        <div class="loading-box">
-          <Loader2 :size="40" class="spin loading-icon" />
-          <p class="loading-text">正在授权中...</p>
-          <p class="loading-hint">请稍候，正在获取账号信息</p>
-        </div>
-      </div>
-
-      <!-- Authenticated -->
-      <div v-else-if="authStatus === 'success'" class="auth-area authenticated">
-        <div class="account-info">
-          <div class="account-avatar">
-            <UserCheck :size="24" />
-          </div>
-          <div class="account-details">
-            <span class="account-name">{{ accountInfo.name }}</span>
-            <span class="account-company">{{ accountInfo.company }}</span>
-          </div>
-        </div>
-        <button class="change-account-btn" @click="authStatus = 'idle'">
-          切换账号
-        </button>
-      </div>
+      <button class="add-account-btn" @click="addNewAccount">
+        <Plus :size="16" />
+        添加新账号
+      </button>
     </div>
 
-    <!-- Step 2: JD List -->
-    <div v-if="authStatus === 'success'" class="form-section">
+    <!-- Section 2: RPA Strategy -->
+    <div class="form-section">
       <div class="section-header">
         <h3 class="section-title">
-          <span class="step-number">2</span>
-          选择监控岗位
+          <span class="step-badge">2</span>
+          RPA 运行策略
         </h3>
-        <div class="section-actions">
-          <button class="refresh-btn" @click="refreshJdList">
-            <RefreshCw :size="14" />
-            刷新列表
-          </button>
-        </div>
-      </div>
-      <p class="section-hint">选择需要开启智能招聘监控的岗位，系统将自动筛选候选人并打招呼</p>
-
-      <div class="jd-table">
-        <div class="jd-table-header">
-          <span class="col-select">
-            <div class="checkbox" :class="{ checked: isAllSelected }" @click="selectAll">
-              <CheckCircle v-if="isAllSelected" :size="12" />
-            </div>
-          </span>
-          <span class="col-name">岗位名称</span>
-          <span class="col-salary">薪资</span>
-          <span class="col-location">地点</span>
-          <span class="col-exp">经验</span>
-          <span class="col-stats">浏览/简历</span>
-          <span class="col-status">状态</span>
-        </div>
-        <div class="jd-table-body">
-          <div
-            v-for="jd in jdList"
-            :key="jd.id"
-            class="jd-table-row"
-            :class="{ selected: selectedJdIds.includes(jd.id) }"
-            @click="toggleJdSelection(jd.id)"
-          >
-            <span class="col-select">
-              <div class="checkbox" :class="{ checked: selectedJdIds.includes(jd.id) }">
-                <CheckCircle v-if="selectedJdIds.includes(jd.id)" :size="12" />
-              </div>
-            </span>
-            <span class="col-name">
-              <Briefcase :size="14" class="name-icon" />
-              {{ jd.jobName }}
-            </span>
-            <span class="col-salary">{{ jd.salaryRange }}</span>
-            <span class="col-location">{{ jd.location }}</span>
-            <span class="col-exp">{{ jd.experience }}</span>
-            <span class="col-stats">
-              <Eye :size="12" /> {{ jd.viewCount }}
-              <span class="stats-divider">/</span>
-              <FileUser :size="12" /> {{ jd.resumeCount }}
-            </span>
-            <span class="col-status">
-              <span v-if="jd.isMonitoring" class="monitoring-badge">
-                <Play :size="10" />
-                监控中
-              </span>
-              <span v-else class="idle-badge">未监控</span>
-            </span>
-          </div>
-        </div>
       </div>
 
-      <div class="selection-summary">
-        已选择 <strong>{{ selectedJdIds.length }}</strong> 个岗位
-      </div>
-    </div>
-
-    <!-- Step 3: RPA Strategy -->
-    <div v-if="authStatus === 'success' && selectedJdIds.length > 0" class="form-section">
-      <div class="section-header">
-        <h3 class="section-title">
-          <span class="step-number">3</span>
-          自动化运行策略
-        </h3>
+      <!-- RPA Toggle -->
+      <div class="rpa-toggle-row">
+        <span class="rpa-toggle-label">启用自动化</span>
         <div class="rpa-toggle" :class="{ active: rpaStrategy.enabled }" @click="toggleRpaEnabled">
           <div class="toggle-knob"></div>
         </div>
       </div>
-      <p class="section-hint">配置RPA自动打招呼的运行规则</p>
 
       <div class="rpa-config" :class="{ disabled: !rpaStrategy.enabled }">
         <!-- Time Range -->
@@ -468,23 +317,254 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Submit Button -->
-    <div v-if="authStatus === 'success'" class="submit-container">
-      <button
-        class="submit-btn"
-        :disabled="selectedJdIds.length === 0"
-        @click="handleSubmit"
-      >
-        开启智能招聘监控
-      </button>
-    </div>
-
     <template #info-sidebar>
-      <InfoSidebar :icon="UserCheck" title="Boss直聘招聘" description="智能RPA招聘助手，自动筛选简历打招呼" :features="features" />
+      <InfoSidebar :icon="UserCheck" title="Boss招聘" description="智能化Boss直聘招聘管理，自动筛选候选人并打招呼" :features="features" />
     </template>
   </FormPageLayout>
+
+  <!-- Auth Overlay -->
+  <AuthOverlay
+    v-if="showAuthOverlay"
+    :is-expired="isReauth"
+    @auth-success="handleAuthSuccess"
+    @close="showAuthOverlay = false"
+  />
 </template>
 
 <style scoped>
 @import './styles.css';
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.form-section {
+  margin-bottom: 32px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.section-hint {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+
+/* Account Cards */
+.account-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.account-card {
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.account-card:hover {
+  border-color: #cbd5e1;
+}
+
+.account-card.expired {
+  background: #fefce8;
+  border-color: #fde68a;
+}
+
+.account-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.account-card.expired .account-avatar {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.account-sep {
+  color: #cbd5e1;
+}
+
+.account-company {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.account-session {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.account-expired-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #d97706;
+  font-weight: 500;
+}
+
+.account-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-left: 58px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.stat-divider {
+  color: #cbd5e1;
+}
+
+.account-card-actions {
+  padding-left: 58px;
+}
+
+.enter-workbench-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.enter-workbench-btn:hover {
+  background: #1d4ed8;
+}
+
+.reauth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: white;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  color: #d97706;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reauth-btn:hover {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.add-account-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  background: white;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-account-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* RPA Section */
+.rpa-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.rpa-toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
 </style>

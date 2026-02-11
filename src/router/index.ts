@@ -14,7 +14,7 @@ import AssetUploadView from '../components/assets/AssetUploadView.vue';
 
 // HR模块
 import BossRecruitFormView from '../components/boss-recruit/BossRecruitFormView.vue';
-import BossRecruitResultView from '../components/BossRecruitResultView.vue';
+import BossRecruitWorkbench from '../components/boss-recruit/BossRecruitWorkbench.vue';
 import ResumeAnalysisFormView from '../components/resume-analysis/ResumeAnalysisFormView.vue';
 import ResumeAnalysisResultView from '../components/ResumeAnalysisResultView.vue';
 import SalarySurveyFormView from '../components/salary-survey/SalarySurveyFormView.vue';
@@ -97,15 +97,15 @@ const routes = [
   // HR助手模块
   {
     path: '/hr/boss-recruit',
-    name: 'boss-recruit-form',
+    name: 'boss-recruit',
     component: BossRecruitFormView,
     meta: { title: 'Boss直聘招聘' }
   },
   {
-    path: '/hr/boss-recruit/result',
-    name: 'boss-recruit-result',
-    component: BossRecruitResultView,
-    meta: { title: 'Boss直聘招聘结果' }
+    path: '/hr/boss-recruit/workbench',
+    name: 'boss-recruit-workbench',
+    component: BossRecruitWorkbench,
+    meta: { title: 'Boss招聘工作台', fullScreen: true }
   },
   {
     path: '/hr/resume-analysis',

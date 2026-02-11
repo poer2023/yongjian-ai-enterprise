@@ -7,9 +7,11 @@ import {
   Bot,
   Coins,
   Bell,
-  Edit3
+  Edit3,
+  Target
 } from 'lucide-vue-next';
 import BidSubscription from './BidSubscription.vue';
+import SalesStrategyConfig from './SalesStrategyConfig.vue';
 
 // Menu items
 const menuItems = [
@@ -18,7 +20,8 @@ const menuItems = [
   { icon: UsersRound, label: '小组管理', id: 'groups' },
   { icon: Bot, label: '智能体管理', id: 'agents' },
   { icon: Coins, label: '权益明细', id: 'benefits' },
-  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' }
+  { icon: Bell, label: '标讯订阅', id: 'bid-subscription' },
+  { icon: Target, label: '销售策略', id: 'sales-strategy' }
 ];
 
 const activeMenu = ref('overview');
@@ -91,6 +94,11 @@ const handleMenuClick = (id: string) => {
       <!-- Bid Subscription -->
       <template v-else-if="activeMenu === 'bid-subscription'">
         <BidSubscription />
+      </template>
+
+      <!-- Sales Strategy -->
+      <template v-else-if="activeMenu === 'sales-strategy'">
+        <SalesStrategyConfig />
       </template>
 
       <!-- Placeholder for other menus -->

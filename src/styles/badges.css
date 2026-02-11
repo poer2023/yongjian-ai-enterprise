@@ -88,8 +88,8 @@
   border-radius: 9px;
 }
 
-/* Monitoring badge */
-.monitoring-badge {
+/* Following badge */
+.following-badge {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -101,7 +101,7 @@
   font-weight: 500;
 }
 
-.idle-badge {
+.unfollowed-badge {
   padding: 3px 8px;
   background: #f1f5f9;
   color: #94a3b8;

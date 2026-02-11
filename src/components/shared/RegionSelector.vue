@@ -114,7 +114,10 @@ const selectedCount = props.modelValue.filter(r => r !== '全国').length;
     <!-- Region grid selector -->
     <div v-if="isRegional" class="region-selector">
       <div class="region-header">
-        <span class="region-label">{{ selectorLabel }}</span>
+        <div class="region-header-left">
+          <span class="region-label">{{ selectorLabel }}</span>
+          <span v-if="modelValue.filter(r => r !== '全国').length" class="region-count">{{ modelValue.filter(r => r !== '全国').length }}</span>
+        </div>
         <button class="select-all-btn" @click="modelValue.filter(r => r !== '全国').length === provinces.length ? deselectAllRegions() : selectAllRegions()">
           {{ modelValue.filter(r => r !== '全国').length === provinces.length ? '取消全选' : '全选' }}
         </button>
@@ -201,9 +204,29 @@ const selectedCount = props.modelValue.filter(r => r !== '全国').length;
   margin-bottom: 12px;
 }
 
+.region-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .region-label {
   font-size: 13px;
   color: #64748b;
+}
+
+.region-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #2563eb;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
 }
 
 .select-all-btn {

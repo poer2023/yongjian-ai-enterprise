@@ -167,7 +167,7 @@ export const jdLibrary: JobDescription[] = [
 ];
 
 export const recentTools: RecentTool[] = [
-  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit-form' },
+  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit' },
   { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
   { icon: DollarSign, label: '薪酬调查', route: 'salary-survey-form' },
 ];

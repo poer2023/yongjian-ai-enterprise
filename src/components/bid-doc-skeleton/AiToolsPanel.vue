@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { MapPin, Package, Search, Plus, Eye, CheckCircle2 } from 'lucide-vue-next';
+import { MapPin, Package, Search, Plus, Eye, CheckCircle2, Sparkles, Zap } from 'lucide-vue-next';
 import type { Material, EnterpriseMaterial } from '@/mocks/bidDocSkeleton';
 
 // Import sub-components
@@ -16,6 +16,8 @@ interface Props {
   currentScoringPoints: string[];
   currentMaterials: Material[];
   isCurrentSectionGenerated: boolean;
+  isAnyGenerating: boolean;
+  remainingSectionsCount: number;
   completionStats: { completed: number; total: number };
   isDetecting: boolean;
   enterpriseMaterials: EnterpriseMaterial[];
@@ -31,6 +33,8 @@ interface Emits {
   (e: 'insert-material', material: Material): void;
   (e: 'preview-material', material: Material): void;
   (e: 'ai-edit', action: string): void;
+  (e: 'generate-current'): void;
+  (e: 'generate-all-remaining'): void;
   (e: 'insert-enterprise-material', material: EnterpriseMaterial): void;
   (e: 'preview-enterprise-material', material: EnterpriseMaterial): void;
   (e: 'jump-to-section', sectionId: string): void;
@@ -86,6 +90,25 @@ const filteredEnterpriseMaterials = computed(() => {
       <!-- Current Node -->
       <div class="current-node-section">
         <div class="current-node-name">{{ currentSectionTitle || '请选择节点' }}</div>
+        <div class="node-action-btns">
+          <button
+            class="node-gen-btn current"
+            :disabled="isAnyGenerating || isCurrentSectionGenerated"
+            @click="emit('generate-current')"
+          >
+            <Sparkles :size="14" />
+            生成当前节点
+          </button>
+          <button
+            class="node-gen-btn all"
+            :disabled="isAnyGenerating || remainingSectionsCount === 0"
+            @click="emit('generate-all-remaining')"
+          >
+            <Zap :size="14" />
+            一键生成全部
+            <span v-if="remainingSectionsCount > 0" class="remaining-badge">{{ remainingSectionsCount }}</span>
+          </button>
+        </div>
       </div>
 
       <ScoringPointsSection
@@ -248,6 +271,67 @@ const filteredEnterpriseMaterials = computed(() => {
   background: white;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+}
+
+.node-action-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.node-gen-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.node-gen-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.node-gen-btn.current {
+  background: linear-gradient(135deg, #4b83f0 0%, #7c3aed 100%);
+  box-shadow: 0 2px 8px rgba(75, 131, 240, 0.25);
+}
+
+.node-gen-btn.current:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 131, 240, 0.35);
+}
+
+.node-gen-btn.all {
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.node-gen-btn.all:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.remaining-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 /* Material Search */

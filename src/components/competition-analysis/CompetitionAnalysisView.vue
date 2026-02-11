@@ -519,7 +519,7 @@ const handleSubmit = () => {
   gap: 2px;
   padding: 8px 10px;
   padding-right: 28px;
-  background: #f0f7ff;
+  background: #ffffff;
   border: 1px dashed #93c5fd;
   border-radius: 8px;
   cursor: pointer;
@@ -565,5 +565,23 @@ const handleSubmit = () => {
   padding: 10px;
   color: #94a3b8;
   font-size: 12px;
+}
+</style>
+
+<!-- Unscoped styles to override child component ChecklistSelector -->
+<style>
+.section-card .card-body .checklist-item {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.section-card .card-body .checklist-remove {
+  opacity: 1;
+  color: #3b82f6;
+}
+
+.section-card .card-body .checklist-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
 }
 </style>

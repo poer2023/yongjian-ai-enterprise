@@ -53,7 +53,7 @@ const newEmployee = ref({
 const uploadedFile = ref<File | null>(null);
 
 const recentTools = [
-  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit-form' },
+  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit' },
   { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
   { icon: DollarSign, label: '薪酬调查', active: true, route: 'salary-survey-form' },
 ];
@@ -115,6 +115,10 @@ const canSubmit = computed(() => {
   return jobName.value.trim();
 });
 
+const isRegionalScope = computed(() => {
+  return selectedRegions.value.length > 0 && !(selectedRegions.value.length === 1 && selectedRegions.value[0] === '全国');
+});
+
 const handleSubmit = () => {
   router.push({
     name: 'salary-survey-result',
@@ -122,8 +126,8 @@ const handleSubmit = () => {
       jobName: jobName.value,
       category: jobCategory.value,
       location: workLocation.value,
-      scope: scopeType.value,
-      regions: scopeType.value === 'regional' ? selectedRegions.value.join(',') : '',
+      scope: isRegionalScope.value ? 'regional' : 'national',
+      regions: isRegionalScope.value ? selectedRegions.value.join(',') : '',
       basis: salaryBasis.value,
       type: salaryType.value,
       count: employees.value.length.toString(),
@@ -210,6 +214,107 @@ const handleSubmit = () => {
               <Check v-if="surveyMode === 'benchmark'" :size="18" class="check-icon" />
             </label>
           </div>
+
+          <!-- Employee Salary Entry (inline under benchmark mode) -->
+          <div v-if="surveyMode === 'benchmark'" class="benchmark-entry">
+            <p class="benchmark-hint">录入公司员工薪资，用于与市场数据对标分析（可选）</p>
+
+            <!-- Add employee form -->
+            <div class="add-employee-form">
+              <div class="employee-field">
+                <label class="mini-label">员工姓名</label>
+                <input
+                  v-model="newEmployee.name"
+                  type="text"
+                  class="field-input"
+                  placeholder="如：张三"
+                />
+              </div>
+              <div class="employee-field salary-field">
+                <label class="mini-label">当前{{ salaryType === 'monthly' ? '月薪' : '年薪' }}</label>
+                <div class="salary-input-wrapper">
+                  <input
+                    v-model="newEmployee.salary"
+                    type="number"
+                    class="field-input"
+                    placeholder="如：25000"
+                  />
+                  <span class="salary-unit">元/{{ salaryType === 'monthly' ? '月' : '年' }}</span>
+                </div>
+              </div>
+              <div class="employee-field tenure-field">
+                <label class="mini-label">入职年限</label>
+                <select v-model="newEmployee.tenure" class="field-select">
+                  <option v-for="t in tenureOptions" :key="t.value" :value="t.value">
+                    {{ t.label }}
+                  </option>
+                </select>
+              </div>
+              <button
+                class="add-btn"
+                @click="addEmployee"
+                :disabled="!newEmployee.name.trim() || !newEmployee.salary"
+              >
+                <Plus :size="18" />
+                添加
+              </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider">
+              <span class="divider-text">或</span>
+            </div>
+
+            <!-- Batch import -->
+            <div class="batch-import">
+              <label v-if="!uploadedFile" class="upload-area">
+                <input type="file" @change="handleFileUpload" accept=".xlsx,.xls" hidden />
+                <Upload :size="24" />
+                <div class="upload-text">
+                  <span class="upload-main">上传Excel批量导入</span>
+                  <span class="upload-hint">支持 .xlsx, .xls 格式，需包含姓名、薪资、年限列</span>
+                </div>
+              </label>
+              <div v-else class="uploaded-file-card">
+                <div class="file-info">
+                  <FileText :size="24" class="file-icon" />
+                  <div class="file-details">
+                    <span class="file-name">{{ uploadedFile.name }}</span>
+                    <span class="file-size">{{ (uploadedFile.size / 1024).toFixed(1) }} KB</span>
+                  </div>
+                </div>
+                <button class="remove-file-btn" @click="removeFile">
+                  <X :size="18" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Employee list -->
+            <div v-if="employees.length > 0" class="employee-table">
+              <div class="table-header">
+                <span class="col-name">员工姓名</span>
+                <span class="col-salary">当前薪资</span>
+                <span class="col-tenure">入职年限</span>
+                <span class="col-action">操作</span>
+              </div>
+              <div class="table-body">
+                <div v-for="emp in employees" :key="emp.id" class="table-row">
+                  <span class="col-name">
+                    <Users :size="14" class="emp-icon" />
+                    {{ emp.name }}
+                  </span>
+                  <span class="col-salary">¥{{ emp.salary.toLocaleString() }}</span>
+                  <span class="col-tenure">{{ getTenureLabel(emp.tenure) }}</span>
+                  <span class="col-action">
+                    <button class="delete-btn" @click="removeEmployee(emp.id)">
+                      <Trash2 :size="14" />
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="employee-count">共 {{ employees.length }} 名员工</p>
+          </div>
         </div>
 
         <!-- Section 3: Collection Scope -->
@@ -223,111 +328,6 @@ const handleSubmit = () => {
             v-model="selectedRegions"
             national-desc="采集全国各地区薪酬数据"
           />
-        </div>
-
-        <!-- Section 4: Employee Salary Entry (only for benchmark mode) -->
-        <div v-if="surveyMode === 'benchmark'" class="config-section">
-          <h3 class="section-title">
-            <span class="step-badge">4</span>
-            员工薪酬录入
-          </h3>
-          <p class="section-hint">录入公司员工薪资，用于与市场数据对标分析（可选）</p>
-
-          <!-- Add employee form -->
-          <div class="add-employee-form">
-            <div class="employee-field">
-              <label class="mini-label">员工姓名</label>
-              <input
-                v-model="newEmployee.name"
-                type="text"
-                class="field-input"
-                placeholder="如：张三"
-              />
-            </div>
-            <div class="employee-field salary-field">
-              <label class="mini-label">当前{{ salaryType === 'monthly' ? '月薪' : '年薪' }}</label>
-              <div class="salary-input-wrapper">
-                <input
-                  v-model="newEmployee.salary"
-                  type="number"
-                  class="field-input"
-                  placeholder="如：25000"
-                />
-                <span class="salary-unit">元/{{ salaryType === 'monthly' ? '月' : '年' }}</span>
-              </div>
-            </div>
-            <div class="employee-field tenure-field">
-              <label class="mini-label">入职年限</label>
-              <select v-model="newEmployee.tenure" class="field-select">
-                <option v-for="t in tenureOptions" :key="t.value" :value="t.value">
-                  {{ t.label }}
-                </option>
-              </select>
-            </div>
-            <button
-              class="add-btn"
-              @click="addEmployee"
-              :disabled="!newEmployee.name.trim() || !newEmployee.salary"
-            >
-              <Plus :size="18" />
-              添加
-            </button>
-          </div>
-
-          <!-- Divider -->
-          <div class="divider">
-            <span class="divider-text">或</span>
-          </div>
-
-          <!-- Batch import -->
-          <div class="batch-import">
-            <label v-if="!uploadedFile" class="upload-area">
-              <input type="file" @change="handleFileUpload" accept=".xlsx,.xls" hidden />
-              <Upload :size="24" />
-              <div class="upload-text">
-                <span class="upload-main">上传Excel批量导入</span>
-                <span class="upload-hint">支持 .xlsx, .xls 格式，需包含姓名、薪资、年限列</span>
-              </div>
-            </label>
-            <div v-else class="uploaded-file-card">
-              <div class="file-info">
-                <FileText :size="24" class="file-icon" />
-                <div class="file-details">
-                  <span class="file-name">{{ uploadedFile.name }}</span>
-                  <span class="file-size">{{ (uploadedFile.size / 1024).toFixed(1) }} KB</span>
-                </div>
-              </div>
-              <button class="remove-file-btn" @click="removeFile">
-                <X :size="18" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Employee list -->
-          <div v-if="employees.length > 0" class="employee-table">
-            <div class="table-header">
-              <span class="col-name">员工姓名</span>
-              <span class="col-salary">当前薪资</span>
-              <span class="col-tenure">入职年限</span>
-              <span class="col-action">操作</span>
-            </div>
-            <div class="table-body">
-              <div v-for="emp in employees" :key="emp.id" class="table-row">
-                <span class="col-name">
-                  <Users :size="14" class="emp-icon" />
-                  {{ emp.name }}
-                </span>
-                <span class="col-salary">¥{{ emp.salary.toLocaleString() }}</span>
-                <span class="col-tenure">{{ getTenureLabel(emp.tenure) }}</span>
-                <span class="col-action">
-                  <button class="delete-btn" @click="removeEmployee(emp.id)">
-                    <Trash2 :size="14" />
-                  </button>
-                </span>
-              </div>
-            </div>
-          </div>
-          <p class="employee-count">共 {{ employees.length }} 名员工</p>
         </div>
 
         <!-- Submit Button -->
@@ -381,6 +381,73 @@ const handleSubmit = () => {
   font-size: 13px;
   color: #64748b;
   margin: -8px 0 16px 0;
+}
+
+/* Survey Mode Options */
+.scope-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.radio-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radio-card input[type="radio"] {
+  display: none;
+}
+
+.radio-card:hover {
+  border-color: #cbd5e1;
+}
+
+.radio-card.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.radio-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radio-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.radio-desc {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.check-icon {
+  color: #2563eb;
+}
+
+/* Benchmark Entry (inline under survey mode) */
+.benchmark-entry {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.benchmark-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px 0;
 }
 
 /* Form Grid */

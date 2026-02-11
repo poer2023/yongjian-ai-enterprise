@@ -254,6 +254,17 @@
   color: white;
 }
 
+.action-btn.secondary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.action-btn.secondary:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
 /* Pagination and empty state use shared styles from pagination.css and search-filter.css */
 
 .clear-btn {

@@ -85,7 +85,7 @@ onUnmounted(() => {
 
 const handleSkip = () => {
   router.push({
-    name: 'bid-doc-result',
+    name: 'bid-doc-skeleton',
     query: route.query
   });
 };
@@ -123,10 +123,10 @@ const handleSkipToSkeleton = () => {
 
       <div class="action-bar">
         <button class="action-btn secondary" @click="handleSkipToSkeleton">
-          进入结果页（空）
+          逐章节生成
         </button>
         <button class="action-btn primary" @click="handleSkip">
-          进入结果页（完成）
+          一键生成
         </button>
       </div>
     </main>

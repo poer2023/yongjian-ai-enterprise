@@ -12,7 +12,7 @@ const tools = [
     icon: UserCheck,
     color: '#3b82f6',
     bgColor: '#eff6ff',
-    routeName: 'boss-recruit-form'
+    routeName: 'boss-recruit'
   },
   {
     id: 2,
