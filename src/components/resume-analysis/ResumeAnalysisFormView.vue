@@ -451,13 +451,18 @@ const handleSubmit = () => {
           </div>
 
           <div class="form-row">
-            <label class="form-label-sm">技能要求</label>
-            <input v-model="newJd.skills" type="text" class="form-input-sm" placeholder="多个技能用逗号分隔，如：Java, Spring Boot, MySQL" />
+            <label class="form-label-sm">岗位职责</label>
+            <textarea v-model="newJd.responsibilities" class="form-textarea-sm" placeholder="请输入岗位职责，如：负责核心业务系统开发与维护、参与架构设计..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label-sm">岗位要求</label>
+            <textarea v-model="newJd.requirements" class="form-textarea-sm" placeholder="请输入岗位要求，如：3年以上Java开发经验、熟悉Spring Boot框架..."></textarea>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div v-if="addMode === 'manual'" class="modal-footer">
         <button class="btn-cancel" @click="closeAddJdModal">取消</button>
         <button class="btn-confirm" @click="addJdToLibrary" :disabled="!newJd.jobName.trim()">
           添加到 JD 库
@@ -590,8 +595,13 @@ const handleSubmit = () => {
           </div>
 
           <div class="form-row">
-            <label class="form-label-sm">技能要求</label>
-            <input v-model="editJd.skills" type="text" class="form-input-sm" placeholder="多个技能用逗号分隔，如：Java, Spring Boot, MySQL" />
+            <label class="form-label-sm">岗位职责</label>
+            <textarea v-model="editJd.responsibilities" class="form-textarea-sm" placeholder="请输入岗位职责，如：负责核心业务系统开发与维护、参与架构设计..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label-sm">岗位要求</label>
+            <textarea v-model="editJd.requirements" class="form-textarea-sm" placeholder="请输入岗位要求，如：3年以上Java开发经验、熟悉Spring Boot框架..."></textarea>
           </div>
         </div>
       </div>

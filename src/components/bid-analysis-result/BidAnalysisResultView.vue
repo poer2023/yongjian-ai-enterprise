@@ -109,7 +109,7 @@ const getStatusClass = (status: string) => {
 
 const generateBidDoc = () => {
   router.push({
-    name: 'bid-doc-smart-form',
+    name: 'bid-doc-oneclick-form',
     query: { bidId: route.query.bidId, title: bidTitle },
   });
 };

@@ -50,7 +50,7 @@ const agents = [
     icon: FileText,
     color: '#10b981',
     bgColor: '#ecfdf5',
-    routeName: 'bid-doc-smart-form'
+    routeName: 'bid-doc-oneclick-form'
   }
 ];
 

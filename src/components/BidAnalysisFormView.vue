@@ -95,7 +95,7 @@ const templateTypes = [
 
 const recentTools = [
   { icon: FileSearch, label: '标讯解读', active: true, route: 'bid-analysis-form' },
-  { icon: FileText, label: 'AI标书生成', route: 'bid-doc-smart-form' },
+  { icon: FileText, label: 'AI标书生成', route: 'bid-doc-oneclick-form' },
   { icon: Bell, label: '标讯订阅', route: 'bid-subscription' },
 ];
 

@@ -69,7 +69,7 @@ const isLoading = ref(true);
 const loadError = ref('');
 
 const goBack = () => {
-  router.push({ name: 'bid-doc-smart-form' });
+  router.push({ name: 'bid-doc-oneclick-form' });
 };
 
 const selectOutline = (id: string) => {

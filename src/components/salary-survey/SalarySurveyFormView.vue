@@ -131,6 +131,7 @@ const handleSubmit = () => {
       basis: salaryBasis.value,
       type: salaryType.value,
       count: employees.value.length.toString(),
+      mode: surveyMode.value,
     },
   });
 };

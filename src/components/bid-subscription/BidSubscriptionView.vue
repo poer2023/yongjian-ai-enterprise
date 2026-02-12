@@ -70,7 +70,7 @@ const goToAnalysis = (id: number) => {
 };
 
 const goToDocGenerate = (id: number) => {
-  router.push({ name: 'bid-doc-smart-form', query: { bidId: id } });
+  router.push({ name: 'bid-doc-oneclick-form', query: { bidId: id } });
 };
 
 const goToFullReport = () => {

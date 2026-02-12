@@ -176,7 +176,7 @@ const goToAnalysis = () => {
 
 const goToDocGenerate = () => {
   if (selectedBidId.value) {
-    router.push({ name: 'bid-doc-smart-form', query: { bidId: selectedBidId.value } });
+    router.push({ name: 'bid-doc-oneclick-form', query: { bidId: selectedBidId.value } });
   }
 };
 

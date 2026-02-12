@@ -13,7 +13,7 @@ import {
   Clock,
   MapPin,
   Download,
-
+  BookPlus,
   FileText,
   FileSearch
 } from 'lucide-vue-next';
@@ -62,8 +62,8 @@ const handleDownload = () => {
   alert('报告PDF已下载');
 };
 
-const handleGenerateBidDoc = () => {
-  router.push({ name: 'bid-doc-smart-form' });
+const handleAddToKnowledgeBase = () => {
+  alert('已加入知识库');
 };
 
 const goToAnalysis = (id: number) => {
@@ -71,7 +71,7 @@ const goToAnalysis = (id: number) => {
 };
 
 const goToDocGenerate = (id: number) => {
-  router.push({ name: 'bid-doc-smart-form', query: { bidId: id } });
+  router.push({ name: 'bid-doc-oneclick-form', query: { bidId: id } });
 };
 </script>
 
@@ -90,9 +90,9 @@ const goToDocGenerate = (id: number) => {
           <Download :size="16" />
           导出
         </button>
-        <button class="action-btn primary" @click="handleGenerateBidDoc">
-          <FileText :size="16" />
-          生成标书
+        <button class="action-btn primary" @click="handleAddToKnowledgeBase">
+          <BookPlus :size="16" />
+          加入知识库
         </button>
       </div>
     </header>
@@ -120,50 +120,12 @@ const goToDocGenerate = (id: number) => {
                   <Target :size="20" class="section-icon green" />
                   重点关注项目
                 </h2>
-                <div class="projects-list">
-                  <div v-for="project in keyProjects" :key="project.id" class="project-card">
-                    <div class="project-content">
-                      <div class="project-header">
-                        <h3 class="project-title">{{ project.title }}</h3>
-                        <span class="match-badge" :class="{ high: project.matchScore >= 90 }">
-                          匹配度 {{ project.matchScore }}%
-                        </span>
-                      </div>
-                      <div class="project-meta">
-                        <span class="meta-item">
-                          <DollarSign :size="14" />
-                          {{ project.budget }}
-                        </span>
-                        <span class="meta-item">
-                          <Clock :size="14" />
-                          截止 {{ project.deadline }}
-                        </span>
-                        <span class="meta-item">
-                          <MapPin :size="14" />
-                          {{ project.region }}
-                        </span>
-                      </div>
-                      <div class="project-insight">
-                        <div class="insight-row highlight">
-                          <Lightbulb :size="14" />
-                          <span>{{ project.highlight }}</span>
-                        </div>
-                        <div class="insight-row suggestion">
-                          <CheckCircle2 :size="14" />
-                          <span>{{ project.suggestion }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="project-actions">
-                      <button class="project-action-btn secondary" @click="goToAnalysis(project.id)">
-                        <FileSearch :size="14" />
-                        标讯解读
-                      </button>
-                      <button class="project-action-btn primary" @click="goToDocGenerate(project.id)">
-                        <FileText :size="14" />
-                        生成标书
-                      </button>
-                    </div>
+                <div class="text-content">
+                  <div v-for="(project, idx) in keyProjects" :key="project.id" class="text-block">
+                    <p class="text-paragraph"><strong>{{ idx + 1 }}. {{ project.title }}</strong></p>
+                    <p class="text-paragraph text-secondary">预算 {{ project.budget }}，截止 {{ project.deadline }}，{{ project.region }}，匹配度 {{ project.matchScore }}%</p>
+                    <p class="text-paragraph text-highlight">{{ project.highlight }}</p>
+                    <p class="text-paragraph text-suggestion">{{ project.suggestion }}</p>
                   </div>
                 </div>
               </section>
@@ -192,41 +154,29 @@ const goToDocGenerate = (id: number) => {
                   <CheckCircle2 :size="20" class="section-icon green" />
                   {{ actionPlan.title }}
                 </h2>
-                <div class="action-list">
-                  <div
-                    v-for="(item, index) in actionPlan.items"
-                    :key="index"
-                    class="action-item"
-                    :class="item.priority"
-                  >
-                    <div class="action-priority">
-                      <span class="priority-tag" :class="item.priority">
-                        {{ item.priority === 'high' ? '高优先' : item.priority === 'medium' ? '中优先' : '低优先' }}
-                      </span>
-                    </div>
-                    <div class="action-content">
-                      <h4 class="action-title">{{ item.action }}</h4>
-                      <p class="action-reason">{{ item.reason }}</p>
-                      <p class="action-deadline">
-                        <Clock :size="12" />
-                        {{ item.deadline }}
-                      </p>
-                    </div>
+                <div class="text-content">
+                  <div v-for="(item, index) in actionPlan.items" :key="index" class="text-block">
+                    <p class="text-paragraph">
+                      <strong>{{ index + 1 }}. {{ item.action }}</strong>
+                      <span class="text-priority" :class="item.priority">{{ item.priority === 'high' ? '[高优先]' : item.priority === 'medium' ? '[中优先]' : '[低优先]' }}</span>
+                    </p>
+                    <p class="text-paragraph text-secondary">{{ item.reason }}</p>
+                    <p class="text-paragraph text-secondary">建议完成时间：{{ item.deadline }}</p>
                   </div>
                 </div>
               </section>
 
               <!-- Risk Warning -->
-              <section class="report-section warning">
+              <section class="report-section">
                 <h2 class="section-title">
                   <AlertCircle :size="20" class="section-icon red" />
                   {{ riskWarning.title }}
                 </h2>
-                <ul class="warning-list">
-                  <li v-for="(item, index) in riskWarning.items" :key="index">
-                    {{ item }}
-                  </li>
-                </ul>
+                <div class="text-content">
+                  <p v-for="(item, index) in riskWarning.items" :key="index" class="text-paragraph">
+                    {{ index + 1 }}. {{ item }}
+                  </p>
+                </div>
               </section>
             </article>
 
@@ -452,239 +402,83 @@ const goToDocGenerate = (id: number) => {
   color: #1e293b;
 }
 
-.projects-list {
+/* ===== Text Content (pure text style) ===== */
+.text-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.project-card {
-  display: flex;
-  align-items: stretch;
   gap: 20px;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
 }
 
-.project-content {
-  flex: 1;
-  min-width: 0;
+.text-block {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.project-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-  justify-content: center;
-}
-
-.project-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.project-action-btn.secondary {
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-}
-
-.project-action-btn.secondary:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.project-action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  color: white;
-}
-
-.project-action-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.project-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.project-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.match-badge {
-  flex-shrink: 0;
-  padding: 4px 10px;
-  background: #dbeafe;
-  color: #3b82f6;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-.match-badge.high {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.project-meta {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 14px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.project-insight {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.insight-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.insight-row.highlight {
-  color: #d97706;
-}
-
-.insight-row.suggestion {
-  color: #16a34a;
-}
-
-.action-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.action-item {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 10px;
-  border-left: 4px solid #e2e8f0;
-}
-
-.action-item.high {
-  border-left-color: #ef4444;
-  background: #fef2f2;
-}
-
-.action-item.medium {
-  border-left-color: #f59e0b;
-  background: #fffbeb;
-}
-
-.action-item.low {
-  border-left-color: #6b7280;
-}
-
-.priority-tag {
-  display: inline-block;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-.priority-tag.high {
-  background: #fecaca;
-  color: #dc2626;
-}
-
-.priority-tag.medium {
-  background: #fde68a;
-  color: #d97706;
-}
-
-.priority-tag.low {
-  background: #e5e7eb;
-  color: #6b7280;
-}
-
-.action-content {
-  flex: 1;
-}
-
-.action-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 6px 0;
-}
-
-.action-reason {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0 0 8px 0;
-}
-
-.action-deadline {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #94a3b8;
-  margin: 0;
-}
-
-.report-section.warning {
-  background: #fef2f2;
-  border-radius: 12px;
-  padding: 24px;
-  margin-left: -24px;
-  margin-right: -24px;
+.text-block:last-child {
+  padding-bottom: 0;
   border-bottom: none;
 }
 
-.warning-list {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.warning-list li {
-  font-size: 14px;
-  color: #991b1b;
+.text-paragraph {
+  font-size: 15px;
+  color: #334155;
   line-height: 1.8;
-  margin-bottom: 8px;
+  margin: 0 0 4px 0;
 }
 
-.warning-list li:last-child {
-  margin-bottom: 0;
+.text-paragraph strong {
+  color: #1e293b;
+}
+
+.text-paragraph.text-secondary {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.text-paragraph.text-highlight {
+  color: #d97706;
+  font-size: 14px;
+}
+
+.text-paragraph.text-suggestion {
+  color: #16a34a;
+  font-size: 14px;
+}
+
+.text-priority {
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.text-priority.high { color: #dc2626; }
+.text-priority.medium { color: #d97706; }
+.text-priority.low { color: #6b7280; }
+
+.text-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.text-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.text-action-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #2563eb;
 }
 
 .report-footer {

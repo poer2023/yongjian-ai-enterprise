@@ -6,36 +6,49 @@ import {
   BookPlus,
   FileSpreadsheet,
   Users,
-  Briefcase
+  Briefcase,
+  MapPin,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  BarChart3
 } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
+
+// Read query params from form submission
+const jobName = computed(() => (route.query.jobName as string) || 'Java开发工程师');
+const category = computed(() => (route.query.category as string) || 'tech');
+const location = computed(() => (route.query.location as string) || '上海');
+const regions = computed(() => {
+  const r = route.query.regions as string;
+  return r ? r.split(',') : [];
+});
+const mode = computed(() => (route.query.mode as string) || 'external_only');
+const employeeCount = computed(() => parseInt((route.query.count as string) || '0'));
+
+const categoryLabels: Record<string, string> = {
+  tech: '技术研发',
+  product: '产品设计',
+  market: '市场营销',
+  finance: '财务金融',
+  hr: '人力资源',
+  ops: '运营管理',
+};
+
+const categoryLabel = computed(() => categoryLabels[category.value] || category.value);
+const isBenchmarkMode = computed(() => mode.value === 'benchmark');
+const scopeLabel = computed(() => {
+  if (regions.value.length === 0) return '全国';
+  return regions.value.join('、');
+});
 
 // Tab management
 const activeTab = ref<'survey' | 'benchmark'>('survey');
 
-// Job selection with more details
-const jobs = ref([
-  { id: 1, name: 'Java开发工程师', level: '中级', avgP50: 25, employeeCount: 12 },
-  { id: 2, name: '前端开发工程师', level: '中级', avgP50: 23, employeeCount: 8 },
-  { id: 3, name: '产品经理', level: '高级', avgP50: 28, employeeCount: 5 },
-  { id: 4, name: '项目经理', level: '高级', avgP50: 30, employeeCount: 4 },
-  { id: 5, name: '测试工程师', level: '中级', avgP50: 18, employeeCount: 6 },
-  { id: 6, name: 'UI设计师', level: '中级', avgP50: 20, employeeCount: 3 },
-  { id: 7, name: '运维工程师', level: '中级', avgP50: 22, employeeCount: 4 },
-  { id: 8, name: '数据分析师', level: '高级', avgP50: 26, employeeCount: 3 },
-]);
-
-const activeJobId = ref(1);
-
-const activeJob = computed(() => jobs.value.find(j => j.id === activeJobId.value));
-
-const selectJob = (id: number) => {
-  activeJobId.value = id;
-};
-
-// Salary survey data - 32 regions with salary ranges by experience years
+// Salary survey data - region × experience matrix
 const salaryData = ref([
   { region: '北京', y1_3: '15K-22K', y3_5: '22K-32K', y5_10: '32K-45K', y10plus: '45K-65K', samples: 1200, source: 'Boss直聘/猎聘' },
   { region: '上海', y1_3: '14K-20K', y3_5: '20K-30K', y5_10: '30K-42K', y10plus: '42K-60K', samples: 980, source: 'Boss直聘/猎聘' },
@@ -71,19 +84,33 @@ const salaryData = ref([
   { region: '宁夏-银川', y1_3: '4K-7K', y3_5: '7K-10K', y5_10: '10K-14K', y10plus: '14K-20K', samples: 35, source: 'Boss直聘/猎聘' },
 ]);
 
-// Employee benchmark data with salary range
-const benchmarkData = ref([
-  { employee: '张三', level: '初级', region: '上海', current: 12, marketRange: '14K-20K', tag: 'low' },
-  { employee: '李四', level: '中级', region: '上海', current: 22, marketRange: '20K-30K', tag: 'normal' },
-  { employee: '王五', level: '高级', region: '上海', current: 35, marketRange: '30K-42K', tag: 'high' },
-  { employee: '赵六', level: '初级', region: '北京', current: 15, marketRange: '15K-22K', tag: 'low' },
-  { employee: '钱七', level: '中级', region: '北京', current: 26, marketRange: '22K-32K', tag: 'normal' },
-  { employee: '孙八', level: '高级', region: '深圳', current: 38, marketRange: '28K-40K', tag: 'high' },
-  { employee: '周九', level: '中级', region: '杭州', current: 18, marketRange: '18K-26K', tag: 'low' },
-  { employee: '吴十', level: '初级', region: '成都', current: 11, marketRange: '9K-14K', tag: 'normal' },
+// Employee benchmark data with percentile positioning
+interface BenchmarkEmployee {
+  name: string;
+  tenure: string;
+  tenureLabel: string;
+  region: string;
+  currentSalary: number;
+  marketP25: number;
+  marketP50: number;
+  marketP75: number;
+  percentile: number;
+  tag: 'high' | 'normal' | 'low';
+  adjustSuggestion: number;
+}
+
+const benchmarkData = ref<BenchmarkEmployee[]>([
+  { name: '张三', tenure: '1-3', tenureLabel: '1~3年', region: '上海', currentSalary: 12, marketP25: 14, marketP50: 17, marketP75: 20, percentile: 15, tag: 'low', adjustSuggestion: 5 },
+  { name: '李四', tenure: '3-5', tenureLabel: '3~5年', region: '上海', currentSalary: 25, marketP25: 20, marketP50: 25, marketP75: 30, percentile: 50, tag: 'normal', adjustSuggestion: 0 },
+  { name: '王五', tenure: '5-10', tenureLabel: '5~10年', region: '上海', currentSalary: 38, marketP25: 30, marketP50: 36, marketP75: 42, percentile: 62, tag: 'normal', adjustSuggestion: 0 },
+  { name: '赵六', tenure: '1-3', tenureLabel: '1~3年', region: '北京', currentSalary: 13, marketP25: 15, marketP50: 18.5, marketP75: 22, percentile: 12, tag: 'low', adjustSuggestion: 5.5 },
+  { name: '钱七', tenure: '3-5', tenureLabel: '3~5年', region: '北京', currentSalary: 28, marketP25: 22, marketP50: 27, marketP75: 32, percentile: 55, tag: 'normal', adjustSuggestion: 0 },
+  { name: '孙八', tenure: '5-10', tenureLabel: '5~10年', region: '深圳', currentSalary: 42, marketP25: 28, marketP50: 34, marketP75: 40, percentile: 82, tag: 'high', adjustSuggestion: 0 },
+  { name: '周九', tenure: '3-5', tenureLabel: '3~5年', region: '杭州', currentSalary: 16, marketP25: 18, marketP50: 22, marketP75: 26, percentile: 18, tag: 'low', adjustSuggestion: 6 },
+  { name: '吴十', tenure: '1-3', tenureLabel: '1~3年', region: '成都', currentSalary: 11, marketP25: 9, marketP50: 11.5, marketP75: 14, percentile: 45, tag: 'normal', adjustSuggestion: 0 },
 ]);
 
-// Filter state for benchmark cards
+// Filter state
 const benchmarkFilter = ref<'all' | 'high' | 'normal' | 'low'>('all');
 
 // Statistics
@@ -93,24 +120,22 @@ const benchmarkStats = computed(() => {
   const high = benchmarkData.value.filter(b => b.tag === 'high').length;
   const normal = benchmarkData.value.filter(b => b.tag === 'normal').length;
   const low = benchmarkData.value.filter(b => b.tag === 'low').length;
-  return { high, normal, low, total: benchmarkData.value.length };
+  const total = benchmarkData.value.length;
+  const avgPercentile = Math.round(benchmarkData.value.reduce((sum, b) => sum + b.percentile, 0) / total);
+  const needAdjust = benchmarkData.value.filter(b => b.adjustSuggestion > 0).length;
+  const totalAdjustCost = benchmarkData.value.reduce((sum, b) => sum + b.adjustSuggestion, 0);
+  return { high, normal, low, total, avgPercentile, needAdjust, totalAdjustCost };
 });
 
-// Filtered benchmark data based on selected card
 const filteredBenchmarkData = computed(() => {
-  if (benchmarkFilter.value === 'all') {
-    return benchmarkData.value;
-  }
+  if (benchmarkFilter.value === 'all') return benchmarkData.value;
   return benchmarkData.value.filter(b => b.tag === benchmarkFilter.value);
 });
 
-// Toggle filter when clicking on cards
+const belowP25Employees = computed(() => benchmarkData.value.filter(b => b.percentile < 25));
+
 const toggleBenchmarkFilter = (filter: 'high' | 'normal' | 'low') => {
-  if (benchmarkFilter.value === filter) {
-    benchmarkFilter.value = 'all';
-  } else {
-    benchmarkFilter.value = filter;
-  }
+  benchmarkFilter.value = benchmarkFilter.value === filter ? 'all' : filter;
 };
 
 const goBack = () => {
@@ -129,8 +154,27 @@ const getTagText = (tag: string) => {
   switch (tag) {
     case 'high': return '高于市场';
     case 'low': return '低于市场';
-    default: return '正常';
+    default: return '市场水平';
   }
+};
+
+// Percentile bar positioning helpers
+const getMarkerLeft = (emp: BenchmarkEmployee) => {
+  return `${Math.max(2, Math.min(98, emp.percentile))}%`;
+};
+
+const getRangeLeft = (emp: BenchmarkEmployee) => {
+  const total = emp.marketP75 + (emp.marketP75 - emp.marketP25) * 0.5;
+  const base = emp.marketP25 - (emp.marketP75 - emp.marketP25) * 0.5;
+  const range = total - base;
+  return `${((emp.marketP25 - base) / range) * 100}%`;
+};
+
+const getRangeWidth = (emp: BenchmarkEmployee) => {
+  const total = emp.marketP75 + (emp.marketP75 - emp.marketP25) * 0.5;
+  const base = emp.marketP25 - (emp.marketP75 - emp.marketP25) * 0.5;
+  const range = total - base;
+  return `${((emp.marketP75 - emp.marketP25) / range) * 100}%`;
 };
 
 const handleExport = () => {
@@ -152,10 +196,8 @@ const handleAddToKnowledge = () => {
           <span>返回</span>
         </button>
         <h1 class="page-title">岗位薪酬调查报告</h1>
-        <span class="job-count">{{ jobs.length }} 个岗位</span>
       </div>
       <div class="header-center">
-        <!-- Tab Switcher -->
         <div class="tab-switcher">
           <button
             class="tab-btn"
@@ -166,6 +208,7 @@ const handleAddToKnowledge = () => {
             薪酬调查表
           </button>
           <button
+            v-if="isBenchmarkMode"
             class="tab-btn"
             :class="{ active: activeTab === 'benchmark' }"
             @click="activeTab = 'benchmark'"
@@ -187,41 +230,49 @@ const handleAddToKnowledge = () => {
       </div>
     </header>
 
+    <!-- Job Context Bar -->
+    <div class="job-context-bar">
+      <div class="context-item">
+        <Briefcase :size="14" class="context-icon" />
+        <span class="context-label">调查岗位</span>
+        <span class="context-value">{{ jobName }}</span>
+      </div>
+      <div class="context-divider"></div>
+      <div class="context-item">
+        <span class="context-label">岗位类别</span>
+        <span class="context-value">{{ categoryLabel }}</span>
+      </div>
+      <div class="context-divider"></div>
+      <div class="context-item">
+        <MapPin :size="14" class="context-icon" />
+        <span class="context-label">工作地点</span>
+        <span class="context-value">{{ location }}</span>
+      </div>
+      <div class="context-divider"></div>
+      <div class="context-item">
+        <span class="context-label">采集范围</span>
+        <span class="context-value">{{ scopeLabel }}</span>
+      </div>
+      <div class="context-divider"></div>
+      <div class="context-item">
+        <span class="context-label">调查模式</span>
+        <span class="mode-tag" :class="isBenchmarkMode ? 'mode-benchmark' : 'mode-external'">
+          {{ isBenchmarkMode ? '内外对标' : '仅外部调查' }}
+        </span>
+      </div>
+      <div class="context-divider"></div>
+      <div class="context-item">
+        <BarChart3 :size="14" class="context-icon" />
+        <span class="context-label">样本总量</span>
+        <span class="context-value highlight">{{ totalSamples.toLocaleString() }}</span>
+      </div>
+    </div>
+
     <!-- Body -->
     <div class="page-body">
-      <!-- Left Sidebar - Job List -->
-      <aside class="job-sidebar">
-        <div class="sidebar-header">
-          <Briefcase :size="16" />
-          <span>岗位列表</span>
-        </div>
-        <div class="job-list">
-          <div
-            v-for="job in jobs"
-            :key="job.id"
-            class="job-item"
-            :class="{ active: activeJobId === job.id }"
-            @click="selectJob(job.id)"
-          >
-            <div class="job-icon">
-              <FileSpreadsheet :size="16" />
-            </div>
-            <div class="job-info">
-              <span class="job-name">{{ job.name }}</span>
-              <span class="job-meta">
-                <span class="job-level">{{ job.level }}</span>
-                <span class="job-salary">P50: {{ job.avgP50 }}K</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Main Content -->
       <main class="main-content">
         <!-- Survey Table Tab -->
         <div v-if="activeTab === 'survey'" class="survey-tab">
-          <!-- Excel-style Table -->
           <div class="table-container">
             <table class="salary-table">
               <thead>
@@ -249,7 +300,6 @@ const handleAddToKnowledge = () => {
             </table>
           </div>
 
-          <!-- Table Note -->
           <div class="table-note">
             <p>说明：薪资数据为税前月薪区间，按工作年限分段统计。数据来源于主流招聘平台，每月更新，仅供参考。</p>
           </div>
@@ -257,65 +307,135 @@ const handleAddToKnowledge = () => {
 
         <!-- Benchmark Tab -->
         <div v-if="activeTab === 'benchmark'" class="benchmark-tab">
-          <!-- Summary Cards with filter -->
+          <!-- A. Summary Cards (4 columns) -->
           <div class="summary-cards">
             <div
               class="summary-card high"
               :class="{ selected: benchmarkFilter === 'high' }"
               @click="toggleBenchmarkFilter('high')"
             >
-              <div class="card-value">{{ benchmarkStats.high }}</div>
-              <div class="card-label">高于市场</div>
-              <div class="card-percent">{{ ((benchmarkStats.high / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              <div class="card-icon-wrap high-bg">
+                <TrendingUp :size="20" />
+              </div>
+              <div class="card-body">
+                <div class="card-value">{{ benchmarkStats.high }}</div>
+                <div class="card-label">高于市场</div>
+                <div class="card-percent">{{ ((benchmarkStats.high / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              </div>
             </div>
             <div
               class="summary-card normal"
               :class="{ selected: benchmarkFilter === 'normal' }"
               @click="toggleBenchmarkFilter('normal')"
             >
-              <div class="card-value">{{ benchmarkStats.normal }}</div>
-              <div class="card-label">正常</div>
-              <div class="card-percent">{{ ((benchmarkStats.normal / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              <div class="card-icon-wrap normal-bg">
+                <BarChart3 :size="20" />
+              </div>
+              <div class="card-body">
+                <div class="card-value">{{ benchmarkStats.normal }}</div>
+                <div class="card-label">市场水平</div>
+                <div class="card-percent">{{ ((benchmarkStats.normal / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              </div>
             </div>
             <div
               class="summary-card low"
               :class="{ selected: benchmarkFilter === 'low' }"
               @click="toggleBenchmarkFilter('low')"
             >
-              <div class="card-value">{{ benchmarkStats.low }}</div>
-              <div class="card-label">低于市场</div>
-              <div class="card-percent">{{ ((benchmarkStats.low / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              <div class="card-icon-wrap low-bg">
+                <TrendingDown :size="20" />
+              </div>
+              <div class="card-body">
+                <div class="card-value">{{ benchmarkStats.low }}</div>
+                <div class="card-label">低于市场</div>
+                <div class="card-percent">{{ ((benchmarkStats.low / benchmarkStats.total) * 100).toFixed(0) }}%</div>
+              </div>
+            </div>
+            <div class="summary-card overview">
+              <div class="card-icon-wrap overview-bg">
+                <Users :size="20" />
+              </div>
+              <div class="card-body">
+                <div class="card-value overview-value">P{{ benchmarkStats.avgPercentile }}</div>
+                <div class="card-label">团队平均分位</div>
+                <div class="card-detail">
+                  <span>需调薪 <strong>{{ benchmarkStats.needAdjust }}</strong> 人</span>
+                  <span class="detail-sep">|</span>
+                  <span>月增 <strong>{{ benchmarkStats.totalAdjustCost.toFixed(1) }}K</strong></span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Benchmark Table -->
+          <!-- B. Benchmark Detail Table -->
           <div class="table-container">
             <table class="benchmark-table">
               <thead>
                 <tr>
-                  <th>员工</th>
-                  <th>级别</th>
-                  <th>所在地区</th>
-                  <th>当前薪资</th>
-                  <th>市场区间</th>
-                  <th>评估</th>
+                  <th class="col-employee">员工</th>
+                  <th class="col-tenure">工龄段</th>
+                  <th class="col-region">地区</th>
+                  <th class="col-salary">当前薪资</th>
+                  <th class="col-p25">P25</th>
+                  <th class="col-p50">P50</th>
+                  <th class="col-p75">P75</th>
+                  <th class="col-position">市场定位</th>
+                  <th class="col-tag">评估</th>
+                  <th class="col-adjust">建议调整</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in filteredBenchmarkData" :key="row.employee">
-                  <td class="employee-name">{{ row.employee }}</td>
-                  <td>{{ row.level }}</td>
-                  <td>{{ row.region }}</td>
-                  <td>{{ row.current }}K</td>
-                  <td>{{ row.marketRange }}</td>
-                  <td>
+                <tr v-for="row in filteredBenchmarkData" :key="row.name">
+                  <td class="col-employee">{{ row.name }}</td>
+                  <td class="col-tenure">{{ row.tenureLabel }}</td>
+                  <td class="col-region">{{ row.region }}</td>
+                  <td class="col-salary">{{ row.currentSalary }}K</td>
+                  <td class="col-p25">{{ row.marketP25 }}K</td>
+                  <td class="col-p50">{{ row.marketP50 }}K</td>
+                  <td class="col-p75">{{ row.marketP75 }}K</td>
+                  <td class="col-position">
+                    <div class="percentile-bar">
+                      <div class="percentile-track">
+                        <div
+                          class="percentile-range"
+                          :style="{ left: getRangeLeft(row), width: getRangeWidth(row) }"
+                        ></div>
+                        <div
+                          class="percentile-marker"
+                          :class="'marker-' + row.tag"
+                          :style="{ left: getMarkerLeft(row) }"
+                        >
+                          <span class="marker-label">P{{ row.percentile }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="col-tag">
                     <span class="status-tag" :class="getTagClass(row.tag)">
                       {{ getTagText(row.tag) }}
                     </span>
                   </td>
+                  <td class="col-adjust">
+                    <span v-if="row.adjustSuggestion > 0" class="adjust-value">+{{ row.adjustSuggestion }}K</span>
+                    <span v-else class="adjust-none">--</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- C. Risk Alert -->
+          <div v-if="belowP25Employees.length > 0" class="risk-alert">
+            <AlertTriangle :size="18" class="risk-icon" />
+            <div class="risk-content">
+              <strong>薪酬风险提示</strong>
+              <p>
+                {{ belowP25Employees.length }} 名员工薪资低于市场 P25 分位，
+                占比 {{ ((belowP25Employees.length / benchmarkStats.total) * 100).toFixed(0) }}%，
+                存在人才流失风险。建议调薪预计月增成本
+                {{ belowP25Employees.reduce((s, e) => s + e.adjustSuggestion, 0).toFixed(1) }}K。
+              </p>
+            </div>
           </div>
         </div>
       </main>
@@ -373,15 +493,6 @@ const handleAddToKnowledge = () => {
   font-weight: 600;
   color: #1e293b;
   margin: 0;
-}
-
-.job-count {
-  padding: 4px 10px;
-  background: #dbeafe;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #3b82f6;
-  font-weight: 500;
 }
 
 .header-center {
@@ -461,113 +572,74 @@ const handleAddToKnowledge = () => {
   border-color: #cbd5e1;
 }
 
+/* Job Context Bar */
+.job-context-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.context-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.context-icon {
+  color: #94a3b8;
+}
+
+.context-label {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.context-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.context-value.highlight {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.context-divider {
+  width: 1px;
+  height: 16px;
+  background: #e2e8f0;
+}
+
+.mode-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.mode-external {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.mode-benchmark {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
 /* Page Body */
 .page-body {
   flex: 1;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
-}
-
-/* Job Sidebar */
-.job-sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.job-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-}
-
-.job-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 4px;
-}
-
-.job-item:hover {
-  background: #f8fafc;
-}
-
-.job-item.active {
-  background: #eff6ff;
-}
-
-.job-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.job-item.active .job-icon {
-  background: #3b82f6;
-  color: white;
-}
-
-.job-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.job-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1e293b;
-  line-height: 1.4;
-}
-
-.job-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-}
-
-.job-level {
-  padding: 2px 6px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  color: #64748b;
-}
-
-.job-item.active .job-level {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.job-salary {
-  color: #16a34a;
-  font-weight: 500;
 }
 
 /* Main Content */
@@ -575,39 +647,6 @@ const handleAddToKnowledge = () => {
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
-}
-
-/* Stats Bar */
-.stats-bar {
-  display: flex;
-  gap: 24px;
-  padding: 16px 20px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  margin-bottom: 16px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.stat-value.highlight {
-  color: #2563eb;
-  font-size: 16px;
 }
 
 /* Table Container */
@@ -618,7 +657,7 @@ const handleAddToKnowledge = () => {
   overflow: hidden;
 }
 
-/* Salary Table - Excel Style */
+/* Salary Table */
 .salary-table {
   width: 100%;
   border-collapse: collapse;
@@ -663,16 +702,6 @@ const handleAddToKnowledge = () => {
   color: #334155;
 }
 
-.data-col.highlight-col {
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 600;
-}
-
-.salary-table th.highlight-col {
-  background: #dbeafe;
-}
-
 .data-col.samples {
   color: #64748b;
   font-size: 13px;
@@ -698,20 +727,22 @@ const handleAddToKnowledge = () => {
   line-height: 1.5;
 }
 
-/* Summary Cards */
+/* Summary Cards - 4 columns */
 .summary-cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 20px;
 }
 
 .summary-card {
-  flex: 1;
-  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
   background: white;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
-  text-align: center;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -726,17 +757,78 @@ const handleAddToKnowledge = () => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
+.summary-card.overview {
+  cursor: default;
+}
+
+.summary-card.overview:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.card-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.high-bg {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.normal-bg {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.low-bg {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.overview-bg {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
 .summary-card .card-value {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 700;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.summary-card.high .card-value {
+  color: #22c55e;
+}
+
+.summary-card.normal .card-value {
+  color: #f59e0b;
+}
+
+.summary-card.low .card-value {
+  color: #ef4444;
+}
+
+.summary-card .card-value.overview-value {
+  color: #2563eb;
+  font-size: 24px;
 }
 
 .summary-card .card-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748b;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .summary-card .card-percent {
@@ -744,52 +836,43 @@ const handleAddToKnowledge = () => {
   font-weight: 500;
 }
 
-.summary-card.high {
-  border-left: 4px solid #22c55e;
-}
-
-.summary-card.high .card-value {
-  color: #22c55e;
-}
-
 .summary-card.high .card-percent {
   color: #16a34a;
-}
-
-.summary-card.normal {
-  border-left: 4px solid #f59e0b;
-}
-
-.summary-card.normal .card-value {
-  color: #f59e0b;
 }
 
 .summary-card.normal .card-percent {
   color: #d97706;
 }
 
-.summary-card.low {
-  border-left: 4px solid #ef4444;
-}
-
-.summary-card.low .card-value {
-  color: #ef4444;
-}
-
 .summary-card.low .card-percent {
   color: #dc2626;
 }
 
-/* Benchmark Table */
+.card-detail {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.card-detail strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.detail-sep {
+  margin: 0 6px;
+  color: #cbd5e1;
+}
+
+/* Benchmark Table - 10 columns */
 .benchmark-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .benchmark-table th,
 .benchmark-table td {
-  padding: 14px 16px;
+  padding: 12px 10px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -798,7 +881,8 @@ const handleAddToKnowledge = () => {
   background: #f8fafc;
   color: #475569;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .benchmark-table tbody tr:hover {
@@ -809,26 +893,105 @@ const handleAddToKnowledge = () => {
   border-bottom: none;
 }
 
-.employee-name {
+.col-employee {
+  width: 8%;
   font-weight: 500;
   color: #1e293b;
 }
 
-.positive {
-  color: #16a34a;
-  font-weight: 500;
+.col-tenure {
+  width: 8%;
+  color: #64748b;
 }
 
-.negative {
-  color: #dc2626;
-  font-weight: 500;
+.col-region {
+  width: 7%;
 }
 
-.neutral {
-  color: #d97706;
-  font-weight: 500;
+.col-salary {
+  width: 9%;
+  font-weight: 600;
+  color: #1e293b;
 }
 
+.col-p25,
+.col-p50,
+.col-p75 {
+  width: 7%;
+  color: #64748b;
+  text-align: center;
+}
+
+.col-position {
+  width: 22%;
+}
+
+.col-tag {
+  width: 10%;
+}
+
+.col-adjust {
+  width: 10%;
+  text-align: center;
+}
+
+/* Percentile Bar */
+.percentile-bar {
+  padding: 4px 0;
+}
+
+.percentile-track {
+  position: relative;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.percentile-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #dbeafe;
+  border-radius: 4px;
+}
+
+.percentile-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.marker-high {
+  background: #22c55e;
+}
+
+.marker-normal {
+  background: #f59e0b;
+}
+
+.marker-low {
+  background: #ef4444;
+}
+
+.marker-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+/* Status Tags */
 .status-tag {
   display: inline-block;
   padding: 4px 10px;
@@ -852,169 +1015,58 @@ const handleAddToKnowledge = () => {
   color: #d97706;
 }
 
-/* Analysis Section */
-.analysis-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.analysis-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.analysis-card .card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 20px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.analysis-card .card-header h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.risk-card .card-header {
+/* Adjust Suggestion */
+.adjust-value {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #fef2f2;
   color: #dc2626;
-}
-
-.suggestion-card .card-header {
-  color: #f59e0b;
-}
-
-.analysis-card .card-content {
-  padding: 16px 20px;
-}
-
-/* Risk Items */
-.risk-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.risk-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.risk-badge {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.risk-item.risk-high .risk-badge {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.risk-item.risk-low .risk-badge {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.risk-text strong {
-  display: block;
-  font-size: 14px;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.risk-text p {
-  margin: 0;
   font-size: 13px;
-  color: #64748b;
+  font-weight: 600;
 }
 
-/* Suggestion Items */
-.suggestion-item {
+.adjust-none {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+/* Risk Alert */
+.risk-alert {
   display: flex;
+  align-items: flex-start;
   gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
 }
 
-.suggestion-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.suggestion-item .priority {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #2563eb;
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: 600;
+.risk-icon {
+  color: #dc2626;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.suggestion-text strong {
+.risk-content strong {
   display: block;
   font-size: 14px;
-  color: #1e293b;
+  color: #991b1b;
   margin-bottom: 4px;
 }
 
-.suggestion-text p {
+.risk-content p {
   margin: 0;
   font-size: 13px;
-  color: #64748b;
-}
-
-/* Scrollbar */
-.job-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.job-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.job-list::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 3px;
-}
-
-.job-list::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  color: #b91c1c;
+  line-height: 1.5;
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .stats-bar {
-    flex-wrap: wrap;
-  }
-
-  .analysis-section {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 1024px) {
-  .job-sidebar {
-    width: 240px;
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1030,31 +1082,18 @@ const handleAddToKnowledge = () => {
     width: 100%;
   }
 
-  .page-body {
+  .job-context-bar {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .job-sidebar {
-    width: 100%;
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .job-list {
-    display: flex;
-    overflow-x: auto;
-    padding: 8px 12px;
-  }
-
-  .job-item {
-    flex-shrink: 0;
-    margin-bottom: 0;
-    margin-right: 8px;
+  .context-divider {
+    display: none;
   }
 
   .summary-cards {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
 </style>

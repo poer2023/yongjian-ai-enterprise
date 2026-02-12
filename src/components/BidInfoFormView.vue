@@ -93,7 +93,7 @@ const methodOptions = [
 const templateTypes = [
   { icon: Bell, label: '标讯订阅', active: true, routeName: 'bid-info-form' },
   { icon: FileSearch, label: '标讯解读', routeName: 'bid-analysis-form' },
-  { icon: FileText, label: 'AI标书生成', routeName: 'bid-doc-smart-form' },
+  { icon: FileText, label: 'AI标书生成', routeName: 'bid-doc-oneclick-form' },
 ];
 
 const features = [
