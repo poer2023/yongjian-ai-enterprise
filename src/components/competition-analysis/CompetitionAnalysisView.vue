@@ -14,6 +14,7 @@ import {
   FileText,
   Search,
   AlertCircle,
+  MessageSquare,
 } from 'lucide-vue-next';
 import { TemplateSidebar, InfoSidebar, FormPageLayout, RegionSelector, ChecklistSelector } from '../shared';
 import {
@@ -171,6 +172,10 @@ const addBnFromSearch = (item: { id: string; name: string; desc: string }) => {
 const strategies = ref<AnalysisStrategy[]>([...defaultStrategies]);
 const activeStrategyId = ref('');
 const isStrategyCollapsed = ref(true);
+
+// Additional info
+const additionalInfo = ref('');
+const maxLength = 2000;
 
 // Computed
 const currentIndustry = computed(() => {
@@ -431,6 +436,30 @@ const handleSubmit = () => {
           :items="allBidNotices"
           v-model="selectedBidNoticeIds"
         />
+      </div>
+    </div>
+
+    <!-- Section 5: 补充说明 -->
+    <div class="section-card">
+      <div class="card-header">
+        <div class="header-left">
+          <MessageSquare :size="18" class="header-icon" />
+          <span class="header-title">补充说明</span>
+          <span class="optional-tag">选填</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom: 0;">
+          <div class="textarea-wrapper">
+            <textarea
+              v-model="additionalInfo"
+              class="form-textarea"
+              :maxlength="maxLength"
+              placeholder="请输入需要重点分析的内容，如：近期重点项目、特定竞争对手的优劣势、需关注的市场动向等..."
+            ></textarea>
+            <span class="char-count">{{ additionalInfo.length }} / {{ maxLength }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
