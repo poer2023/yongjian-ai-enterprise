@@ -43,6 +43,7 @@ const router = useRouter();
 
 // Form data
 const uploadedFile = ref<File | null>(null);
+const uploadedTemplate = ref<File | null>(null);
 const showEnterpriseDropdown = ref(false);
 const enterprises = ref<Enterprise[]>(defaultEnterprises);
 const selectedEnterprise = ref<Enterprise | null>(enterprises.value[0] ?? null);
@@ -96,6 +97,18 @@ const handleFileUpload = (event: Event) => {
     uploadedFile.value = target.files[0] ?? null;
     target.value = '';
   }
+};
+
+const handleTemplateUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    uploadedTemplate.value = target.files[0] ?? null;
+    target.value = '';
+  }
+};
+
+const removeTemplate = () => {
+  uploadedTemplate.value = null;
 };
 
 const removeFile = () => {
@@ -368,25 +381,26 @@ const getRiskLevelText = (level: string) => {
               </div>
             </div>
 
-            <!-- 素材库模板匹配 -->
+            <!-- 上传项目模板 -->
             <div v-if="outlineMode === 'template'" class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">匹配到的项目模板</label>
-              <div class="template-list">
-                <div
-                  v-for="tpl in matchedTemplates"
-                  :key="tpl.id"
-                  class="template-item"
-                  :class="{ selected: selectedTemplateId === tpl.id }"
-                  @click="selectedTemplateId = tpl.id; pageCount = tpl.pages; aiRecommendedPages = tpl.pages;"
-                >
-                  <div class="template-radio">
-                    <Check v-if="selectedTemplateId === tpl.id" :size="12" />
+              <label v-if="!uploadedTemplate" class="upload-area">
+                <input type="file" @change="handleTemplateUpload" accept=".pdf,.doc,.docx" hidden />
+                <Upload :size="32" />
+                <div class="upload-text">
+                  <span class="upload-main">点击上传模板文件</span>
+                  <span class="upload-hint">支持 PDF、Word 格式</span>
+                </div>
+              </label>
+              <div v-else class="uploaded-file-card">
+                <div class="file-info">
+                  <FileText :size="24" class="file-icon" />
+                  <div class="file-details">
+                    <span class="file-name">{{ uploadedTemplate.name }}</span>
+                    <span class="file-size">{{ (uploadedTemplate.size / 1024 / 1024).toFixed(2) }} MB</span>
                   </div>
-                  <div class="template-info">
-                    <span class="template-name">{{ tpl.name }}</span>
-                    <span class="template-meta">来源：{{ tpl.projectName }} · {{ tpl.pages }}页</span>
-                  </div>
-                  <span class="template-score">匹配度 {{ tpl.matchScore }}%</span>
+                </div>
+                <div class="file-actions">
+                  <button class="remove-file-btn" @click="removeTemplate"><X :size="18" /></button>
                 </div>
               </div>
             </div>

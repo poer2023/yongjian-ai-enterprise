@@ -100,7 +100,7 @@ export const warrantyOptions = [
 ];
 
 export const outlineModes: OutlineMode[] = [
-  { key: 'template', label: '素材库模板匹配', desc: '从企业素材库中匹配类似项目大纲' },
+  { key: 'template', label: '上传项目模板', desc: '上传历史项目模板作为大纲参考' },
   { key: 'ai', label: 'AI智能生成', desc: '根据招标文件自动生成大纲' },
   { key: 'custom', label: '手动指定大纲', desc: '按您提供的目录结构生成' },
 ];
