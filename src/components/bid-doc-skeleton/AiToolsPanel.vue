@@ -275,22 +275,21 @@ const filteredEnterpriseMaterials = computed(() => {
 
 .node-action-btns {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-top: 12px;
 }
 
 .node-gen-btn {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 10px;
+  padding: 10px 14px;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  color: white;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -301,23 +300,26 @@ const filteredEnterpriseMaterials = computed(() => {
 }
 
 .node-gen-btn.current {
-  background: linear-gradient(135deg, #4b83f0 0%, #7c3aed 100%);
-  box-shadow: 0 2px 8px rgba(75, 131, 240, 0.25);
+  background: #4b83f0;
+  color: white;
+  box-shadow: 0 1px 4px rgba(75, 131, 240, 0.2);
 }
 
 .node-gen-btn.current:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(75, 131, 240, 0.35);
+  background: #3b6fd9;
+  box-shadow: 0 2px 8px rgba(75, 131, 240, 0.3);
 }
 
 .node-gen-btn.all {
-  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
 .node-gen-btn.all:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+  background: #f0f7ff;
+  color: #4b83f0;
+  border-color: #4b83f0;
 }
 
 .remaining-badge {

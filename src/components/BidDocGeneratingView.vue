@@ -122,11 +122,8 @@ const handleSkipToSkeleton = () => {
       </div>
 
       <div class="action-bar">
-        <button class="action-btn secondary" @click="handleSkipToSkeleton">
-          逐章节生成
-        </button>
-        <button class="action-btn primary" @click="handleSkip">
-          一键生成
+        <button class="action-btn primary" @click="handleSkipToSkeleton">
+          按章节生成
         </button>
       </div>
     </main>

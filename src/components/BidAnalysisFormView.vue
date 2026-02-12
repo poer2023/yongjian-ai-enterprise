@@ -177,64 +177,6 @@ const handleSubmit = () => {
 
         <!-- Additional Info -->
         <div class="form-group">
-          <label class="form-label">投标主体</label>
-          <p class="field-hint">选择参与投标的企业，AI 将基于该企业素材库进行资质匹配</p>
-          <div class="enterprise-selector">
-            <div
-              class="enterprise-selected"
-              @click="showEnterpriseDropdown = !showEnterpriseDropdown"
-            >
-              <template v-if="selectedEnterprise">
-                <div class="enterprise-icon">
-                  <Building2 :size="18" />
-                </div>
-                <div class="enterprise-info">
-                  <span class="enterprise-name">{{ selectedEnterprise.name }}</span>
-                  <div class="enterprise-stats">
-                    <span class="stat-item">
-                      <Award :size="12" />
-                      {{ selectedEnterprise.certCount }} 项资质
-                    </span>
-                    <span class="stat-item">
-                      <Briefcase :size="12" />
-                      {{ selectedEnterprise.caseCount }} 个案例
-                    </span>
-                    <span class="stat-item">
-                      <Users :size="12" />
-                      {{ selectedEnterprise.teamCount }} 名成员
-                    </span>
-                  </div>
-                </div>
-              </template>
-              <template v-else>
-                <span class="placeholder-text">请选择投标主体企业</span>
-              </template>
-              <ChevronDown :size="18" class="dropdown-arrow" :class="{ rotated: showEnterpriseDropdown }" />
-            </div>
-
-            <!-- Dropdown -->
-            <div v-if="showEnterpriseDropdown" class="enterprise-dropdown">
-              <div
-                v-for="enterprise in enterprises"
-                :key="enterprise.id"
-                class="dropdown-item"
-                :class="{ selected: selectedEnterprise?.id === enterprise.id }"
-                @click="selectEnterprise(enterprise)"
-              >
-                <div class="dropdown-item-content">
-                  <span class="item-name">{{ enterprise.name }}</span>
-                  <div class="item-certs">
-                    <span v-for="cert in enterprise.recentCerts" :key="cert" class="cert-tag">{{ cert }}</span>
-                  </div>
-                </div>
-                <Check v-if="selectedEnterprise?.id === enterprise.id" :size="16" class="check-icon" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Info -->
-        <div class="form-group">
           <label class="form-label">辅助信息</label>
           <div class="textarea-wrapper">
             <textarea
