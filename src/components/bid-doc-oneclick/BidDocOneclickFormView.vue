@@ -16,7 +16,6 @@ import {
   ChevronDown,
   Users,
   Briefcase,
-  Settings,
   MessageSquare,
   FolderOpen,
   ListOrdered,
@@ -59,8 +58,6 @@ const projectUnderstanding = ref('');
 const technicalHighlights = ref('');
 const outlineMode = ref('template');
 const selectedTemplateId = ref('tpl1');
-const pageCount = ref(120);
-const aiRecommendedPages = ref(120);
 const additionalInfo = ref('');
 const maxLength = 2000;
 
@@ -120,7 +117,6 @@ const removeFile = () => {
   technicalHighlights.value = '';
   outlineMode.value = 'template';
   selectedTemplateId.value = 'tpl1';
-  pageCount.value = 120;
   additionalInfo.value = '';
 };
 
@@ -131,10 +127,6 @@ const handleParse = () => {
     bidDocType.value = mockParsedData.bidDocType;
     projectUnderstanding.value = mockParsedData.projectUnderstanding;
     technicalHighlights.value = mockParsedData.technicalHighlights;
-    // AI 推荐页数基于匹配到的模板
-    const matched = matchedTemplates.find(t => t.id === selectedTemplateId.value);
-    aiRecommendedPages.value = matched?.pages ?? 120;
-    pageCount.value = aiRecommendedPages.value;
     isParsing.value = false;
     isParsed.value = true;
   }, 2000);
@@ -415,43 +407,6 @@ const getRiskLevelText = (level: string) => {
           </div>
         </div>
 
-        <!-- 页数设置 -->
-        <div class="section-card">
-          <div class="card-header">
-            <div class="header-left">
-              <Settings :size="18" class="header-icon" />
-              <span class="header-title">生成配置</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">
-                预设标书页数
-                <span class="page-value">{{ pageCount }} 页</span>
-                <span v-if="pageCount === aiRecommendedPages" class="ai-recommend-tag">
-                  <Sparkles :size="11" /> AI 推荐
-                </span>
-              </label>
-              <div class="slider-wrapper">
-                <input
-                  v-model="pageCount"
-                  type="range"
-                  min="50"
-                  max="500"
-                  step="10"
-                  class="page-slider"
-                />
-                <div class="slider-labels">
-                  <span>50页</span>
-                  <span class="ai-page-mark" v-if="aiRecommendedPages > 50 && aiRecommendedPages < 500">
-                    AI推荐 {{ aiRecommendedPages }}页
-                  </span>
-                  <span>500页</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 补充说明 -->
         <div class="section-card">
