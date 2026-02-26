@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { Plus, X, Edit3, Trash2, Check, ChevronDown, ChevronUp, Building2, Users, FileText, Search } from 'lucide-vue-next';
-import { ChecklistSelector } from './shared';
-
-const router = useRouter();
+import { Plus, X, Edit3, Trash2, Check, ChevronDown, ChevronUp, Search, Sparkles } from 'lucide-vue-next';
 
 // Active sub-tab within subscription editor
 const activeSubTab = ref('push-config');
@@ -106,71 +102,54 @@ const toggleRegion = (r: string) => { policyRegions.value.includes(r) ? policyRe
 const toggleType = (t: string) => { policyTypes.value.includes(t) ? policyTypes.value = policyTypes.value.filter(x => x !== t) : policyTypes.value.push(t); };
 const toggleMember = (id: string) => { selectedMembers.value.includes(id) ? selectedMembers.value = selectedMembers.value.filter(x => x !== id) : selectedMembers.value.push(id); };
 
-// ===== Bidding Units =====
-const buSearch = ref('');
-const buItems = ref([
-  { id: 'bu1', name: '上海市大数据中心', desc: '事业单位 · 上海' },
-  { id: 'bu2', name: '浦东新区政务服务中心', desc: '政府机关 · 上海' },
-  { id: 'bu3', name: '中国工商银行上海分行', desc: '金融机构 · 上海' },
-  { id: 'bu4', name: '复旦大学信息化办公室', desc: '教育机构 · 上海' },
-]);
-const extraBuItems = [
-  { id: 'bux1', name: '杭州市数据资源管理局', desc: '政府机关 · 浙江' },
-  { id: 'bux2', name: '南京大学', desc: '教育机构 · 江苏' },
-  { id: 'bux3', name: '中国农业银行上海分行', desc: '金融机构 · 上海' },
-  { id: 'bux4', name: '上海市交通委员会', desc: '政府机关 · 上海' },
-];
-const selectedBuIds = ref<string[]>(['bu1', 'bu2', 'bu3', 'bu4']);
-const buSearchResults = computed(() => {
-  if (!buSearch.value.trim()) return [];
-  const q = buSearch.value.toLowerCase();
-  const existingIds = new Set(buItems.value.map(i => i.id));
-  return extraBuItems.filter(i => !existingIds.has(i.id) && (i.name.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)));
-});
-const addBu = (item: { id: string; name: string; desc: string }) => { buItems.value.push(item); selectedBuIds.value.push(item.id); buSearch.value = ''; };
+// ===== Declarative industry-analysis dimensions =====
+const mustWatchUnits = ref<string[]>(['上海市大数据中心', '浦东新区政务服务中心']);
+const mustWatchUnitInput = ref('');
 
-// ===== Competitors =====
-const compSearch = ref('');
-const compItems = ref([
-  { id: 'c1', name: '华安信息技术有限公司', desc: '网络安全 · 北京' },
-  { id: 'c2', name: '中科安全科技股份', desc: '网络安全 · 北京' },
-  { id: 'c3', name: '启明星辰科技', desc: '网络安全 · 北京' },
-  { id: 'c4', name: '绿盟科技集团', desc: '网络安全 · 北京' },
-  { id: 'c5', name: '奇安信科技集团', desc: '网络安全 · 北京' },
-]);
-const extraCompItems = [
-  { id: 'cx1', name: '知道创宇科技', desc: '网络安全 · 北京' },
-  { id: 'cx2', name: '长亭科技有限公司', desc: '网络安全 · 北京' },
-  { id: 'cx3', name: '微步在线科技', desc: '威胁情报 · 北京' },
-  { id: 'cx4', name: '安天科技集团', desc: '网络安全 · 黑龙江' },
-];
-const selectedCompIds = ref<string[]>(['c1', 'c2', 'c3', 'c4', 'c5']);
-const compSearchResults = computed(() => {
-  if (!compSearch.value.trim()) return [];
-  const q = compSearch.value.toLowerCase();
-  const existingIds = new Set(compItems.value.map(i => i.id));
-  return extraCompItems.filter(i => !existingIds.has(i.id) && (i.name.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)));
-});
-const addComp = (item: { id: string; name: string; desc: string }) => { compItems.value.push(item); selectedCompIds.value.push(item.id); compSearch.value = ''; };
+const mustWatchCompetitors = ref<string[]>(['华安信息技术有限公司', '中科安全科技股份']);
+const mustWatchCompetitorInput = ref('');
 
-// ===== Bid Notices =====
-const bnSearch = ref('');
-const bnItems = ref([
-  { id: 'bn1', name: '某证券公司网络安全态势感知平台', desc: '上海证券交易所 · 280万 · 2026-02-01' },
-]);
-const extraBnItems = [
-  { id: 'bnx1', name: '某省交通厅网络安全等保测评', desc: '浙江省交通厅 · 220万 · 2026-03-15' },
-  { id: 'bnx2', name: '某高校校园网安全加固项目', desc: '华东师范大学 · 85万 · 2026-03-20' },
-  { id: 'bnx3', name: '某银行数据中心安全评估', desc: '兴业银行上海分行 · 160万 · 2026-04-01' },
-];
-const selectedBnIds = ref<string[]>(['bn1']);
-const bnSearchResults = computed(() => {
-  if (!bnSearch.value.trim()) return [];
-  const q = bnSearch.value.toLowerCase();
-  const existingIds = new Set(bnItems.value.map(i => i.id));
-  return extraBnItems.filter(i => !existingIds.has(i.id) && (i.name.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q)));
-});
-const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.value.push(item); selectedBnIds.value.push(item.id); bnSearch.value = ''; };
+const keyProjects = ref<string[]>([]);
+const keyProjectInput = ref('');
+
+const excludeRules = ref<string[]>(['预算低于20万', '截止日期少于3天']);
+const excludeRuleInput = ref('');
+
+const addMustWatchUnit = () => {
+  const value = mustWatchUnitInput.value.trim();
+  if (value && !mustWatchUnits.value.includes(value)) mustWatchUnits.value.push(value);
+  mustWatchUnitInput.value = '';
+};
+const removeMustWatchUnit = (value: string) => {
+  mustWatchUnits.value = mustWatchUnits.value.filter(item => item !== value);
+};
+
+const addMustWatchCompetitor = () => {
+  const value = mustWatchCompetitorInput.value.trim();
+  if (value && !mustWatchCompetitors.value.includes(value)) mustWatchCompetitors.value.push(value);
+  mustWatchCompetitorInput.value = '';
+};
+const removeMustWatchCompetitor = (value: string) => {
+  mustWatchCompetitors.value = mustWatchCompetitors.value.filter(item => item !== value);
+};
+
+const addKeyProject = () => {
+  const value = keyProjectInput.value.trim();
+  if (value && !keyProjects.value.includes(value)) keyProjects.value.push(value);
+  keyProjectInput.value = '';
+};
+const removeKeyProject = (value: string) => {
+  keyProjects.value = keyProjects.value.filter(item => item !== value);
+};
+
+const addExcludeRule = () => {
+  const value = excludeRuleInput.value.trim();
+  if (value && !excludeRules.value.includes(value)) excludeRules.value.push(value);
+  excludeRuleInput.value = '';
+};
+const removeExcludeRule = (value: string) => {
+  excludeRules.value = excludeRules.value.filter(item => item !== value);
+};
 </script>
 
 <template>
@@ -221,8 +200,8 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
           <span>推送配置</span>
         </button>
         <button :class="['sub-tab', { active: activeSubTab === 'sales-strategy' }]" @click="activeSubTab = 'sales-strategy'">
-          <Building2 :size="14" />
-          <span>销售策略</span>
+          <Sparkles :size="14" />
+          <span>行业分析维度</span>
         </button>
       </div>
 
@@ -295,97 +274,111 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
         </div>
       </div>
 
-      <!-- Tab: 销售策略 (招标单位 + 竞品企业 + 关注标讯) -->
+      <!-- Tab: 行业分析维度（声明式配置） -->
       <div v-else-if="activeSubTab === 'sales-strategy'" class="config-card">
-        <!-- 招标单位 -->
-        <div class="track-section-standalone">
-          <div class="track-header">
-            <div class="track-header-left">
-              <Building2 :size="16" class="track-icon" />
-              <span class="track-title">关注的招标单位</span>
-              <span class="track-tag">选填</span>
-              <span v-if="selectedBuIds.length" class="track-count">{{ selectedBuIds.length }}</span>
-            </div>
-            <div class="track-search">
-              <Search :size="12" />
-              <input type="text" v-model="buSearch" placeholder="搜索招标单位..." class="track-search-input" />
-            </div>
-          </div>
-          <div class="track-body">
-            <div v-if="buSearch.trim()" class="track-results">
-              <div class="track-results-label">搜索结果</div>
-              <div v-if="buSearchResults.length" class="track-results-grid">
-                <button v-for="item in buSearchResults" :key="item.id" class="track-result-item" @click="addBu(item)">
-                  <Plus :size="11" class="track-result-add" />
-                  <span class="track-result-name">{{ item.name }}</span>
-                  <span class="track-result-desc">{{ item.desc }}</span>
+        <div class="declare-section">
+          <div class="declare-title">声明式输入</div>
+          <div class="declare-row full">
+            <label>必盯招标单位</label>
+            <div class="declare-content">
+              <div class="declare-add top">
+                <input
+                  v-model="mustWatchUnitInput"
+                  placeholder="输入单位后按回车"
+                  @keyup.enter="addMustWatchUnit"
+                />
+                <button @click="addMustWatchUnit">
+                  <Plus :size="14" />
                 </button>
               </div>
-              <div v-else class="track-results-empty">暂无匹配结果</div>
+              <div class="declare-subtitle">已添加</div>
+              <div class="declare-tag-list">
+                <span v-if="mustWatchUnits.length === 0" class="declare-empty">暂未添加</span>
+                <span v-for="item in mustWatchUnits" :key="item" class="declare-tag">
+                  {{ item }}
+                  <X :size="12" @click="removeMustWatchUnit(item)" />
+                </span>
+              </div>
+              <span class="declare-hint">支持逐条添加，避免文本堆叠难维护</span>
             </div>
-            <ChecklistSelector :items="buItems" v-model="selectedBuIds" />
+          </div>
+
+          <div class="declare-row full">
+            <label>必盯竞品企业</label>
+            <div class="declare-content">
+              <div class="declare-add top">
+                <input
+                  v-model="mustWatchCompetitorInput"
+                  placeholder="输入竞品后按回车"
+                  @keyup.enter="addMustWatchCompetitor"
+                />
+                <button @click="addMustWatchCompetitor">
+                  <Plus :size="14" />
+                </button>
+              </div>
+              <div class="declare-subtitle">已添加</div>
+              <div class="declare-tag-list">
+                <span v-if="mustWatchCompetitors.length === 0" class="declare-empty">暂未添加</span>
+                <span v-for="item in mustWatchCompetitors" :key="item" class="declare-tag">
+                  {{ item }}
+                  <X :size="12" @click="removeMustWatchCompetitor(item)" />
+                </span>
+              </div>
+              <span class="declare-hint">可录入重点对手，便于后续定向分析</span>
+            </div>
+          </div>
+
+          <div class="declare-row full">
+            <label>重点项目（可选）</label>
+            <div class="declare-content">
+              <div class="declare-add top">
+                <input
+                  v-model="keyProjectInput"
+                  placeholder="输入项目名称/关键词后按回车"
+                  @keyup.enter="addKeyProject"
+                />
+                <button @click="addKeyProject">
+                  <Plus :size="14" />
+                </button>
+              </div>
+              <div class="declare-subtitle">已添加</div>
+              <div class="declare-tag-list">
+                <span v-if="keyProjects.length === 0" class="declare-empty">暂未添加</span>
+                <span v-for="item in keyProjects" :key="item" class="declare-tag">
+                  {{ item }}
+                  <X :size="12" @click="removeKeyProject(item)" />
+                </span>
+              </div>
+              <span class="declare-hint">可填客户内部代号或重点跟进项目名</span>
+            </div>
+          </div>
+
+          <div class="declare-row full">
+            <label>排除条件</label>
+            <div class="declare-content">
+              <div class="declare-add top danger">
+                <input
+                  v-model="excludeRuleInput"
+                  placeholder="输入排除规则后按回车"
+                  @keyup.enter="addExcludeRule"
+                />
+                <button @click="addExcludeRule">
+                  <Plus :size="14" />
+                </button>
+              </div>
+              <div class="declare-subtitle">已添加</div>
+              <div class="declare-tag-list danger">
+                <span v-if="excludeRules.length === 0" class="declare-empty">暂未添加</span>
+                <span v-for="item in excludeRules" :key="item" class="declare-tag danger">
+                  {{ item }}
+                  <X :size="12" @click="removeExcludeRule(item)" />
+                </span>
+              </div>
+              <span class="declare-hint">例如：预算低于20万、截止时间过近、非目标区域等</span>
+            </div>
           </div>
         </div>
 
-        <!-- 竞品企业 -->
-        <div class="track-section">
-          <div class="track-header">
-            <div class="track-header-left">
-              <Users :size="16" class="track-icon" />
-              <span class="track-title">竞品企业</span>
-              <span class="track-tag">选填</span>
-              <span v-if="selectedCompIds.length" class="track-count">{{ selectedCompIds.length }}</span>
-            </div>
-            <div class="track-search">
-              <Search :size="12" />
-              <input type="text" v-model="compSearch" placeholder="搜索竞品企业..." class="track-search-input" />
-            </div>
-          </div>
-          <div class="track-body">
-            <div v-if="compSearch.trim()" class="track-results">
-              <div class="track-results-label">搜索结果</div>
-              <div v-if="compSearchResults.length" class="track-results-grid">
-                <button v-for="item in compSearchResults" :key="item.id" class="track-result-item" @click="addComp(item)">
-                  <Plus :size="11" class="track-result-add" />
-                  <span class="track-result-name">{{ item.name }}</span>
-                  <span class="track-result-desc">{{ item.desc }}</span>
-                </button>
-              </div>
-              <div v-else class="track-results-empty">暂无匹配结果</div>
-            </div>
-            <ChecklistSelector :items="compItems" v-model="selectedCompIds" />
-          </div>
-        </div>
-
-        <!-- 关注标讯 -->
-        <div class="track-section">
-          <div class="track-header">
-            <div class="track-header-left">
-              <FileText :size="16" class="track-icon" />
-              <span class="track-title">关注的标讯</span>
-              <span class="track-tag">选填</span>
-              <span v-if="selectedBnIds.length" class="track-count">{{ selectedBnIds.length }}</span>
-            </div>
-            <div class="track-search">
-              <Search :size="12" />
-              <input type="text" v-model="bnSearch" placeholder="搜索标讯..." class="track-search-input" />
-            </div>
-          </div>
-          <div class="track-body">
-            <div v-if="bnSearch.trim()" class="track-results">
-              <div class="track-results-label">搜索结果</div>
-              <div v-if="bnSearchResults.length" class="track-results-grid">
-                <button v-for="item in bnSearchResults" :key="item.id" class="track-result-item" @click="addBn(item)">
-                  <Plus :size="11" class="track-result-add" />
-                  <span class="track-result-name">{{ item.name }}</span>
-                  <span class="track-result-desc">{{ item.desc }}</span>
-                </button>
-              </div>
-              <div v-else class="track-results-empty">暂无匹配结果</div>
-            </div>
-            <ChecklistSelector :items="bnItems" v-model="selectedBnIds" />
-          </div>
-        </div>
       </div>
 
       <div class="form-actions"><button class="cancel" @click="showEditor = false">取消</button><button class="save" @click="handleSave">保存策略</button></div>
@@ -474,29 +467,30 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
 .form-actions .cancel { padding: 12px 24px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; font-size: 14px; cursor: pointer; }
 .form-actions .save { padding: 12px 24px; background: #3b82f6; border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; }
 
-/* Track sections (bidding units, competitors, bid notices) */
-.track-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
-.track-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.track-header-left { display: flex; align-items: center; gap: 6px; }
-.track-icon { color: #3b82f6; }
-.track-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-.track-tag { font-size: 11px; color: #94a3b8; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; }
-.track-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: #2563eb; color: white; font-size: 11px; font-weight: 600; border-radius: 9px; }
-.track-search { display: flex; align-items: center; gap: 5px; padding: 4px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; transition: all 0.2s; min-width: 160px; }
-.track-search:focus-within { border-color: #3b82f6; background: white; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
-.track-search svg { color: #94a3b8; flex-shrink: 0; }
-.track-search-input { flex: 1; border: none; background: transparent; font-size: 12px; color: #1e293b; outline: none; min-width: 0; }
-.track-search-input::placeholder { color: #c0c9d4; }
-.track-body { }
-.track-results { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #e2e8f0; }
-.track-results-label { font-size: 11px; color: #3b82f6; font-weight: 600; margin-bottom: 6px; }
-.track-results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.track-result-item { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 10px; padding-right: 28px; background: #f0f7ff; border: 1px dashed #93c5fd; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: left; position: relative; }
-.track-result-item:hover { background: #dbeafe; border-color: #3b82f6; border-style: solid; }
-.track-result-add { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); color: #3b82f6; }
-.track-result-name { font-size: 12px; font-weight: 500; color: #1e40af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 16px; }
-.track-result-desc { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.track-results-empty { text-align: center; padding: 10px; color: #94a3b8; font-size: 12px; }
+/* Declarative strategy */
+.declare-section { margin-top: 4px; }
+.declare-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px; }
+.declare-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 10px; }
+.declare-row label { width: 110px; flex-shrink: 0; font-size: 13px; color: #64748b; padding-top: 7px; }
+.declare-content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.declare-subtitle { font-size: 12px; color: #475569; font-weight: 600; }
+.declare-empty { font-size: 12px; color: #94a3b8; }
+.declare-tag-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border: 1px solid #dbe5f2; border-radius: 10px; background: linear-gradient(180deg, #fbfdff 0%, #f8fbff 100%); min-height: 48px; }
+.declare-tag-list:focus-within { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15); }
+.declare-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: #e8f0ff; color: #1e40af; font-size: 12px; font-weight: 500; border: 1px solid #bfdbfe; }
+.declare-tag svg { cursor: pointer; opacity: 0.75; }
+.declare-tag svg:hover { opacity: 1; }
+.declare-add { display: inline-flex; align-items: center; gap: 6px; }
+.declare-add.top { width: 100%; }
+.declare-add input { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; color: #1e293b; outline: none; background: white; }
+.declare-add input:focus { border-color: #60a5fa; }
+.declare-add button { width: 34px; height: 34px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #3b82f6; color: white; cursor: pointer; flex-shrink: 0; }
+.declare-add button:hover { background: #2563eb; }
+.declare-hint { display: inline-block; font-size: 11px; color: #94a3b8; }
+.declare-add.top.danger input { border-color: #fecaca; background: #fffdfd; }
+.declare-add.top.danger input:focus { border-color: #f43f5e; }
+.declare-tag-list.danger { background: linear-gradient(180deg, #fffafa 0%, #fff6f6 100%); border-color: #fecaca; }
+.declare-tag.danger { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
 
 /* Sub tabs */
 .sub-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
@@ -510,22 +504,11 @@ const addBn = (item: { id: string; name: string; desc: string }) => { bnItems.va
 /* Standalone sections (no top border) */
 .track-section-standalone { }
 .members-section-standalone { }
-</style>
 
-<!-- Unscoped styles to override child component ChecklistSelector -->
-<style>
-.bid-subscription .policy-editor .checklist-item {
-  border-color: #3b82f6;
-  background: #eff6ff;
-}
-
-.bid-subscription .policy-editor .checklist-remove {
-  opacity: 1;
-  color: #3b82f6;
-}
-
-.bid-subscription .policy-editor .checklist-remove:hover {
-  background: #fee2e2;
-  color: #ef4444;
+@media (max-width: 900px) {
+  .declare-row { flex-direction: column; gap: 6px; }
+  .declare-row label { width: auto; padding-top: 0; }
+  .declare-add { width: 100%; }
+  .declare-add input { width: 100%; }
 }
 </style>

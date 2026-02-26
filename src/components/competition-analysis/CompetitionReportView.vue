@@ -183,7 +183,7 @@ const goBack = () => {
 };
 
 const handleExport = () => {
-  alert('销售策略分析报告已导出为PDF');
+  alert('行业分析报告已导出为PDF');
 };
 
 const closeTab = (tabId: string) => {
@@ -215,7 +215,7 @@ const configStats = computed(() => {
       </button>
       <div class="header-title-area">
         <Target :size="20" />
-        <h1>销售策略分析报告</h1>
+        <h1>行业分析报告</h1>
         <span class="header-subtitle">{{ industryName }} · {{ queryTimeRange }}</span>
       </div>
       <div class="header-controls">
@@ -262,7 +262,7 @@ const configStats = computed(() => {
         <div class="report-document">
           <!-- Report Header -->
           <div class="report-doc-header">
-            <h1>销售策略分析报告</h1>
+            <h1>行业分析报告</h1>
             <div class="report-doc-meta">
               {{ industryName }} · {{ queryTimeRange }} · 生成于 {{ generatedAt }}
             </div>

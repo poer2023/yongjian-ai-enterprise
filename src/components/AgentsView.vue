@@ -66,7 +66,7 @@ const allAgents = [
   },
   {
     id: 8,
-    name: '销售策略分析',
+    name: '行业分析报告',
     description: '销售策略工具，分析招标单位、竞争对手和项目',
     icon: Target,
     color: '#ef4444',

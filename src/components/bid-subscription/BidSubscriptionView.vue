@@ -262,7 +262,7 @@ const goToSalesStrategy = () => {
                 <Target :size="20" />
               </div>
               <div class="strategy-trigger-text">
-                <span class="strategy-trigger-title">销售策略分析</span>
+                <span class="strategy-trigger-title">行业分析报告</span>
                 <span class="strategy-trigger-desc">基于竞争数据，智能生成针对性销售策略</span>
               </div>
             </div>

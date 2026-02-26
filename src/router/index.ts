@@ -230,13 +230,13 @@ const routes = [
     path: '/bid/competition-analysis',
     name: 'competition-analysis',
     component: CompetitionAnalysisView,
-    meta: { title: '销售策略分析' }
+    meta: { title: '行业分析报告' }
   },
   {
     path: '/bid/competition-analysis/report',
     name: 'competition-report',
     component: CompetitionReportView,
-    meta: { title: '销售策略分析报告', fullScreen: true }
+    meta: { title: '行业分析报告', fullScreen: true }
   },
 
   // 合同模块

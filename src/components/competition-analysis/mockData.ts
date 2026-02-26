@@ -67,14 +67,14 @@ export const bidNoticeSearchResults: SelectedBidNotice[] = [
 
 // TemplateSidebar recent tools
 export const recentTools = [
-  { icon: Target, label: '销售策略分析', active: true, route: 'competition-analysis' },
+  { icon: Target, label: '行业分析报告', active: true, route: 'competition-analysis' },
   { icon: Zap, label: 'AI标书生成（一键版）', active: false, route: 'bid-doc-oneclick-form' },
   { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
 ];
 
 // InfoSidebar features - sales oriented
 export const features = [
-  '一键生成销售策略分析报告，降低分析门槛',
+  '一键生成行业分析报告，降低分析门槛',
   '智能推荐关注的招标单位和竞争对手',
   '竞争对手「如何赢他」策略建议',
   '丢单原因统计与能力提升建议',
