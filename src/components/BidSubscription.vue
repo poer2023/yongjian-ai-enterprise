@@ -277,7 +277,6 @@ const removeExcludeRule = (value: string) => {
       <!-- Tab: 行业分析维度（声明式配置） -->
       <div v-else-if="activeSubTab === 'sales-strategy'" class="config-card">
         <div class="declare-section">
-          <div class="declare-title">声明式输入</div>
           <div class="declare-row full">
             <label>必盯招标单位</label>
             <div class="declare-content">
@@ -469,7 +468,6 @@ const removeExcludeRule = (value: string) => {
 
 /* Declarative strategy */
 .declare-section { margin-top: 4px; }
-.declare-title { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px; }
 .declare-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 10px; }
 .declare-row label { width: 110px; flex-shrink: 0; font-size: 13px; color: #64748b; padding-top: 7px; }
 .declare-content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
