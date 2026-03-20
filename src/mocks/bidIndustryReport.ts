@@ -512,7 +512,7 @@ export const winningCompanyRanking: WinningCompany[] = [
   { rank: 3, name: '启明星辰科技', winCount: 58, winAmount: 2650, winRate: 45.3, mainRegions: ['北京', '广东', '四川'], mainIndustries: ['金融', '运营商'], trend: 'down', trendChange: -1 },
   { rank: 4, name: '深信服科技股份', winCount: 52, winAmount: 2380, winRate: 44.1, mainRegions: ['广东', '上海', '浙江'], mainIndustries: ['政府', '教育'], trend: 'stable', trendChange: 0 },
   { rank: 5, name: '奇安信科技集团', winCount: 48, winAmount: 2120, winRate: 44.4, mainRegions: ['北京', '上海', '山东'], mainIndustries: ['政府', '金融'], trend: 'up', trendChange: 1 },
-  { rank: 6, name: '金盾检测技术股份', winCount: 42, winAmount: 1850, winRate: 48.8, mainRegions: ['江苏', '上海', '浙江'], mainIndustries: ['金融', '医疗'], trend: 'up', trendChange: 3 },
+  { rank: 6, name: '企业版技术股份', winCount: 42, winAmount: 1850, winRate: 48.8, mainRegions: ['江苏', '上海', '浙江'], mainIndustries: ['金融', '医疗'], trend: 'up', trendChange: 3 },
   { rank: 7, name: '天融信科技集团', winCount: 38, winAmount: 1680, winRate: 40.0, mainRegions: ['北京', '广东', '湖北'], mainIndustries: ['政府', '能源'], trend: 'down', trendChange: -2 },
   { rank: 8, name: '绿盟科技集团', winCount: 32, winAmount: 1420, winRate: 39.0, mainRegions: ['北京', '上海', '四川'], mainIndustries: ['运营商', '金融'], trend: 'stable', trendChange: 0 },
   { rank: 9, name: '安恒信息技术', winCount: 28, winAmount: 1280, winRate: 38.5, mainRegions: ['浙江', '江苏', '广东'], mainIndustries: ['政府', '教育'], trend: 'up', trendChange: 1 },

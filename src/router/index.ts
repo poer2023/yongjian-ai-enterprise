@@ -7,6 +7,11 @@ import TeamManageView from '../components/TeamManageView.vue';
 import TeamOverviewView from '../components/TeamOverviewView.vue';
 import BidSubscription from '../components/BidSubscription.vue';
 import EnterpriseLibraryView from '../components/EnterpriseLibraryView.vue';
+import AiTicketView from '../components/business-full/BusinessModuleShellView.vue';
+import CustomerServiceView from '../components/business-full/CustomerServiceView.vue';
+import DataAdvisorView from '../components/business-full/DataAdvisorView.vue';
+import SalesManagementView from '../components/business-full/SalesManagementView.vue';
+import TeamSectionShellView from '../components/team/TeamSectionShellView.vue';
 
 // 素材库模块
 import CompanyInfoView from '../components/CompanyInfoView.vue';
@@ -78,6 +83,42 @@ const routes = [
     meta: { title: '智能体' }
   },
   {
+    path: '/business/sales-management',
+    name: 'sales-management',
+    component: SalesManagementView,
+    meta: { title: '销售管理智能体' }
+  },
+  {
+    path: '/business/daily-news',
+    name: 'daily-news',
+    redirect: { name: 'bid-info-form' },
+    meta: { title: '每日资讯订阅智能体' }
+  },
+  {
+    path: '/business/daily-news/feed',
+    name: 'daily-news-feed',
+    redirect: { name: 'bid-subscription' },
+    meta: { title: '资讯日报' }
+  },
+  {
+    path: '/business/customer-service',
+    name: 'customer-service',
+    component: CustomerServiceView,
+    meta: { title: '咨询客服智能体' }
+  },
+  {
+    path: '/business/ai-ticket',
+    name: 'ai-ticket',
+    component: AiTicketView,
+    meta: { title: 'AI 工单智能体' }
+  },
+  {
+    path: '/business/data-advisor',
+    name: 'data-advisor',
+    component: DataAdvisorView,
+    meta: { title: '数据顾问智能体' }
+  },
+  {
     path: '/knowledge',
     name: 'knowledge',
     component: KnowledgeBaseView,
@@ -142,7 +183,9 @@ const routes = [
   {
     path: '/bid/info',
     name: 'bid-info-form',
-    redirect: { name: 'team-bid-subscription' }
+    component: BidInfoFormView,
+    props: { mode: 'news' },
+    meta: { title: '资讯订阅' }
   },
   {
     path: '/bid/info/daily',
@@ -212,7 +255,8 @@ const routes = [
     path: '/bid/subscription',
     name: 'bid-subscription',
     component: BidSubscriptionView,
-    meta: { title: '标讯订阅' }
+    props: { mode: 'news' },
+    meta: { title: '资讯订阅' }
   },
   {
     path: '/bid/list-detail',
@@ -294,11 +338,11 @@ const routes = [
     redirect: { name: 'team-overview' },
     children: [
       { path: '', name: 'team-overview', component: TeamOverviewView, meta: { title: '团队概览' } },
-      { path: 'members', name: 'team-members', component: PlaceholderView, meta: { title: '成员管理' } },
-      { path: 'groups', name: 'team-groups', component: PlaceholderView, meta: { title: '小组管理' } },
-      { path: 'agents', name: 'team-agents', component: PlaceholderView, meta: { title: '智能体管理' } },
-      { path: 'benefits', name: 'team-benefits', component: PlaceholderView, meta: { title: '权益明细' } },
-      { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '标讯订阅' } },
+      { path: 'members', name: 'team-members', component: TeamSectionShellView, props: { section: 'members' }, meta: { title: '成员管理' } },
+      { path: 'groups', name: 'team-groups', component: TeamSectionShellView, props: { section: 'groups' }, meta: { title: '小组管理' } },
+      { path: 'agents', name: 'team-agents', component: TeamSectionShellView, props: { section: 'agents' }, meta: { title: '智能体管理' } },
+      { path: 'benefits', name: 'team-benefits', component: TeamSectionShellView, props: { section: 'benefits' }, meta: { title: '权益明细' } },
+      { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '资讯订阅' } },
       { path: 'enterprise-library', name: 'team-enterprise-library', component: EnterpriseLibraryView, meta: { title: '企业总库' } },
     ]
   },

@@ -1,10 +1,55 @@
 <script setup lang="ts">
-import { UserCheck, FileUser, DollarSign, FileSearch, FileText } from 'lucide-vue-next';
+import { Briefcase, Database, FileSearch, FileText, MessageSquare, Newspaper, UserCheck, FileUser, DollarSign } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
 const agents = [
+  {
+    id: 101,
+    name: '数据顾问智能体',
+    description: '多源数据接入、权限和顾问问答',
+    icon: Database,
+    color: '#0f766e',
+    bgColor: '#ecfeff',
+    routeName: 'data-advisor'
+  },
+  {
+    id: 102,
+    name: '资讯订阅',
+    description: '统一聚合多类资讯，包含标讯分类',
+    icon: Newspaper,
+    color: '#0f766e',
+    bgColor: '#f0fdfa',
+    routeName: 'bid-subscription'
+  },
+  {
+    id: 103,
+    name: '销售管理智能体',
+    description: '销售汇报、AI复盘与看板',
+    icon: Briefcase,
+    color: '#2563eb',
+    bgColor: '#eff6ff',
+    routeName: 'sales-management'
+  },
+  {
+    id: 104,
+    name: '咨询客服智能体',
+    description: '客服Bot、测试与转人工',
+    icon: MessageSquare,
+    color: '#7c3aed',
+    bgColor: '#f5f3ff',
+    routeName: 'customer-service'
+  },
+  {
+    id: 105,
+    name: 'AI工单智能体',
+    description: '工单分配与结果导出',
+    icon: FileText,
+    color: '#ea580c',
+    bgColor: '#fff7ed',
+    routeName: 'ai-ticket'
+  },
   // HR决策辅助模块
   {
     id: 1,
@@ -54,6 +99,8 @@ const agents = [
   }
 ];
 
+const moreCount = `${agents.length}+`;
+
 const handleCardClick = (agent: any) => {
   if (agent.routeName) {
     router.push({ name: agent.routeName });
@@ -78,7 +125,7 @@ const handleCardClick = (agent: any) => {
     <!-- 更多应用 -->
     <div class="app-card more-card" @click="$router.push({ name: 'agents' })">
       <div class="more-icon">
-        <span class="more-count">6+</span>
+        <span class="more-count">{{ moreCount }}</span>
       </div>
       <span class="app-name">更多应用</span>
     </div>

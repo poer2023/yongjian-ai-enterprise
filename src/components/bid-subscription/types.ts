@@ -66,3 +66,50 @@ export interface BidDetail extends BidItem {
   scope: string;
   evaluation: string;
 }
+
+export interface NewsPolicyGroup {
+  id: string;
+  name: string;
+  color: string;
+  newCount?: number;
+  categoryStats: {
+    bidding: number;
+    industry: number;
+    product: number;
+  };
+}
+
+export interface NewsHighlight {
+  id: number;
+  title: string;
+  source: string;
+  publishedAt: string;
+  category: string;
+  matchScore: number;
+  tags: string[];
+}
+
+export interface NewsItem {
+  id: number;
+  title: string;
+  source: string;
+  matchScore: number;
+}
+
+export interface NewsDayData {
+  summary: string;
+  highlights: NewsHighlight[];
+  allItems: NewsItem[];
+}
+
+export type NewsPolicyData = Record<string, NewsDayData>;
+export type NewsDataByPolicy = Record<string, NewsPolicyData>;
+
+export interface NewsDetail extends NewsItem {
+  publishedAt: string;
+  category: string;
+  author: string;
+  summary: string;
+  keyPoints: string[];
+  recommendations: string[];
+}

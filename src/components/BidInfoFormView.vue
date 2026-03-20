@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import {
   ChevronLeft,
   ChevronDown,
@@ -12,24 +12,35 @@ import {
   X,
   MapPin,
   Tag,
-  Clock,
-  Mail,
+  Save,
+  Newspaper,
+  Database,
+  Briefcase,
   MessageSquare,
-  Save
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
+type SubscriptionMode = 'bid' | 'news';
 
-// 关键词配置
-const keywords = ref<string[]>(['网络安全', '等保测评', '渗透测试']);
+const props = withDefaults(defineProps<{
+  mode?: SubscriptionMode;
+}>(), {
+  mode: 'news',
+});
+
+const router = useRouter();
+const isNewsMode = computed(() => props.mode === 'news');
+
+const keywords = ref<string[]>(
+  isNewsMode.value
+    ? ['AI Agent', '企业服务', '标讯']
+    : ['网络安全', '等保测评', '渗透测试']
+);
 const newKeyword = ref('');
 
-// 地区配置
 const selectedRegions = ref<string[]>(['全国']);
 const regionExpanded = ref(false);
 
-// 所有可选地区（全部省份）
 const allRegions = [
   '全国', '北京', '上海', '天津', '重庆',
   '江苏', '浙江', '广东', '山东', '四川',
@@ -40,35 +51,11 @@ const allRegions = [
   '宁夏', '新疆'
 ];
 
-const toggleRegion = (region: string) => {
-  if (region === '全国') {
-    selectedRegions.value = ['全国'];
-  } else {
-    const nationIndex = selectedRegions.value.indexOf('全国');
-    if (nationIndex > -1) {
-      selectedRegions.value.splice(nationIndex, 1);
-    }
-
-    const index = selectedRegions.value.indexOf(region);
-    if (index > -1) {
-      selectedRegions.value.splice(index, 1);
-      if (selectedRegions.value.length === 0) {
-        selectedRegions.value = ['全国'];
-      }
-    } else {
-      selectedRegions.value.push(region);
-    }
-  }
-};
-
-// 项目类型
 const selectedTypes = ref<string[]>(['服务类']);
-
-// 预算范围
+const selectedCategories = ref<string[]>(['行业资讯', '标讯']);
+const selectedSources = ref<string[]>(['行业媒体', '招采平台', '厂商官方']);
 const budgetMin = ref('');
 const budgetMax = ref('');
-
-// 推送设置
 const pushTimes = ref<string[]>(['09:00']);
 const pushMethods = ref<string[]>(['site']);
 
@@ -78,6 +65,23 @@ const typeOptions = [
   { value: '工程类', label: '工程类' },
 ];
 
+const categoryOptions = [
+  { value: '行业资讯', label: '行业资讯' },
+  { value: '产品动态', label: '产品动态' },
+  { value: '政策解读', label: '政策解读' },
+  { value: '竞品动态', label: '竞品动态' },
+  { value: '融资动态', label: '融资动态' },
+  { value: '标讯', label: '标讯' },
+];
+
+const sourceOptions = [
+  { value: '行业媒体', label: '行业媒体' },
+  { value: '厂商官方', label: '厂商官方' },
+  { value: '政策公告', label: '政策公告' },
+  { value: '招采平台', label: '招采平台' },
+  { value: '企业知识库', label: '企业知识库' },
+];
+
 const timeOptions = [
   { value: '09:00', label: '每日 09:00' },
   { value: '12:00', label: '每日 12:00' },
@@ -85,24 +89,87 @@ const timeOptions = [
 ];
 
 const methodOptions = [
-  { value: 'site', label: '站内通知', icon: Bell },
-  { value: 'email', label: '邮件推送', icon: Mail },
-  { value: 'wechat', label: '企业微信', icon: MessageSquare },
+  { value: 'site', label: '站内通知' },
+  { value: 'email', label: '邮件推送' },
+  { value: 'wechat', label: '企业微信' },
 ];
 
-const templateTypes = [
-  { icon: Bell, label: '标讯订阅', active: true, routeName: 'bid-info-form' },
+const bidTemplateTypes = [
+  { icon: Bell, label: '资讯订阅', active: true, routeName: 'bid-info-form' },
   { icon: FileSearch, label: '标讯解读', routeName: 'bid-analysis-form' },
   { icon: FileText, label: 'AI标书生成', routeName: 'bid-doc-oneclick-form' },
 ];
 
-const features = [
-  '关键词智能监控',
-  '多维度筛选过滤',
-  '每日自动推送',
-  'AI匹配度评估',
-  '一键查看原文解读',
+const newsTemplateTypes = [
+  { icon: Newspaper, label: '资讯订阅', active: true, routeName: 'bid-info-form' },
+  { icon: Database, label: '数据顾问', routeName: 'data-advisor' },
+  { icon: Briefcase, label: '销售管理', routeName: 'sales-management' },
+  { icon: MessageSquare, label: '咨询客服', routeName: 'customer-service' },
+  { icon: FileText, label: 'AI工单', routeName: 'ai-ticket' },
 ];
+
+const pageConfig = computed(() => {
+  if (isNewsMode.value) {
+    return {
+      icon: Newspaper,
+      iconEmoji: '📰',
+      title: '资讯订阅',
+      subtitle: '沿用原有订阅设置方法，统一配置多类资讯推送，其中包含“标讯”分类',
+      sidebarTitle: '资讯工具',
+      firstSectionTitle: '关注主题',
+      secondSectionTitle: '订阅设置',
+      keywordLabel: '关注关键词',
+      keywordPlaceholder: '输入关注主题、品牌、行业关键词后按回车添加',
+      regionLabel: '关注地区',
+      typeLabel: '资讯分类',
+      sourceLabel: '信息来源',
+      pushTimeLabel: '推送时间',
+      pushMethodLabel: '推送方式',
+      saveLabel: '保存订阅',
+      viewLabel: '查看今日资讯',
+      infoTitle: '资讯订阅',
+      infoDesc: '统一追踪行业资讯、产品动态、政策解读、竞品动态与标讯信息。',
+      features: [
+        '沿用原有关键词与条件配置方式',
+        '可按分类统一聚合资讯，标讯作为其中一个订阅分类',
+        '支持来源、地区、时间、推送方式等维度配置',
+        '结果页可直接查看资讯日报与重点推荐内容',
+      ],
+    };
+  }
+
+    return {
+      icon: Bell,
+      iconEmoji: '🔔',
+      title: '资讯订阅',
+      subtitle: '每日自动拉取最新标讯，AI智能匹配推送',
+    sidebarTitle: '投标工具',
+    firstSectionTitle: '关键词配置',
+    secondSectionTitle: '监控配置',
+    keywordLabel: '监控关键词',
+    keywordPlaceholder: '输入关键词后按回车添加',
+    regionLabel: '监控地区',
+    typeLabel: '项目类型',
+    sourceLabel: '',
+    pushTimeLabel: '推送时间',
+    pushMethodLabel: '推送方式',
+    saveLabel: '保存订阅',
+    viewLabel: '查看今日标讯',
+      infoTitle: '资讯订阅',
+      infoDesc: '智能监控招标信息，每日自动推送商机',
+    features: [
+      '关键词智能监控',
+      '多维度筛选过滤',
+      '每日自动推送',
+      'AI匹配度评估',
+      '一键查看原文解读',
+    ],
+  };
+});
+
+const templateTypes = computed(() => {
+  return isNewsMode.value ? newsTemplateTypes : bidTemplateTypes;
+});
 
 const goBack = () => {
   router.push({ name: 'agents' });
@@ -113,66 +180,84 @@ const navigateTo = (routeName: string) => {
 };
 
 const addKeyword = () => {
-  if (newKeyword.value.trim() && !keywords.value.includes(newKeyword.value.trim())) {
-    keywords.value.push(newKeyword.value.trim());
+  const value = newKeyword.value.trim();
+  if (value && !keywords.value.includes(value)) {
+    keywords.value.push(value);
     newKeyword.value = '';
   }
 };
 
 const removeKeyword = (keyword: string) => {
-  const index = keywords.value.indexOf(keyword);
-  if (index > -1) {
-    keywords.value.splice(index, 1);
-  }
+  keywords.value = keywords.value.filter((item) => item !== keyword);
 };
 
-const toggleType = (value: string) => {
-  const index = selectedTypes.value.indexOf(value);
-  if (index > -1) {
-    selectedTypes.value.splice(index, 1);
-  } else {
-    selectedTypes.value.push(value);
+const toggleRegion = (region: string) => {
+  if (region === '全国') {
+    selectedRegions.value = ['全国'];
+    return;
   }
+
+  selectedRegions.value = selectedRegions.value.filter((item) => item !== '全国');
+
+  if (selectedRegions.value.includes(region)) {
+    selectedRegions.value = selectedRegions.value.filter((item) => item !== region);
+    if (selectedRegions.value.length === 0) {
+      selectedRegions.value = ['全国'];
+    }
+    return;
+  }
+
+  selectedRegions.value = [...selectedRegions.value, region];
 };
 
-const toggleTime = (value: string) => {
-  const index = pushTimes.value.indexOf(value);
-  if (index > -1) {
-    pushTimes.value.splice(index, 1);
-  } else {
-    pushTimes.value.push(value);
+const toggleSelection = (target: { value: string[] }, value: string) => {
+  if (target.value.includes(value)) {
+    target.value = target.value.filter((item) => item !== value);
+    return;
   }
+
+  target.value = [...target.value, value];
 };
 
-const toggleMethod = (value: string) => {
-  const index = pushMethods.value.indexOf(value);
-  if (index > -1) {
-    pushMethods.value.splice(index, 1);
-  } else {
-    pushMethods.value.push(value);
-  }
-};
+const toggleType = (value: string) => toggleSelection(selectedTypes, value);
+const toggleCategory = (value: string) => toggleSelection(selectedCategories, value);
+const toggleSource = (value: string) => toggleSelection(selectedSources, value);
+const toggleTime = (value: string) => toggleSelection(pushTimes, value);
+const toggleMethod = (value: string) => toggleSelection(pushMethods, value);
 
 const handleSave = () => {
-  const config = {
-    keywords: keywords.value,
-    regions: selectedRegions.value,
-    types: selectedTypes.value,
-    budget: { min: budgetMin.value, max: budgetMax.value },
-    push: { times: pushTimes.value, methods: pushMethods.value },
-  };
+  const config = isNewsMode.value
+    ? {
+        keywords: keywords.value,
+        categories: selectedCategories.value,
+        regions: selectedRegions.value,
+        sources: selectedSources.value,
+        push: { times: pushTimes.value, methods: pushMethods.value },
+      }
+    : {
+        keywords: keywords.value,
+        regions: selectedRegions.value,
+        types: selectedTypes.value,
+        budget: { min: budgetMin.value, max: budgetMax.value },
+        push: { times: pushTimes.value, methods: pushMethods.value },
+      };
+
   console.log('Saving subscription:', config);
-  alert('订阅配置已保存');
+  window.alert(isNewsMode.value ? '资讯订阅配置已保存' : '订阅配置已保存');
 };
 
 const viewDaily = () => {
+  if (isNewsMode.value) {
+    router.push({ name: 'bid-subscription' });
+    return;
+  }
+
   router.push({ name: 'bid-info-daily' });
 };
 </script>
 
 <template>
   <div class="review-form-page">
-    <!-- Left Sidebar -->
     <aside class="template-sidebar">
       <button class="back-btn" @click="goBack">
         <ChevronLeft :size="16" />
@@ -181,11 +266,15 @@ const viewDaily = () => {
 
       <div class="search-box">
         <Search :size="14" class="search-icon" />
-        <input type="text" placeholder="搜索投标工具" class="search-input" />
+        <input
+          type="text"
+          :placeholder="isNewsMode ? '搜索资讯工具' : '搜索投标工具'"
+          class="search-input"
+        />
       </div>
 
       <div class="template-section">
-        <div class="section-title">投标工具</div>
+        <div class="section-title">{{ pageConfig.sidebarTitle }}</div>
         <div
           v-for="(item, index) in templateTypes"
           :key="index"
@@ -199,34 +288,32 @@ const viewDaily = () => {
       </div>
     </aside>
 
-    <!-- Main Form Area -->
     <main class="form-main">
       <div class="form-header">
         <div class="form-icon">
-          <Bell :size="20" />
+          <component :is="pageConfig.icon" :size="20" />
         </div>
         <div class="form-title-area">
-          <h1 class="form-title">标讯订阅</h1>
-          <p class="form-subtitle">每日自动拉取最新标讯，AI智能匹配推送</p>
+          <h1 class="form-title">{{ pageConfig.title }}</h1>
+          <p class="form-subtitle">{{ pageConfig.subtitle }}</p>
         </div>
       </div>
 
       <div class="form-content">
-        <!-- 关键词配置 -->
         <div class="form-section">
           <div class="section-header">
             <Tag :size="16" />
-            <span>关键词配置</span>
+            <span>{{ pageConfig.firstSectionTitle }}</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label">监控关键词</label>
+            <label class="form-label">{{ pageConfig.keywordLabel }}</label>
             <div class="keyword-input">
               <input
                 v-model="newKeyword"
                 type="text"
                 class="form-input"
-                placeholder="输入关键词后按回车添加"
+                :placeholder="pageConfig.keywordPlaceholder"
                 @keyup.enter="addKeyword"
               />
               <button class="add-btn" @click="addKeyword">
@@ -244,18 +331,16 @@ const viewDaily = () => {
           </div>
         </div>
 
-        <!-- 地区配置 -->
         <div class="form-section">
           <div class="section-header">
             <MapPin :size="16" />
-            <span>监控配置</span>
+            <span>{{ pageConfig.secondSectionTitle }}</span>
           </div>
 
           <div class="form-group">
             <div class="config-row">
-              <label class="config-label">监控地区</label>
+              <label class="config-label">{{ pageConfig.regionLabel }}</label>
               <div class="config-options">
-                <!-- 收起状态：只显示已选中的 + 展开按钮 -->
                 <template v-if="!regionExpanded">
                   <button
                     v-for="region in selectedRegions"
@@ -270,7 +355,6 @@ const viewDaily = () => {
                   </button>
                 </template>
 
-                <!-- 展开状态：显示全部选项 + 收起按钮 -->
                 <template v-else>
                   <button
                     v-for="region in allRegions"
@@ -289,9 +373,9 @@ const viewDaily = () => {
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" v-if="!isNewsMode">
             <div class="config-row">
-              <label class="config-label">项目类型</label>
+              <label class="config-label">{{ pageConfig.typeLabel }}</label>
               <div class="config-options">
                 <button
                   v-for="type in typeOptions"
@@ -306,7 +390,24 @@ const viewDaily = () => {
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" v-else>
+            <div class="config-row">
+              <label class="config-label">{{ pageConfig.typeLabel }}</label>
+              <div class="config-options">
+                <button
+                  v-for="category in categoryOptions"
+                  :key="category.value"
+                  class="option-tag"
+                  :class="{ active: selectedCategories.includes(category.value) }"
+                  @click="toggleCategory(category.value)"
+                >
+                  {{ category.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" v-if="!isNewsMode">
             <div class="config-row">
               <label class="config-label">预算范围</label>
               <div class="budget-inputs">
@@ -328,9 +429,26 @@ const viewDaily = () => {
             </div>
           </div>
 
+          <div class="form-group" v-if="isNewsMode">
+            <div class="config-row">
+              <label class="config-label">{{ pageConfig.sourceLabel }}</label>
+              <div class="config-options">
+                <button
+                  v-for="source in sourceOptions"
+                  :key="source.value"
+                  class="option-tag"
+                  :class="{ active: selectedSources.includes(source.value) }"
+                  @click="toggleSource(source.value)"
+                >
+                  {{ source.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
             <div class="config-row">
-              <label class="config-label">推送时间</label>
+              <label class="config-label">{{ pageConfig.pushTimeLabel }}</label>
               <div class="config-options">
                 <button
                   v-for="time in timeOptions"
@@ -344,30 +462,45 @@ const viewDaily = () => {
               </div>
             </div>
           </div>
+
+          <div class="form-group">
+            <div class="config-row">
+              <label class="config-label">{{ pageConfig.pushMethodLabel }}</label>
+              <div class="config-options">
+                <button
+                  v-for="method in methodOptions"
+                  :key="method.value"
+                  class="option-tag"
+                  :class="{ active: pushMethods.includes(method.value) }"
+                  @click="toggleMethod(method.value)"
+                >
+                  {{ method.label }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Submit Buttons -->
         <div class="submit-container">
           <button class="submit-btn secondary" @click="handleSave">
             <Save :size="16" />
-            保存订阅
+            {{ pageConfig.saveLabel }}
           </button>
           <button class="submit-btn primary" @click="viewDaily">
-            <Bell :size="16" />
-            查看今日标讯
+            <component :is="pageConfig.icon" :size="16" />
+            {{ pageConfig.viewLabel }}
           </button>
         </div>
       </div>
     </main>
 
-    <!-- Right Info Card -->
     <aside class="info-sidebar">
       <div class="info-card">
-        <div class="info-icon">🔔</div>
-        <h3 class="info-title">标讯订阅</h3>
-        <p class="info-desc">智能监控招标信息，每日自动推送商机</p>
+        <div class="info-icon">{{ pageConfig.iconEmoji }}</div>
+        <h3 class="info-title">{{ pageConfig.infoTitle }}</h3>
+        <p class="info-desc">{{ pageConfig.infoDesc }}</p>
         <ul class="feature-list">
-          <li v-for="(feature, index) in features" :key="index">
+          <li v-for="(feature, index) in pageConfig.features" :key="index">
             <span class="bullet">●</span>
             {{ feature }}
           </li>

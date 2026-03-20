@@ -7,8 +7,8 @@ const router = useRouter();
 const tools = [
   {
     id: 1,
-    name: '标讯订阅',
-    description: '关键词智能监控，每日推送招标信息',
+    name: '资讯订阅',
+    description: '统一追踪行业资讯，包含标讯分类',
     icon: Bell,
     color: '#10b981',
     bgColor: '#ecfdf5',

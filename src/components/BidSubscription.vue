@@ -155,8 +155,8 @@ const removeExcludeRule = (value: string) => {
 <template>
   <div class="bid-subscription">
     <div class="content-header">
-      <h1 class="page-title">标讯订阅</h1>
-      <p class="page-subtitle">每个策略组可独立配置关键词/地区，AI智能匹配推送给对应成员</p>
+      <h1 class="page-title">资讯订阅</h1>
+      <p class="page-subtitle">每个策略组可独立配置关键词/地区等条件，统一推送对应资讯内容</p>
     </div>
 
     <!-- List View -->
@@ -165,7 +165,7 @@ const removeExcludeRule = (value: string) => {
         <div class="card-header">
           <div class="card-title-group">
             <h3 class="card-title">策略组</h3>
-            <span class="card-subtitle">每个策略组可独立配置监控条件和推送成员</span>
+            <span class="card-subtitle">每个策略组可独立配置关注条件和推送成员</span>
           </div>
           <button class="create-btn" @click="handleCreate"><Plus :size="14" />新建</button>
         </div>

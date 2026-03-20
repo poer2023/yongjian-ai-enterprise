@@ -5,7 +5,7 @@ import {
   Home,
   MessageSquare, // AI提问
   Newspaper, // 标讯搜索
-  Bell, // 标讯订阅
+  Bell, // 资讯订阅
   Bot, // 智能体
   Network, // 知识库 (Tree structure)
   ChevronDown,
@@ -33,6 +33,10 @@ const handleItemClick = (routeName: string) => {
 const isActive = (routeName: string) => {
   return route.name === routeName;
 };
+
+const isSubscriptionActive = computed(() => {
+  return ['bid-subscription', 'bid-info-form'].includes(String(route.name ?? ''));
+});
 
 const toggleKnowledge = () => {
   isKnowledgeExpanded.value = !isKnowledgeExpanded.value;
@@ -90,14 +94,14 @@ const bottomItems = [
         <span class="nav-label">标讯搜索</span>
       </div>
 
-      <!-- 标讯订阅 -->
+      <!-- 资讯订阅 -->
       <div
         class="nav-item"
-        :class="{ active: isActive('bid-subscription') }"
+        :class="{ active: isSubscriptionActive }"
         @click="handleItemClick('bid-subscription')"
       >
         <Bell :size="18" class="nav-icon" />
-        <span class="nav-label">标讯订阅</span>
+        <span class="nav-label">资讯订阅</span>
       </div>
 
       <!-- 智能体 -->

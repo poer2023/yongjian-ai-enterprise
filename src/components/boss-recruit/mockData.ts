@@ -73,7 +73,6 @@ export const experienceOptions = [
 export const errorHandlingOptions = [
   { value: 'pause', label: '暂停运行' },
   { value: 'skip', label: '跳过继续' },
-  { value: 'notify', label: '通知处理' },
 ];
 
 // Default filter configuration

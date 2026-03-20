@@ -1,0 +1,111 @@
+{
+  "formData": {
+    "selectedIndustry": "cyber-security",
+    "selectedTimeRange": "本季度",
+    "selectedRegions": ["上海", "江苏", "浙江"],
+    "selectedBiddingUnitIds": ["bu1", "bu2", "bu3"],
+    "selectedCompetitorIds": ["c1", "c2", "c3"],
+    "selectedBidNoticeIds": ["pr1", "pr2"],
+    "additionalInfo": "重点关注华东区域政务云和金融行业的竞争态势，特别是华安信息和中科安全在这两个领域的动向。需要分析我们在等保测评领域的优势如何转化为更多中标机会，以及如何补强在渗透测试和数据安全领域的短板。"
+  },
+  "formDataDetails": {
+    "industry": {
+      "id": "cyber-security",
+      "name": "网络安全",
+      "description": "等保测评、渗透测试、安全运维等"
+    },
+    "timeRange": "本季度",
+    "regions": [
+      "上海",
+      "江苏",
+      "浙江"
+    ],
+    "biddingUnits": [
+      {
+        "id": "bu1",
+        "name": "上海市大数据中心",
+        "type": "事业单位",
+        "region": "上海"
+      },
+      {
+        "id": "bu2",
+        "name": "浦东新区政务服务中心",
+        "type": "政府机关",
+        "region": "上海"
+      },
+      {
+        "id": "bu3",
+        "name": "中国工商银行上海分行",
+        "type": "金融机构",
+        "region": "上海"
+      }
+    ],
+    "competitors": [
+      {
+        "id": "c1",
+        "name": "华安信息技术有限公司",
+        "industry": "网络安全",
+        "region": "北京"
+      },
+      {
+        "id": "c2",
+        "name": "中科安全科技股份",
+        "industry": "网络安全",
+        "region": "北京"
+      },
+      {
+        "id": "c3",
+        "name": "启明星辰科技",
+        "industry": "网络安全",
+        "region": "北京"
+      }
+    ],
+    "bidNotices": [
+      {
+        "id": "pr1",
+        "name": "上海市第一人民医院信息系统等保测评",
+        "client": "上海市第一人民医院",
+        "budget": 85,
+        "bidDate": "2026-01-18"
+      },
+      {
+        "id": "pr2",
+        "name": "某区政务云安全监测平台建设",
+        "client": "静安区大数据中心",
+        "budget": 180,
+        "bidDate": "2026-03-10"
+      }
+    ],
+    "additionalInfo": "重点关注华东区域政务云和金融行业的竞争态势，特别是华安信息和中科安全在这两个领域的动向。需要分析我们在等保测评领域的优势如何转化为更多中标机会，以及如何补强在渗透测试和数据安全领域的短板。"
+  },
+  "validationRules": {
+    "selectedIndustry": {
+      "required": true,
+      "type": "string",
+      "description": "必填 - 关注行业"
+    },
+    "selectedTimeRange": {
+      "required": true,
+      "type": "string",
+      "options": ["本月", "本季度", "本年度", "近两年"],
+      "description": "必填 - 分析时间范围"
+    },
+    "dataSource": {
+      "required": true,
+      "description": "必填 - 至少选择一个数据源（招标单位、竞品企业或关注的标讯）",
+      "condition": "selectedBiddingUnitIds.length > 0 || selectedCompetitorIds.length > 0 || selectedBidNoticeIds.length > 0"
+    },
+    "selectedRegions": {
+      "required": false,
+      "type": "array",
+      "default": ["全国"],
+      "description": "选填 - 关注地区"
+    },
+    "additionalInfo": {
+      "required": false,
+      "type": "string",
+      "maxLength": 2000,
+      "description": "选填 - 补充说明"
+    }
+  }
+}

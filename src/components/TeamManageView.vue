@@ -20,7 +20,7 @@ const menuItems = [
   { icon: UsersRound, label: '小组管理', id: 'team-groups' },
   { icon: Bot, label: '智能体管理', id: 'team-agents' },
   { icon: Coins, label: '权益明细', id: 'team-benefits' },
-  { icon: Bell, label: '标讯订阅', id: 'team-bid-subscription' }
+  { icon: Bell, label: '资讯订阅', id: 'team-bid-subscription' }
 ];
 
 const activeMenu = computed(() => route.name as string);

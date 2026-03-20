@@ -6,6 +6,9 @@ import {
   Clock,
   LayoutGrid,
   ChevronRight,
+  Briefcase,
+  MessageSquare,
+  Database,
   UserCheck,
   FileUser,
   DollarSign,
@@ -19,6 +22,42 @@ const router = useRouter();
 
 // 全部应用列表
 const allAgents = [
+  {
+    id: 101,
+    name: '数据顾问智能体',
+    description: '多源数据接入、权限分层、引用问答与审计演示',
+    icon: Database,
+    color: '#0f766e',
+    bgColor: '#ecfeff',
+    routeName: 'data-advisor'
+  },
+  {
+    id: 103,
+    name: '销售管理智能体',
+    description: '销售汇报、AI复盘、看板与问答的演示壳子',
+    icon: Briefcase,
+    color: '#2563eb',
+    bgColor: '#eff6ff',
+    routeName: 'sales-management'
+  },
+  {
+    id: 104,
+    name: '咨询客服智能体',
+    description: '客服Bot、测试发布与转人工的演示壳子',
+    icon: MessageSquare,
+    color: '#7c3aed',
+    bgColor: '#f5f3ff',
+    routeName: 'customer-service'
+  },
+  {
+    id: 105,
+    name: 'AI工单智能体',
+    description: '工单配置、规则匹配与分配结果的演示壳子',
+    icon: FileText,
+    color: '#ea580c',
+    bgColor: '#fff7ed',
+    routeName: 'ai-ticket'
+  },
   {
     id: 1,
     name: 'Boss直聘招聘',
@@ -75,8 +114,8 @@ const allAgents = [
   }
 ];
 
-// 最近使用（取前5个作为示例）
-const recentAgents = allAgents.slice(0, 5);
+// 最近使用优先展示当前 business-full 增量模块
+const recentAgents = allAgents.slice(0, 4);
 
 const handleCardClick = (agent: any) => {
   if (agent.routeName) {

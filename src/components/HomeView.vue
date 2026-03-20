@@ -10,7 +10,7 @@ import { BrainCircuit, ChevronRight } from 'lucide-vue-next';
       <!-- Big Center Title -->
       <div class="center-title-area">
         <h1 class="main-title">
-          金盾检测 <span class="separator">|</span> <span class="highlight">AI企业助手</span>
+          企业版 <span class="separator">|</span> <span class="highlight">AI企业助手</span>
         </h1>
       </div>
 

@@ -306,7 +306,7 @@ const toggleRpaEnabled = () => {
                 class="option-btn"
                 :class="{ active: rpaStrategy.errorHandling === opt.value }"
                 :disabled="!rpaStrategy.enabled"
-                @click="rpaStrategy.errorHandling = opt.value as 'pause' | 'skip' | 'notify'"
+                @click="rpaStrategy.errorHandling = opt.value as 'pause' | 'skip'"
               >
                 {{ opt.label }}
               </button>

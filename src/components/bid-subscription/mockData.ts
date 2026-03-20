@@ -1,10 +1,46 @@
 // Mock data for BidSubscriptionView
 
-import type { PolicyGroup, DateOption, BidHighlight, BidItem, DayData, DataByPolicy, IndustryTag, CompetitorCompany } from './types';
+import type {
+  PolicyGroup,
+  DateOption,
+  BidHighlight,
+  BidItem,
+  DayData,
+  DataByPolicy,
+  IndustryTag,
+  CompetitorCompany,
+  NewsPolicyGroup,
+  NewsDataByPolicy,
+  NewsDetail,
+} from './types';
 
 export const policyGroups: PolicyGroup[] = [
   { id: 'security', name: '网络安全组', color: '#10b981', newCount: 8, salesStrategy: { biddingUnits: 4, competitors: 5, bidNotices: 1 } },
   { id: 'dengbao', name: '等保测评组', color: '#f59e0b', newCount: 4, salesStrategy: { biddingUnits: 3, competitors: 2, bidNotices: 2 } }
+];
+
+export const newsPolicyGroups: NewsPolicyGroup[] = [
+  {
+    id: 'overview',
+    name: '综合资讯组',
+    color: '#2563eb',
+    newCount: 16,
+    categoryStats: { bidding: 5, industry: 7, product: 4 }
+  },
+  {
+    id: 'ai-agent',
+    name: 'AI Agent 组',
+    color: '#7c3aed',
+    newCount: 9,
+    categoryStats: { bidding: 1, industry: 4, product: 4 }
+  },
+  {
+    id: 'bidding-watch',
+    name: '标讯关注组',
+    color: '#0f766e',
+    newCount: 6,
+    categoryStats: { bidding: 6, industry: 0, product: 0 }
+  }
 ];
 
 export const dateOptions: DateOption[] = [
@@ -167,4 +203,173 @@ export const dataByPolicyAndDate: DataByPolicy = {
       ]
     }
   }
+};
+
+export const newsDataByPolicyAndDate: NewsDataByPolicy = {
+  overview: {
+    '2026-02-04': {
+      summary: `今日共汇总资讯 26 条，其中高相关内容 8 条。AI Agent、企业协同和政企采购三个方向最活跃；其中“标讯”作为资讯分类之一，今日新增 5 条重点机会。`,
+      highlights: [
+        { id: 9001, title: '飞书发布新一代企业 Agent 协同能力，开放多角色工作流编排', source: '飞书开放平台', publishedAt: '今天 08:30', category: '产品动态', matchScore: 97, tags: ['AI Agent', '飞书', '企业服务'] },
+        { id: 9002, title: '企业知识库接入与权限治理成为本周 SaaS 热点话题', source: '虎嗅 Pro', publishedAt: '今天 10:00', category: '行业资讯', matchScore: 92, tags: ['知识库', '权限治理', 'SaaS'] },
+        { id: 9003, title: '某市政务云智能助手建设项目启动采购，预算 180 万元', source: '政采公告网', publishedAt: '今天 11:20', category: '标讯', matchScore: 95, tags: ['标讯', '政务云', '智能助手'] }
+      ],
+      allItems: [
+        { id: 9001, title: '飞书发布新一代企业 Agent 协同能力，开放多角色工作流编排', source: '飞书开放平台', matchScore: 97 },
+        { id: 9002, title: '企业知识库接入与权限治理成为本周 SaaS 热点话题', source: '虎嗅 Pro', matchScore: 92 },
+        { id: 9003, title: '某市政务云智能助手建设项目启动采购，预算 180 万元', source: '政采公告网', matchScore: 95 },
+        { id: 9004, title: '钉钉生态新增多项 AI 插件能力，强调组织级权限管理', source: '钉钉开放平台', matchScore: 90 },
+        { id: 9005, title: '企业微信服务市场加速接入垂直行业智能体方案', source: '36Kr', matchScore: 88 },
+        { id: 9006, title: '某大型集团启动数据顾问与知识助手项目招标', source: '招标网', matchScore: 89 }
+      ]
+    },
+    '2026-02-03': {
+      summary: `昨日共汇总资讯 21 条，行业资讯与标讯信息保持平稳。AI 办公、知识助手和政企数字化是出现频率最高的主题。`,
+      highlights: [
+        { id: 9011, title: '多家企业开始将知识库问答与工单系统打通，提升客服处理效率', source: 'InfoQ', publishedAt: '昨天 14:10', category: '行业资讯', matchScore: 91, tags: ['知识库', '客服', '工单'] },
+        { id: 9012, title: '某省级平台发布企业知识助手采购公告，聚焦权限审计能力', source: '政府采购网', publishedAt: '昨天 09:45', category: '标讯', matchScore: 94, tags: ['标讯', '知识助手', '审计'] }
+      ],
+      allItems: [
+        { id: 9011, title: '多家企业开始将知识库问答与工单系统打通，提升客服处理效率', source: 'InfoQ', matchScore: 91 },
+        { id: 9012, title: '某省级平台发布企业知识助手采购公告，聚焦权限审计能力', source: '政府采购网', matchScore: 94 },
+        { id: 9013, title: '企业级 AI 助手产品竞争加剧，厂商开始主打权限分层与接入能力', source: '极客公园', matchScore: 87 }
+      ]
+    },
+    '2026-02-02': {
+      summary: `前日共汇总资讯 18 条，企业服务与招投标方向热度上升。标讯类资讯占比约 30%，适合单独关注。`,
+      highlights: [
+        { id: 9021, title: '某医疗集团发布 AI 智能客服建设招标公告', source: '招标网', publishedAt: '前天 15:20', category: '标讯', matchScore: 93, tags: ['标讯', '智能客服', '医疗'] },
+        { id: 9022, title: '多家 SaaS 厂商推出“工作流 + 智能体”新方案，聚焦中后台提效', source: '36Kr', publishedAt: '前天 11:00', category: '行业资讯', matchScore: 89, tags: ['智能体', '工作流', 'SaaS'] }
+      ],
+      allItems: [
+        { id: 9021, title: '某医疗集团发布 AI 智能客服建设招标公告', source: '招标网', matchScore: 93 },
+        { id: 9022, title: '多家 SaaS 厂商推出“工作流 + 智能体”新方案，聚焦中后台提效', source: '36Kr', matchScore: 89 },
+        { id: 9023, title: '知识中台与数据接入平台在大型企业中成为重点建设方向', source: '雷峰网', matchScore: 85 }
+      ]
+    }
+  },
+  'ai-agent': {
+    '2026-02-04': {
+      summary: `【AI Agent 组】今日共汇总相关资讯 12 条，其中产品动态与开放生态消息最值得关注。`,
+      highlights: [
+        { id: 9101, title: '飞书开放平台升级 Agent 编排能力，支持知识库与审批流联动', source: '飞书开放平台', publishedAt: '今天 08:30', category: '产品动态', matchScore: 97, tags: ['飞书', 'Agent', '流程编排'] },
+        { id: 9102, title: '钉钉公布企业智能体接入新方案，强调组织权限与数据边界', source: '钉钉开放平台', publishedAt: '今天 09:20', category: '产品动态', matchScore: 95, tags: ['钉钉', '权限', '智能体'] }
+      ],
+      allItems: [
+        { id: 9101, title: '飞书开放平台升级 Agent 编排能力，支持知识库与审批流联动', source: '飞书开放平台', matchScore: 97 },
+        { id: 9102, title: '钉钉公布企业智能体接入新方案，强调组织权限与数据边界', source: '钉钉开放平台', matchScore: 95 },
+        { id: 9103, title: '企业级 Agent 产品开始从单点问答转向多角色协同', source: '虎嗅 Pro', matchScore: 90 }
+      ]
+    }
+  },
+  'bidding-watch': {
+    '2026-02-04': {
+      summary: `【标讯关注组】今日共汇总标讯类资讯 9 条，其中 3 条与企业版智能体方向高度相关。`,
+      highlights: [
+        { id: 9201, title: '某市政务云智能助手建设项目启动采购，预算 180 万元', source: '政采公告网', publishedAt: '今天 11:20', category: '标讯', matchScore: 95, tags: ['标讯', '政务云', '智能助手'] },
+        { id: 9202, title: '某大型集团启动数据顾问与知识助手项目招标', source: '招标网', publishedAt: '今天 13:10', category: '标讯', matchScore: 92, tags: ['标讯', '数据顾问', '知识助手'] }
+      ],
+      allItems: [
+        { id: 9201, title: '某市政务云智能助手建设项目启动采购，预算 180 万元', source: '政采公告网', matchScore: 95 },
+        { id: 9202, title: '某大型集团启动数据顾问与知识助手项目招标', source: '招标网', matchScore: 92 },
+        { id: 9203, title: '某医院客服与工单一体化平台采购启动', source: '政府采购网', matchScore: 88 }
+      ]
+    }
+  }
+};
+
+export const newsDetails: Record<number, NewsDetail> = {
+  9001: {
+    id: 9001,
+    title: '飞书发布新一代企业 Agent 协同能力，开放多角色工作流编排',
+    source: '飞书开放平台',
+    matchScore: 97,
+    publishedAt: '今天 08:30',
+    category: '产品动态',
+    author: '产品资讯编译',
+    summary: '飞书此次更新重点强化了多角色协同、知识库联动和审批流编排能力，适合关注企业智能体落地路径的团队持续跟进。',
+    keyPoints: [
+      '支持知识库、审批流和任务编排联动。',
+      '强调组织级权限、角色分工和审计可追踪。',
+      '适合与企业内部知识助手场景联动观察。',
+    ],
+    recommendations: [
+      '加入知识库，作为企业 Agent 产品能力样本。',
+      '交给数据顾问，提炼与现有需求的重合点。',
+    ],
+  },
+  9002: {
+    id: 9002,
+    title: '企业知识库接入与权限治理成为本周 SaaS 热点话题',
+    source: '虎嗅 Pro',
+    matchScore: 92,
+    publishedAt: '今天 10:00',
+    category: '行业资讯',
+    author: '行业编辑部',
+    summary: '本篇内容集中讨论企业知识库建设中的接入能力、权限边界和问答可信度问题，与当前数据顾问和知识助手需求高度相关。',
+    keyPoints: [
+      '接入多源文档与权限治理成为企业落地关键。',
+      '问答场景开始强调来源引用和审计记录。',
+      '知识平台正从内容沉淀转向可执行的业务支持。',
+    ],
+    recommendations: [
+      '加入知识库并打上“权限治理”标签。',
+      '作为数据顾问与客服智能体的参考资料。',
+    ],
+  },
+  9003: {
+    id: 9003,
+    title: '某市政务云智能助手建设项目启动采购，预算 180 万元',
+    source: '政采公告网',
+    matchScore: 95,
+    publishedAt: '今天 11:20',
+    category: '标讯',
+    author: '招采监测引擎',
+    summary: '该项目聚焦政务云场景下的智能助手建设，适合归入资讯订阅中的“标讯”分类，作为行业机会同步观察。',
+    keyPoints: [
+      '需求包含知识问答、权限控制和审计能力。',
+      '预算规模适中，适合列为高优先级跟踪项目。',
+      '可结合数据顾问能力评估可复用模块。',
+    ],
+    recommendations: [
+      '同步加入标讯解读流程进一步分析。',
+      '转给销售管理智能体，补充后续跟进动作。',
+    ],
+  },
+  9201: {
+    id: 9201,
+    title: '某市政务云智能助手建设项目启动采购，预算 180 万元',
+    source: '政采公告网',
+    matchScore: 95,
+    publishedAt: '今天 11:20',
+    category: '标讯',
+    author: '招采监测引擎',
+    summary: '该标讯同时被纳入资讯订阅和标讯监测，适合演示统一订阅入口下的多分类聚合方式。',
+    keyPoints: [
+      '可从资讯订阅直接进入标讯相关跟踪流程。',
+      '分类维度与当前资讯订阅逻辑保持一致。',
+    ],
+    recommendations: [
+      '进入标讯解读查看原文结构。',
+      '进入数据顾问补充机会分析。',
+    ],
+  },
+  9202: {
+    id: 9202,
+    title: '某大型集团启动数据顾问与知识助手项目招标',
+    source: '招标网',
+    matchScore: 92,
+    publishedAt: '今天 13:10',
+    category: '标讯',
+    author: '招采监测引擎',
+    summary: '该项目与当前 business-full 的补充需求高度贴近，适合作为重点跟踪内容放入“标讯”分类。',
+    keyPoints: [
+      '需求覆盖数据顾问、知识助手和权限控制。',
+      '适合与现有 demo 模块做能力映射。',
+    ],
+    recommendations: [
+      '加入知识库做需求映射。',
+      '交给销售管理智能体生成跟进建议。',
+    ],
+  },
 };

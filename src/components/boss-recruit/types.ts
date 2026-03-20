@@ -62,7 +62,7 @@ export interface RpaStrategy {
   hourlyLimit: number;
   minInterval: number;
   maxInterval: number;
-  errorHandling: 'pause' | 'skip' | 'notify';
+  errorHandling: 'pause' | 'skip';
   enabled: boolean;
 }
 
