@@ -10,7 +10,9 @@ import {
   Clock,
   CalendarClock,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  Files,
+  FolderOpen
 } from 'lucide-vue-next';
 import SourceFileList from './SourceFileList.vue';
 import FilePreviewPanel from './FilePreviewPanel.vue';
@@ -30,6 +32,8 @@ const materials = ref<Material[]>([...initialMaterials]);
 const selectedFile = ref<SourceFile | null>(null);
 const showAddMaterialModal = ref(false);
 const filePreviewRef = ref<InstanceType<typeof FilePreviewPanel> | null>(null);
+const fileInputRef = ref<HTMLInputElement | null>(null);
+const folderInputRef = ref<HTMLInputElement | null>(null);
 
 // Computed
 const selectedFileMaterials = computed(() => {
@@ -175,7 +179,23 @@ const handleDrop = (e: DragEvent) => {
 };
 
 const handleFileSelect = () => {
-  console.log('File select triggered');
+  fileInputRef.value?.click();
+};
+
+const handleFolderSelect = () => {
+  folderInputRef.value?.click();
+};
+
+const handleFileInputChange = (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  console.log('Selected files:', input.files);
+  input.value = '';
+};
+
+const handleFolderInputChange = (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  console.log('Selected folder files:', input.files);
+  input.value = '';
 };
 
 // Resizer logic
@@ -209,6 +229,11 @@ const stopDrag = () => {
 };
 
 onMounted(() => {
+  if (folderInputRef.value) {
+    folderInputRef.value.setAttribute('webkitdirectory', '');
+    folderInputRef.value.setAttribute('directory', '');
+  }
+
   document.addEventListener('mousemove', onDrag);
   document.addEventListener('mouseup', stopDrag);
 });
@@ -265,105 +290,134 @@ onUnmounted(() => {
 
         <!-- Default: split top/bottom -->
         <template v-else>
-          <!-- Top half: Expiry Alerts -->
-          <div class="panel-half panel-half-top">
-            <div v-if="expiryAlerts.length > 0" class="expiry-summary-panel">
-              <div class="expiry-summary-header">
-                <div class="expiry-summary-title">
-                  <ShieldAlert :size="20" />
-                  <span>临期资质提醒</span>
-                  <span class="expiry-summary-count">{{ expiryAlerts.length }}</span>
+          <div class="material-overview-layout">
+            <!-- Top half: Expiry Alerts -->
+            <div class="panel-half panel-half-top">
+              <div v-if="expiryAlerts.length > 0" class="expiry-summary-panel">
+                <div class="expiry-summary-header">
+                  <div class="expiry-summary-title">
+                    <ShieldAlert :size="20" />
+                    <span>临期资质提醒</span>
+                    <span class="expiry-summary-count">{{ expiryAlerts.length }}</span>
+                  </div>
+                  <span class="expiry-summary-hint">以下资质文件即将到期或已过期，请及时补充更新</span>
                 </div>
-                <span class="expiry-summary-hint">以下资质文件即将到期或已过期，请及时补充更新</span>
-              </div>
-              <div class="expiry-alert-list">
-                <div
-                  v-for="item in expiryAlerts"
-                  :key="item.material.id"
-                  class="expiry-alert-row"
-                  :class="'expiry-row-' + item.level"
-                  @click="handleAlertClick(item)"
-                >
-                  <div class="expiry-alert-row-left">
-                    <div class="expiry-level-dot" :class="'dot-' + item.level"></div>
-                    <div class="expiry-alert-info">
-                      <span class="expiry-alert-name">{{ item.material.name }}</span>
-                      <span class="expiry-alert-file">{{ item.sourceFile?.name || '—' }}</span>
+                <div class="expiry-alert-list">
+                  <div
+                    v-for="item in expiryAlerts"
+                    :key="item.material.id"
+                    class="expiry-alert-row"
+                    :class="'expiry-row-' + item.level"
+                    @click="handleAlertClick(item)"
+                  >
+                    <div class="expiry-alert-row-left">
+                      <div class="expiry-level-dot" :class="'dot-' + item.level"></div>
+                      <div class="expiry-alert-info">
+                        <span class="expiry-alert-name">{{ item.material.name }}</span>
+                        <span class="expiry-alert-file">{{ item.sourceFile?.name || '—' }}</span>
+                      </div>
+                    </div>
+                    <div class="expiry-alert-row-right">
+                      <span class="expiry-alert-tag" :class="'tag-' + item.level">
+                        <AlertTriangle v-if="item.level === 'expired' || item.level === 'week'" :size="12" />
+                        <Clock v-else-if="item.level === 'month'" :size="12" />
+                        <CalendarClock v-else :size="12" />
+                        {{ item.label }}
+                      </span>
+                      <ChevronRight :size="16" class="expiry-arrow" />
                     </div>
                   </div>
-                  <div class="expiry-alert-row-right">
-                    <span class="expiry-alert-tag" :class="'tag-' + item.level">
-                      <AlertTriangle v-if="item.level === 'expired' || item.level === 'week'" :size="12" />
-                      <Clock v-else-if="item.level === 'month'" :size="12" />
-                      <CalendarClock v-else :size="12" />
-                      {{ item.label }}
-                    </span>
-                    <ChevronRight :size="16" class="expiry-arrow" />
-                  </div>
                 </div>
+              </div>
+              <div v-else class="expiry-empty">
+                <ShieldAlert :size="32" />
+                <span>暂无临期资质</span>
+                <span class="expiry-empty-hint">所有资质文件状态正常</span>
               </div>
             </div>
-            <div v-else class="expiry-empty">
-              <ShieldAlert :size="32" />
-              <span>暂无临期资质</span>
-              <span class="expiry-empty-hint">所有资质文件状态正常</span>
-            </div>
-          </div>
 
-          <!-- Bottom half: Upload Area -->
-          <div class="panel-half panel-half-bottom">
-            <div
-              class="upload-area"
-              :class="{ 'is-drag-over': isDragOver }"
-              @dragover="handleDragOver"
-              @dragleave="handleDragLeave"
-              @drop="handleDrop"
-            >
-              <div class="upload-icon">
-                <Upload :size="32" stroke-width="1.5" />
-              </div>
-              <div class="upload-text">
-                <span class="upload-main-text">拖放企业文件到此处，或</span>
-                <button class="upload-btn" @click="handleFileSelect">选择文件</button>
-              </div>
-              <p class="upload-hint">支持 PDF、Word、Excel、图片等格式，单次可上传多个文件</p>
-
-              <!-- Process Flow Card -->
-              <div class="process-flow-card">
-                <div class="flow-header">
-                  <span class="flow-icon">✨</span>
-                  <span>上传后，AI 将自动为您完成：</span>
-                </div>
-                <div class="flow-steps">
-                  <div class="flow-step">
-                    <div class="step-icon">
-                      <ScanSearch :size="20" />
+            <!-- Bottom half: Upload Area -->
+            <div class="panel-half panel-half-bottom">
+              <div
+                class="upload-area"
+                :class="{ 'is-drag-over': isDragOver }"
+                @dragover="handleDragOver"
+                @dragleave="handleDragLeave"
+                @drop="handleDrop"
+              >
+                <input
+                  ref="fileInputRef"
+                  class="sr-only-input"
+                  type="file"
+                  multiple
+                  @change="handleFileInputChange"
+                />
+                <input
+                  ref="folderInputRef"
+                  class="sr-only-input"
+                  type="file"
+                  multiple
+                  @change="handleFolderInputChange"
+                />
+                <div class="upload-hero">
+                  <div class="upload-icon">
+                    <Upload :size="28" stroke-width="1.5" />
+                  </div>
+                  <div class="upload-copy">
+                    <div class="upload-text">
+                      <span class="upload-main-text">拖放文件到此处，或直接导入文件夹</span>
                     </div>
-                    <div class="step-label">智能识别</div>
-                    <div class="step-desc">识别文件内容</div>
-                  </div>
-                  <div class="flow-arrow">
-                    <ArrowRight :size="16" />
-                  </div>
-                  <div class="flow-step">
-                    <div class="step-icon">
-                      <GitBranch :size="20" />
-                    </div>
-                    <div class="step-label">自动拆分</div>
-                    <div class="step-desc">拆分为原子素材</div>
-                  </div>
-                  <div class="flow-arrow">
-                    <ArrowRight :size="16" />
-                  </div>
-                  <div class="flow-step">
-                    <div class="step-icon">
-                      <Tags :size="20" />
-                    </div>
-                    <div class="step-label">分类归档</div>
-                    <div class="step-desc">归入对应分类</div>
+                    <p class="upload-hint">支持 PDF、Word、Excel、图片；可批量导入文件或文件夹</p>
                   </div>
                 </div>
-                <p class="flow-footer">拆分后的素材可在「AI标书生成」等场景中自动匹配调用</p>
+                <div class="upload-actions">
+                  <button class="upload-btn upload-btn-primary" @click="handleFileSelect">
+                    <Files :size="16" />
+                    选择文件
+                  </button>
+                  <button class="upload-btn upload-btn-secondary" @click="handleFolderSelect">
+                    <FolderOpen :size="16" />
+                    选择文件夹
+                  </button>
+                </div>
+
+                <!-- Process Flow Card -->
+                <div class="process-flow-card">
+                  <div class="flow-header">
+                    <span class="flow-icon">✨</span>
+                    <span>上传后，AI 将自动为您完成：</span>
+                  </div>
+                  <div class="flow-steps">
+                    <div class="flow-step">
+                      <div class="step-icon">
+                        <ScanSearch :size="18" />
+                      </div>
+                      <div class="step-label">智能识别</div>
+                      <div class="step-desc">识别文件内容</div>
+                    </div>
+                    <div class="flow-arrow">
+                      <ArrowRight :size="14" />
+                    </div>
+                    <div class="flow-step">
+                      <div class="step-icon">
+                        <GitBranch :size="18" />
+                      </div>
+                      <div class="step-label">自动拆分</div>
+                      <div class="step-desc">拆分为原子素材</div>
+                    </div>
+                    <div class="flow-arrow">
+                      <ArrowRight :size="14" />
+                    </div>
+                    <div class="flow-step">
+                      <div class="step-icon">
+                        <Tags :size="18" />
+                      </div>
+                      <div class="step-label">分类归档</div>
+                      <div class="step-desc">归入对应分类</div>
+                    </div>
+                  </div>
+                  <p class="flow-footer">拆分后的素材可在「AI标书生成」等场景中自动匹配调用</p>
+                </div>
               </div>
             </div>
           </div>
@@ -427,40 +481,47 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 20px;
   overflow: hidden;
-  gap: 0;
+  gap: 12px;
+  min-height: 0;
+}
+
+.material-overview-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
 }
 
 /* Top/Bottom half split */
 .panel-half {
-  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
 .panel-half-top {
-  padding-bottom: 12px;
+  min-height: 0;
 }
 
 .panel-half-bottom {
-  padding-top: 12px;
-  border-top: 1px solid #e5e7eb;
+  flex: none;
+  min-height: auto;
 }
 
 /* Upload Area */
 .upload-area {
   border: 2px dashed #bfdbfe;
   border-radius: 16px;
-  padding: 32px 24px;
+  padding: 18px 18px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
   transition: all 0.2s;
-  flex: 1;
 }
 
 .upload-area.is-drag-over {
@@ -468,61 +529,122 @@ onUnmounted(() => {
   background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
 }
 
+.sr-only-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.upload-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
 .upload-icon {
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #3b82f6;
-  margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  flex-shrink: 0;
+}
+
+.upload-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 520px;
+  gap: 4px;
 }
 
 .upload-text {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .upload-main-text {
-  font-size: 16px;
-  color: #374151;
-  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.3;
+  color: #1f2937;
+  font-weight: 700;
 }
 
 .upload-btn {
-  background: #2563eb;
-  color: white;
   border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.upload-btn:hover {
-  background: #1d4ed8;
+.upload-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.upload-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
+}
+
+.upload-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.3);
+}
+
+.upload-btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 6px 16px rgba(148, 163, 184, 0.12);
+}
+
+.upload-btn-secondary:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
 }
 
 .upload-hint {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin-bottom: 24px;
+  margin: 0;
 }
 
 /* Process Flow Card */
 .process-flow-card {
   background: white;
   border-radius: 12px;
-  padding: 20px 24px;
+  padding: 12px 14px;
   width: 100%;
-  max-width: 520px;
+  max-width: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid #e5e7eb;
 }
@@ -531,10 +653,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 12px;
   color: #374151;
   font-weight: 500;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .flow-icon {
@@ -545,22 +667,22 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .flow-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
   max-width: 120px;
 }
 
 .step-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
   background: #eff6ff;
   display: flex;
   align-items: center;
@@ -569,28 +691,29 @@ onUnmounted(() => {
 }
 
 .step-label {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #1f2937;
 }
 
 .step-desc {
-  font-size: 12px;
+  font-size: 10px;
   color: #6b7280;
   text-align: center;
+  line-height: 1.35;
 }
 
 .flow-arrow {
   color: #9ca3af;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .flow-footer {
-  font-size: 12px;
+  font-size: 10px;
   color: #6b7280;
   text-align: center;
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px dashed #e5e7eb;
 }
 
@@ -608,7 +731,7 @@ onUnmounted(() => {
 }
 
 .expiry-summary-header {
-  padding: 16px 20px;
+  padding: 14px 18px;
   background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%);
   border-bottom: 1px solid #fecaca;
 }
@@ -617,10 +740,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #dc2626;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .expiry-summary-count {
@@ -638,7 +761,7 @@ onUnmounted(() => {
 }
 
 .expiry-summary-hint {
-  font-size: 13px;
+  font-size: 12px;
   color: #9ca3af;
 }
 
@@ -653,7 +776,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 12px 18px;
   cursor: pointer;
   transition: background 0.15s;
   border-bottom: 1px solid #f3f4f6;
@@ -711,7 +834,7 @@ onUnmounted(() => {
 }
 
 .expiry-alert-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #1f2937;
   white-space: nowrap;
@@ -720,7 +843,7 @@ onUnmounted(() => {
 }
 
 .expiry-alert-file {
-  font-size: 12px;
+  font-size: 11px;
   color: #9ca3af;
   white-space: nowrap;
   overflow: hidden;
@@ -738,8 +861,8 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 4px 8px;
+  font-size: 11px;
   font-weight: 600;
   border-radius: 6px;
   white-space: nowrap;
@@ -798,5 +921,59 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 400;
   color: #c0c5cc;
+}
+
+@media (max-width: 1280px) {
+  .material-panel-content {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .material-overview-layout {
+    gap: 10px;
+  }
+
+  .upload-area {
+    padding: 16px 16px 12px;
+  }
+
+  .upload-main-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 960px) {
+  .material-panel-content {
+    overflow-y: auto;
+  }
+
+  .material-overview-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flow-steps {
+    gap: 12px;
+  }
+
+  .flow-step {
+    max-width: none;
+  }
+
+  .flow-arrow {
+    display: none;
+  }
+
+  .upload-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .upload-copy,
+  .upload-text {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
 }
 </style>
