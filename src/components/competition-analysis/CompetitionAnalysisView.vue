@@ -208,7 +208,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <FormPageLayout :icon="Target" title="行业分析报告" subtitle="配置分析参数，一键生成面向销售的竞争策略报告">
+  <FormPageLayout :icon="Target" title="招投标市场分析" subtitle="配置分析参数，一键生成面向销售的竞争策略报告">
     <template #sidebar>
       <TemplateSidebar :recent-tools="recentTools" />
     </template>
@@ -401,11 +401,11 @@ const handleSubmit = () => {
 
     <!-- Submit -->
     <div class="submit-container">
-      <button class="submit-btn" :disabled="!canSubmit" @click="handleSubmit">生成行业分析报告</button>
+      <button class="submit-btn" :disabled="!canSubmit" @click="handleSubmit">生成招投标市场分析</button>
     </div>
 
     <template #info-sidebar>
-      <InfoSidebar :icon="Target" title="行业分析报告" description="面向一线销售的智能分析工具，自动生成竞争策略报告，提供「如何赢他」的具体建议和可执行行动计划" :features="features" />
+      <InfoSidebar :icon="Target" title="招投标市场分析" description="面向一线销售的智能分析工具，自动生成竞争策略报告，提供「如何赢他」的具体建议和可执行行动计划" :features="features" />
     </template>
   </FormPageLayout>
 </template>

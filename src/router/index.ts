@@ -12,6 +12,7 @@ import CustomerServiceView from '../components/business-full/CustomerServiceView
 import DataAdvisorView from '../components/business-full/DataAdvisorView.vue';
 import SalesManagementView from '../components/business-full/SalesManagementView.vue';
 import TeamSectionShellView from '../components/team/TeamSectionShellView.vue';
+import TeamCompanyProfileView from '../components/team/TeamCompanyProfileView.vue';
 
 // 素材库模块
 import CompanyInfoView from '../components/CompanyInfoView.vue';
@@ -268,19 +269,19 @@ const routes = [
     path: '/bid/industry-report',
     name: 'bid-industry-report',
     component: BidIndustryReportView,
-    meta: { title: '行业分析报告', fullScreen: true }
+    meta: { title: '招投标市场分析', fullScreen: true }
   },
   {
     path: '/bid/competition-analysis',
     name: 'competition-analysis',
     component: CompetitionAnalysisView,
-    meta: { title: '行业分析报告' }
+    meta: { title: '招投标市场分析' }
   },
   {
     path: '/bid/competition-analysis/report',
     name: 'competition-report',
     component: CompetitionReportView,
-    meta: { title: '行业分析报告', fullScreen: true }
+    meta: { title: '招投标市场分析', fullScreen: true }
   },
 
   // 合同模块
@@ -338,6 +339,7 @@ const routes = [
     redirect: { name: 'team-overview' },
     children: [
       { path: '', name: 'team-overview', component: TeamOverviewView, meta: { title: '团队概览' } },
+      { path: 'company-profile', name: 'team-company-profile', component: TeamCompanyProfileView, meta: { title: '企业简介' } },
       { path: 'members', name: 'team-members', component: TeamSectionShellView, props: { section: 'members' }, meta: { title: '成员管理' } },
       { path: 'groups', name: 'team-groups', component: TeamSectionShellView, props: { section: 'groups' }, meta: { title: '小组管理' } },
       { path: 'agents', name: 'team-agents', component: TeamSectionShellView, props: { section: 'agents' }, meta: { title: '智能体管理' } },

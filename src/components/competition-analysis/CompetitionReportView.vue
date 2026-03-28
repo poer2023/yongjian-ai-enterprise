@@ -183,7 +183,7 @@ const goBack = () => {
 };
 
 const handleExport = () => {
-  alert('行业分析报告已导出为PDF');
+  alert('招投标市场分析报告已导出为PDF');
 };
 
 const closeTab = (tabId: string) => {
@@ -215,7 +215,7 @@ const configStats = computed(() => {
       </button>
       <div class="header-title-area">
         <Target :size="20" />
-        <h1>行业分析报告</h1>
+        <h1>招投标市场分析</h1>
         <span class="header-subtitle">{{ industryName }} · {{ queryTimeRange }}</span>
       </div>
       <div class="header-controls">
@@ -262,7 +262,7 @@ const configStats = computed(() => {
         <div class="report-document">
           <!-- Report Header -->
           <div class="report-doc-header">
-            <h1>行业分析报告</h1>
+            <h1>招投标市场分析</h1>
             <div class="report-doc-meta">
               {{ industryName }} · {{ queryTimeRange }} · 生成于 {{ generatedAt }}
             </div>
@@ -304,104 +304,8 @@ const configStats = computed(() => {
               <blockquote v-else-if="para.type === 'quote'" class="report-blockquote" v-html="para.content" />
             </template>
 
-            <!-- Embedded strategy cards after competitor section -->
-            <template v-if="section.id === 'competitor' && selectedCompetitors.length">
-              <div class="strategy-link-section">
-                <h3 class="strategy-link-title">
-                  <Swords :size="16" />
-                  竞争策略速查
-                </h3>
-                <p class="strategy-link-desc">以下是针对各竞争对手的「如何赢他」策略要点，点击展开查看详细建议：</p>
-                <div class="strategy-link-cards">
-                  <div
-                    v-for="comp in selectedCompetitors"
-                    :key="comp.id"
-                    :class="['strategy-link-card', { active: activeCompetitorId === comp.id }]"
-                  >
-                    <div class="strategy-link-card-header" @click="activeCompetitorId = activeCompetitorId === comp.id ? null : comp.id">
-                      <div class="strategy-link-card-left">
-                        <Shield :size="14" />
-                        <span class="strategy-link-card-name">{{ comp.name }}</span>
-                        <span class="strategy-link-card-region">{{ comp.region }}</span>
-                      </div>
-                      <ChevronDown :size="14" :class="['strategy-expand-icon', { expanded: activeCompetitorId === comp.id }]" />
-                    </div>
-                    <div v-if="activeCompetitorId === comp.id && howToWin[comp.id]" class="how-to-win-card embedded">
-                      <h4 class="how-to-win-title">
-                        <Trophy :size="14" />
-                        {{ howToWin[comp.id]!.title }}
-                      </h4>
-                      <ul class="how-to-win-list">
-                        <li v-for="(tip, i) in howToWin[comp.id]!.tips" :key="i">{{ tip }}</li>
-                      </ul>
-                    </div>
-                    <div v-if="activeCompetitorId === comp.id && !howToWin[comp.id]" class="no-strategy-hint">
-                      暂无针对该竞品的专项策略，建议收集更多交锋数据后生成
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-
-            <!-- Embedded sales tips after biddingUnit section -->
-            <template v-if="section.id === 'biddingUnit' && selectedBiddingUnits.length">
-              <div class="strategy-link-section">
-                <h3 class="strategy-link-title">
-                  <Lightbulb :size="16" />
-                  客户攻略速查
-                </h3>
-                <p class="strategy-link-desc">以下是针对各招标单位的销售建议，帮助销售团队快速了解客户偏好和突破策略：</p>
-                <div class="strategy-link-cards">
-                  <div
-                    v-for="bu in selectedBiddingUnits"
-                    :key="bu.id"
-                    :class="['strategy-link-card', { active: activeBiddingUnitId === bu.id }]"
-                  >
-                    <div class="strategy-link-card-header" @click="activeBiddingUnitId = activeBiddingUnitId === bu.id ? null : bu.id">
-                      <div class="strategy-link-card-left">
-                        <Building2 :size="14" />
-                        <span class="strategy-link-card-name">{{ bu.name }}</span>
-                        <span class="strategy-link-card-region">{{ bu.type }} · {{ bu.region }}</span>
-                      </div>
-                      <ChevronDown :size="14" :class="['strategy-expand-icon', { expanded: activeBiddingUnitId === bu.id }]" />
-                    </div>
-                    <div v-if="activeBiddingUnitId === bu.id && salesTips[bu.id]" class="sales-tips-card embedded">
-                      <h4 class="sales-tips-title">
-                        <Lightbulb :size="14" />
-                        销售建议
-                      </h4>
-                      <ul class="sales-tips-list">
-                        <li v-for="(tip, i) in salesTips[bu.id]" :key="i">{{ tip }}</li>
-                      </ul>
-                    </div>
-                    <div v-if="activeBiddingUnitId === bu.id && !salesTips[bu.id]" class="no-strategy-hint">
-                      暂无该客户的专项销售建议，建议积累更多客户交互数据后生成
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-
             <!-- Embedded action items after action section -->
             <template v-if="section.id === 'action'">
-              <div class="strategy-link-section">
-                <h3 class="strategy-link-title">
-                  <Target :size="16" />
-                  关键客户维护计划
-                </h3>
-                <div class="customer-maintenance-list">
-                  <div v-for="(item, i) in actionRecommendations.customerMaintenance" :key="i" class="customer-maintenance-card">
-                    <div class="cm-header">
-                      <span class="cm-client">{{ item.client }}</span>
-                      <span :class="['priority-badge', item.priority]">{{ item.priority === 'high' ? '高优先' : '中优先' }}</span>
-                    </div>
-                    <div class="cm-meta">
-                      <span>上次联系：{{ item.lastContact }}</span>
-                    </div>
-                    <div class="cm-action">{{ item.nextAction }}</div>
-                  </div>
-                </div>
-              </div>
             </template>
           </div>
         </div>
@@ -508,7 +412,7 @@ const configStats = computed(() => {
 
 .tab-close:hover {
   background: #e2e8f0;
-  color: #ef4444;
+  color: #3b82f6;
 }
 
 /* ============ Right Config Panel ============ */
@@ -535,7 +439,7 @@ const configStats = computed(() => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #ef4444;
+  color: #3b82f6;
   margin-bottom: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
@@ -578,7 +482,7 @@ const configStats = computed(() => {
 .config-group-count {
   margin-left: auto;
   background: #fef2f2;
-  color: #ef4444;
+  color: #3b82f6;
   font-size: 10px;
   padding: 0 5px;
   border-radius: 8px;
@@ -643,7 +547,7 @@ const configStats = computed(() => {
 
 .config-item-budget {
   font-size: 10px;
-  color: #ef4444;
+  color: #3b82f6;
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -691,7 +595,7 @@ const configStats = computed(() => {
 }
 
 .strategy-link-title svg {
-  color: #ef4444;
+  color: #3b82f6;
 }
 
 .strategy-link-desc {
@@ -837,6 +741,6 @@ const configStats = computed(() => {
   padding: 8px 12px;
   background: #f8fafc;
   border-radius: 6px;
-  border-left: 3px solid #ef4444;
+  border-left: 3px solid #3b82f6;
 }
 </style>

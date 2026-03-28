@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import {
-  Upload,
   ScanSearch,
   GitBranch,
   Tags,
@@ -10,9 +9,7 @@ import {
   Clock,
   CalendarClock,
   ChevronRight,
-  ShieldAlert,
-  Files,
-  FolderOpen
+  ShieldAlert
 } from 'lucide-vue-next';
 import SourceFileList from './SourceFileList.vue';
 import FilePreviewPanel from './FilePreviewPanel.vue';
@@ -32,8 +29,22 @@ const materials = ref<Material[]>([...initialMaterials]);
 const selectedFile = ref<SourceFile | null>(null);
 const showAddMaterialModal = ref(false);
 const filePreviewRef = ref<InstanceType<typeof FilePreviewPanel> | null>(null);
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const folderInputRef = ref<HTMLInputElement | null>(null);
+
+// Pagination
+const currentPage = ref(1);
+const pageSize = 10;
+const totalPages = computed(() => Math.ceil(expiryAlerts.value.length / pageSize));
+const paginatedAlerts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return expiryAlerts.value.slice(start, end);
+});
+
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
 
 // Computed
 const selectedFileMaterials = computed(() => {
@@ -160,44 +171,6 @@ const handleUpdateMaterialName = (materialId: string, name: string) => {
   }
 };
 
-// Drag and drop for upload area
-const isDragOver = ref(false);
-
-const handleDragOver = (e: DragEvent) => {
-  e.preventDefault();
-  isDragOver.value = true;
-};
-
-const handleDragLeave = () => {
-  isDragOver.value = false;
-};
-
-const handleDrop = (e: DragEvent) => {
-  e.preventDefault();
-  isDragOver.value = false;
-  console.log('Files dropped:', e.dataTransfer?.files);
-};
-
-const handleFileSelect = () => {
-  fileInputRef.value?.click();
-};
-
-const handleFolderSelect = () => {
-  folderInputRef.value?.click();
-};
-
-const handleFileInputChange = (e: Event) => {
-  const input = e.target as HTMLInputElement;
-  console.log('Selected files:', input.files);
-  input.value = '';
-};
-
-const handleFolderInputChange = (e: Event) => {
-  const input = e.target as HTMLInputElement;
-  console.log('Selected folder files:', input.files);
-  input.value = '';
-};
-
 // Resizer logic
 const containerRef = ref<HTMLElement | null>(null);
 const leftPanelWidth = ref(50);
@@ -229,11 +202,6 @@ const stopDrag = () => {
 };
 
 onMounted(() => {
-  if (folderInputRef.value) {
-    folderInputRef.value.setAttribute('webkitdirectory', '');
-    folderInputRef.value.setAttribute('directory', '');
-  }
-
   document.addEventListener('mousemove', onDrag);
   document.addEventListener('mouseup', stopDrag);
 });
@@ -288,137 +256,78 @@ onUnmounted(() => {
           @update:material-name="handleUpdateMaterialName"
         />
 
-        <!-- Default: split top/bottom -->
+        <!-- Default: Expiry Alerts Full Height -->
         <template v-else>
-          <div class="material-overview-layout">
-            <!-- Top half: Expiry Alerts -->
-            <div class="panel-half panel-half-top">
-              <div v-if="expiryAlerts.length > 0" class="expiry-summary-panel">
-                <div class="expiry-summary-header">
-                  <div class="expiry-summary-title">
-                    <ShieldAlert :size="20" />
-                    <span>临期资质提醒</span>
-                    <span class="expiry-summary-count">{{ expiryAlerts.length }}</span>
-                  </div>
-                  <span class="expiry-summary-hint">以下资质文件即将到期或已过期，请及时补充更新</span>
+          <div class="expiry-full-panel">
+            <div v-if="expiryAlerts.length > 0" class="expiry-summary-panel">
+              <div class="expiry-summary-header">
+                <div class="expiry-summary-title">
+                  <ShieldAlert :size="20" />
+                  <span>临期资质提醒</span>
+                  <span class="expiry-summary-count">{{ expiryAlerts.length }}</span>
                 </div>
-                <div class="expiry-alert-list">
-                  <div
-                    v-for="item in expiryAlerts"
-                    :key="item.material.id"
-                    class="expiry-alert-row"
-                    :class="'expiry-row-' + item.level"
-                    @click="handleAlertClick(item)"
-                  >
-                    <div class="expiry-alert-row-left">
-                      <div class="expiry-level-dot" :class="'dot-' + item.level"></div>
-                      <div class="expiry-alert-info">
-                        <span class="expiry-alert-name">{{ item.material.name }}</span>
-                        <span class="expiry-alert-file">{{ item.sourceFile?.name || '—' }}</span>
-                      </div>
+                <span class="expiry-summary-hint">以下资质文件即将到期或已过期，请及时补充更新</span>
+              </div>
+              <div class="expiry-alert-list">
+                <div
+                  v-for="item in paginatedAlerts"
+                  :key="item.material.id"
+                  class="expiry-alert-row"
+                  :class="'expiry-row-' + item.level"
+                  @click="handleAlertClick(item)"
+                >
+                  <div class="expiry-alert-row-left">
+                    <div class="expiry-level-dot" :class="'dot-' + item.level"></div>
+                    <div class="expiry-alert-info">
+                      <span class="expiry-alert-name">{{ item.material.name }}</span>
+                      <span class="expiry-alert-file">{{ item.sourceFile?.name || '—' }}</span>
                     </div>
-                    <div class="expiry-alert-row-right">
-                      <span class="expiry-alert-tag" :class="'tag-' + item.level">
-                        <AlertTriangle v-if="item.level === 'expired' || item.level === 'week'" :size="12" />
-                        <Clock v-else-if="item.level === 'month'" :size="12" />
-                        <CalendarClock v-else :size="12" />
-                        {{ item.label }}
-                      </span>
-                      <ChevronRight :size="16" class="expiry-arrow" />
-                    </div>
+                  </div>
+                  <div class="expiry-alert-row-right">
+                    <span class="expiry-alert-tag" :class="'tag-' + item.level">
+                      <AlertTriangle v-if="item.level === 'expired' || item.level === 'week'" :size="12" />
+                      <Clock v-else-if="item.level === 'month'" :size="12" />
+                      <CalendarClock v-else :size="12" />
+                      {{ item.label }}
+                    </span>
+                    <ChevronRight :size="16" class="expiry-arrow" />
                   </div>
                 </div>
               </div>
-              <div v-else class="expiry-empty">
-                <ShieldAlert :size="32" />
-                <span>暂无临期资质</span>
-                <span class="expiry-empty-hint">所有资质文件状态正常</span>
+
+              <!-- Pagination -->
+              <div v-if="totalPages > 1" class="pagination">
+                <button
+                  class="pagination-btn"
+                  :disabled="currentPage === 1"
+                  @click="goToPage(currentPage - 1)"
+                >
+                  上一页
+                </button>
+                <div class="pagination-pages">
+                  <button
+                    v-for="page in totalPages"
+                    :key="page"
+                    class="pagination-page"
+                    :class="{ active: page === currentPage }"
+                    @click="goToPage(page)"
+                  >
+                    {{ page }}
+                  </button>
+                </div>
+                <button
+                  class="pagination-btn"
+                  :disabled="currentPage === totalPages"
+                  @click="goToPage(currentPage + 1)"
+                >
+                  下一页
+                </button>
               </div>
             </div>
-
-            <!-- Bottom half: Upload Area -->
-            <div class="panel-half panel-half-bottom">
-              <div
-                class="upload-area"
-                :class="{ 'is-drag-over': isDragOver }"
-                @dragover="handleDragOver"
-                @dragleave="handleDragLeave"
-                @drop="handleDrop"
-              >
-                <input
-                  ref="fileInputRef"
-                  class="sr-only-input"
-                  type="file"
-                  multiple
-                  @change="handleFileInputChange"
-                />
-                <input
-                  ref="folderInputRef"
-                  class="sr-only-input"
-                  type="file"
-                  multiple
-                  @change="handleFolderInputChange"
-                />
-                <div class="upload-hero">
-                  <div class="upload-icon">
-                    <Upload :size="28" stroke-width="1.5" />
-                  </div>
-                  <div class="upload-copy">
-                    <div class="upload-text">
-                      <span class="upload-main-text">拖放文件到此处，或直接导入文件夹</span>
-                    </div>
-                    <p class="upload-hint">支持 PDF、Word、Excel、图片；可批量导入文件或文件夹</p>
-                  </div>
-                </div>
-                <div class="upload-actions">
-                  <button class="upload-btn upload-btn-primary" @click="handleFileSelect">
-                    <Files :size="16" />
-                    选择文件
-                  </button>
-                  <button class="upload-btn upload-btn-secondary" @click="handleFolderSelect">
-                    <FolderOpen :size="16" />
-                    选择文件夹
-                  </button>
-                </div>
-
-                <!-- Process Flow Card -->
-                <div class="process-flow-card">
-                  <div class="flow-header">
-                    <span class="flow-icon">✨</span>
-                    <span>上传后，AI 将自动为您完成：</span>
-                  </div>
-                  <div class="flow-steps">
-                    <div class="flow-step">
-                      <div class="step-icon">
-                        <ScanSearch :size="18" />
-                      </div>
-                      <div class="step-label">智能识别</div>
-                      <div class="step-desc">识别文件内容</div>
-                    </div>
-                    <div class="flow-arrow">
-                      <ArrowRight :size="14" />
-                    </div>
-                    <div class="flow-step">
-                      <div class="step-icon">
-                        <GitBranch :size="18" />
-                      </div>
-                      <div class="step-label">自动拆分</div>
-                      <div class="step-desc">拆分为原子素材</div>
-                    </div>
-                    <div class="flow-arrow">
-                      <ArrowRight :size="14" />
-                    </div>
-                    <div class="flow-step">
-                      <div class="step-icon">
-                        <Tags :size="18" />
-                      </div>
-                      <div class="step-label">分类归档</div>
-                      <div class="step-desc">归入对应分类</div>
-                    </div>
-                  </div>
-                  <p class="flow-footer">拆分后的素材可在「AI标书生成」等场景中自动匹配调用</p>
-                </div>
-              </div>
+            <div v-else class="expiry-empty">
+              <ShieldAlert :size="32" />
+              <span>暂无临期资质</span>
+              <span class="expiry-empty-hint">所有资质文件状态正常</span>
             </div>
           </div>
         </template>
@@ -487,234 +396,11 @@ onUnmounted(() => {
   min-height: 0;
 }
 
-.material-overview-layout {
+.expiry-full-panel {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 12px;
-}
-
-/* Top/Bottom half split */
-.panel-half {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-}
-
-.panel-half-top {
-  min-height: 0;
-}
-
-.panel-half-bottom {
-  flex: none;
-  min-height: auto;
-}
-
-/* Upload Area */
-.upload-area {
-  border: 2px dashed #bfdbfe;
-  border-radius: 16px;
-  padding: 18px 18px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
-  transition: all 0.2s;
-}
-
-.upload-area.is-drag-over {
-  border-color: #3b82f6;
-  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
-}
-
-.sr-only-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.upload-hero {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.upload-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  flex-shrink: 0;
-}
-
-.upload-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  max-width: 520px;
-  gap: 4px;
-}
-
-.upload-text {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.upload-main-text {
-  font-size: 17px;
-  line-height: 1.3;
-  color: #1f2937;
-  font-weight: 700;
-}
-
-.upload-btn {
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.upload-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.upload-btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
-}
-
-.upload-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.3);
-}
-
-.upload-btn-secondary {
-  background: rgba(255, 255, 255, 0.9);
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-  box-shadow: 0 6px 16px rgba(148, 163, 184, 0.12);
-}
-
-.upload-btn-secondary:hover {
-  background: #eff6ff;
-  border-color: #93c5fd;
-}
-
-.upload-hint {
-  font-size: 12px;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* Process Flow Card */
-.process-flow-card {
-  background: white;
-  border-radius: 12px;
-  padding: 12px 14px;
-  width: 100%;
-  max-width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
-}
-
-.flow-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #374151;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.flow-icon {
-  font-size: 16px;
-}
-
-.flow-steps {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
-}
-
-.flow-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  max-width: 120px;
-}
-
-.step-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: #eff6ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #3b82f6;
-}
-
-.step-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.step-desc {
-  font-size: 10px;
-  color: #6b7280;
-  text-align: center;
-  line-height: 1.35;
-}
-
-.flow-arrow {
-  color: #9ca3af;
-  margin-top: 8px;
-}
-
-.flow-footer {
-  font-size: 10px;
-  color: #6b7280;
-  text-align: center;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed #e5e7eb;
 }
 
 /* Expiry Summary Panel */
@@ -923,22 +609,73 @@ onUnmounted(() => {
   color: #c0c5cc;
 }
 
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-page {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-page:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.pagination-page.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
 @media (max-width: 1280px) {
   .material-panel-content {
     padding: 16px;
     gap: 10px;
-  }
-
-  .material-overview-layout {
-    gap: 10px;
-  }
-
-  .upload-area {
-    padding: 16px 16px 12px;
-  }
-
-  .upload-main-text {
-    font-size: 16px;
   }
 }
 
@@ -947,33 +684,15 @@ onUnmounted(() => {
     overflow-y: auto;
   }
 
-  .material-overview-layout {
-    display: flex;
-    flex-direction: column;
+  .pagination {
+    flex-wrap: wrap;
   }
 
-  .flow-steps {
-    gap: 12px;
-  }
-
-  .flow-step {
-    max-width: none;
-  }
-
-  .flow-arrow {
-    display: none;
-  }
-
-  .upload-hero {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .upload-copy,
-  .upload-text {
-    align-items: center;
+  .pagination-pages {
+    order: -1;
+    width: 100%;
     justify-content: center;
-    text-align: center;
+    margin-bottom: 8px;
   }
 }
 </style>

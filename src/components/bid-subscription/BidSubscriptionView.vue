@@ -151,7 +151,7 @@ const pageConfig = computed(() => {
     listTitle: '全部标讯',
     listUnit: '标讯',
     summaryActionLabel: '查看完整报告',
-    topCardTitle: '行业分析报告',
+    topCardTitle: '招投标市场分析',
     topCardDesc: '基于竞争数据，智能生成针对性销售策略',
     topCardActionLabel: '一键生成策略报告',
     detailListTitle: '标讯列表',

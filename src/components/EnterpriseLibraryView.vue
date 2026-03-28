@@ -103,7 +103,7 @@ const toggleAdding = () => {
       </div>
       <div>
         <h1 class="page-title">企业总库</h1>
-        <p class="page-subtitle">管理关注的招标单位、竞品企业和标讯，供团队成员在行业分析报告中使用</p>
+        <p class="page-subtitle">管理关注的招标单位、竞品企业和标讯，供团队成员在招投标市场分析中使用</p>
       </div>
     </div>
 

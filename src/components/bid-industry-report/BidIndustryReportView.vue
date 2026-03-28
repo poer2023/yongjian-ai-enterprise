@@ -44,7 +44,7 @@ const reportData: Record<string, {
   sections: { heading: string; content: string[] }[];
 }> = {
   security: {
-    title: '网络安全行业分析报告',
+    title: '网络安全招投标市场分析',
     subtitle: '基于「网络安全组」策略组订阅数据的深度分析',
     generatedAt: '2026年2月10日',
     period: '2025年7月 — 2026年1月',
@@ -121,7 +121,7 @@ const reportData: Record<string, {
     ],
   },
   classified: {
-    title: '等级保护测评行业分析报告',
+    title: '等级保护测评招投标市场分析',
     subtitle: '基于「等保测评组」策略组订阅数据的深度分析',
     generatedAt: '2026年2月10日',
     period: '2025年7月 — 2026年1月',
@@ -211,7 +211,7 @@ const goBack = () => {
 };
 
 const handleExport = () => {
-  alert('行业分析报告已下载');
+  alert('招投标市场分析已下载');
 };
 
 const handleAddToKnowledge = () => {
@@ -228,7 +228,7 @@ const handleAddToKnowledge = () => {
         <span>返回</span>
       </button>
       <div class="header-title">
-        <h1>行业分析报告</h1>
+        <h1>招投标市场分析</h1>
       </div>
       <div class="header-controls">
         <!-- Policy group selector -->
@@ -321,7 +321,7 @@ const handleAddToKnowledge = () => {
         <hr class="doc-divider" />
         <div class="doc-footer">
           <p>本报告由 AI 智能体基于「{{ currentGroup?.name }}」策略组订阅数据自动生成，仅供参考。</p>
-          <p>涌见 AI · 行业分析报告 · {{ currentReport?.generatedAt }}</p>
+          <p>涌见 AI · 招投标市场分析 · {{ currentReport?.generatedAt }}</p>
         </div>
       </div>
     </div>

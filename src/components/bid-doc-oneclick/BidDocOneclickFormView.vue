@@ -129,7 +129,7 @@ const handleParse = () => {
     technicalHighlights.value = mockParsedData.technicalHighlights;
     isParsing.value = false;
     isParsed.value = true;
-  }, 2000);
+  }, 3000);
 };
 
 const handleSubmit = () => {
@@ -163,7 +163,29 @@ const getRiskLevelText = (level: string) => {
 </script>
 
 <template>
-  <FormPageLayout :icon="Zap" title="AI标书生成（一键版）" subtitle="极简操作，上传文件即可自动生成专业标书">
+  <!-- Processing Waiting Page -->
+  <div v-if="isParsing" class="processing-page">
+    <div class="processing-content">
+      <h1 class="processing-main-title">解读中</h1>
+      <p class="processing-main-subtitle">请耐心等待，AI正在为您解读标书文件</p>
+
+      <div class="progress-card">
+        <div class="progress-card-header">解读进度</div>
+        <div class="progress-card-body">
+          <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <p class="progress-status">解读中...</p>
+        </div>
+      </div>
+
+      <p class="processing-footer-hint">完成解读大约需要1~3分钟，后续可在 个人中心-使用记录 中查看，感谢理解~</p>
+    </div>
+  </div>
+
+  <FormPageLayout v-else :icon="Zap" title="AI标书生成（一键版）" subtitle="极简操作，上传文件即可自动生成专业标书">
     <template #sidebar>
       <TemplateSidebar :recent-tools="recentTools" />
     </template>
@@ -221,77 +243,6 @@ const getRiskLevelText = (level: string) => {
       <div class="parsed-header">
         <Sparkles :size="16" />
         <span>招标文件解析完成，已提取关键信息并智能匹配企业素材</span>
-      </div>
-
-      <!-- Analysis Grid -->
-      <div class="analysis-grid">
-        <div class="analysis-card">
-          <div class="analysis-card-header"><Target :size="16" /><span>评分标准</span></div>
-          <div class="analysis-card-body">
-            <div class="scoring-list">
-              <div v-for="item in parsedAnalysis.scoringItems" :key="item.name" class="scoring-item">
-                <div class="scoring-header">
-                  <span class="scoring-name">{{ item.name }}</span>
-                  <span class="scoring-score">{{ item.score }}分</span>
-                </div>
-                <div class="scoring-key">{{ item.key }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="analysis-card">
-          <div class="analysis-card-header">
-            <Award :size="16" /><span>资质匹配</span>
-            <span class="match-badge">{{ parsedAnalysis.qualifications.filter(q => q.status === 'matched').length }}/{{ parsedAnalysis.qualifications.length }} 已匹配</span>
-          </div>
-          <div class="analysis-card-body">
-            <div class="qualification-list">
-              <div v-for="item in parsedAnalysis.qualifications" :key="item.name" class="qualification-item">
-                <div class="qualification-status matched"><Check :size="12" /></div>
-                <div class="qualification-content">
-                  <span class="qualification-require">{{ item.name }}</span>
-                  <div class="qualification-matched-row">
-                    <span class="qualification-matched">{{ item.matched }}</span>
-                    <span v-if="item.expiryDate && isExpired(item.expiryDate)" class="expiry-tag expired">
-                      <AlertTriangle :size="11" /> 已过期 {{ item.expiryDate }}
-                    </span>
-                    <span v-else-if="item.expiryDate && isExpiringSoon(item)" class="expiry-tag expiring">
-                      <Clock :size="11" /> 即将过期 {{ item.expiryDate }}
-                    </span>
-                    <span v-else-if="item.expiryDate" class="expiry-tag valid">
-                      有效期至 {{ item.expiryDate }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="analysis-card">
-          <div class="analysis-card-header"><Clock :size="16" /><span>时间节点</span></div>
-          <div class="analysis-card-body">
-            <div class="timeline-list">
-              <div v-for="item in parsedAnalysis.timeline" :key="item.event" class="timeline-item" :class="{ urgent: item.urgent }">
-                <span class="timeline-event">{{ item.event }}</span>
-                <span class="timeline-date">{{ item.date }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="analysis-card">
-          <div class="analysis-card-header"><AlertTriangle :size="16" /><span>风险提示</span></div>
-          <div class="analysis-card-body">
-            <div class="risk-list">
-              <div v-for="(item, index) in parsedAnalysis.risks" :key="index" class="risk-item">
-                <span class="risk-level" :class="getRiskLevelClass(item.level)">{{ getRiskLevelText(item.level) }}</span>
-                <span class="risk-desc">{{ item.desc }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Editable Form -->

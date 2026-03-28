@@ -7,7 +7,8 @@ import {
   UsersRound,
   Bot,
   Coins,
-  Bell
+  Bell,
+  Building2
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -16,6 +17,7 @@ const router = useRouter();
 // Menu items mapped to child route names
 const menuItems = [
   { icon: LayoutList, label: '团队概览', id: 'team-overview' },
+  { icon: Building2, label: '企业简介', id: 'team-company-profile' },
   { icon: Users, label: '成员管理', id: 'team-members' },
   { icon: UsersRound, label: '小组管理', id: 'team-groups' },
   { icon: Bot, label: '智能体管理', id: 'team-agents' },
