@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-  Smartphone,
   QrCode,
   Loader2,
   X
 } from 'lucide-vue-next';
-import type { AuthStatus, AuthMethod, AccountInfo } from './types';
+import type { AuthStatus, AccountInfo } from './types';
 
 const props = defineProps<{
   isExpired?: boolean;
@@ -18,47 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const authStatus = ref<AuthStatus>('idle');
-const authMethod = ref<AuthMethod>('phone');
 
-// Phone auth state
-const phoneNumber = ref('');
-const verifyCode = ref('');
-const codeSent = ref(false);
-const countdown = ref(0);
-let countdownTimer: ReturnType<typeof setInterval> | null = null;
-
-// Send verification code
-const sendCode = () => {
-  if (!phoneNumber.value || phoneNumber.value.length !== 11) return;
-  codeSent.value = true;
-  countdown.value = 60;
-  countdownTimer = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      if (countdownTimer) clearInterval(countdownTimer);
-      codeSent.value = false;
-    }
-  }, 1000);
-};
-
-// Phone login
-const phoneLogin = () => {
-  if (!phoneNumber.value || !verifyCode.value) return;
-  authStatus.value = 'scanning';
-  setTimeout(() => {
-    authStatus.value = 'success';
-    const info: AccountInfo = {
-      name: '张招聘',
-      company: 'XX科技有限公司',
-      avatar: '',
-      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-    };
-    localStorage.setItem('boss-recruit-auth', JSON.stringify(info));
-    emit('auth-success', info);
-  }, 1000);
-};
-
-// QR code login
 const startAuth = () => {
   authStatus.value = 'scanning';
   setTimeout(() => {
@@ -82,81 +41,33 @@ const startAuth = () => {
         <X :size="20" />
       </button>
       <div class="auth-overlay-header">
-        <h2>Boss直聘账号授权</h2>
+        <h2>boss招聘助手授权</h2>
         <p v-if="isExpired" class="expired-hint">会话已过期，请重新授权</p>
-        <p v-else class="auth-overlay-hint">请授权您的Boss直聘账号以使用招聘工作台</p>
+        <p v-else class="auth-overlay-hint">请授权您的招聘账号以使用boss招聘助手工作台</p>
       </div>
 
       <!-- Not authenticated -->
       <div v-if="authStatus === 'idle'" class="auth-area">
-        <!-- Auth method tabs -->
-        <div class="auth-method-tabs">
-          <button
-            class="auth-tab"
-            :class="{ active: authMethod === 'phone' }"
-            @click="authMethod = 'phone'"
-          >
-            <Smartphone :size="16" />
-            手机验证码登录
-          </button>
-          <button
-            class="auth-tab"
-            :class="{ active: authMethod === 'qrcode' }"
-            @click="authMethod = 'qrcode'"
-          >
-            <QrCode :size="16" />
-            扫码登录
-          </button>
-        </div>
-
-        <!-- Phone login form -->
-        <div v-if="authMethod === 'phone'" class="phone-login-form">
-          <div class="phone-input-group">
-            <input
-              v-model="phoneNumber"
-              type="tel"
-              placeholder="请输入手机号"
-              maxlength="11"
-              class="phone-input"
-            />
+        <div class="qrcode-login">
+          <div class="qr-card">
+            <span class="qr-badge">扫码授权</span>
+            <div class="qr-placeholder">
+              <QrCode :size="108" />
+            </div>
           </div>
-          <div class="code-input-group">
-            <input
-              v-model="verifyCode"
-              type="text"
-              placeholder="请输入验证码"
-              maxlength="6"
-              class="code-input"
-            />
-            <button
-              class="send-code-btn"
-              :disabled="!phoneNumber || phoneNumber.length !== 11 || codeSent"
-              @click="sendCode"
-            >
-              {{ codeSent ? `${countdown}s后重发` : '获取验证码' }}
+          <div class="auth-content">
+            <div class="auth-text">
+              <p class="auth-main">使用 Boss 直聘 App 扫码授权</p>
+              <p class="auth-hint">扫码成功后，招聘账号将绑定到当前演示环境，并用于后续插件联动演示。</p>
+            </div>
+            <div class="auth-note-list">
+              <span>仅用于前端 Demo 演示</span>
+              <span>不会接入真实账号数据</span>
+            </div>
+            <button class="auth-btn" @click="startAuth">
+              我已扫码，完成授权
             </button>
           </div>
-          <button
-            class="phone-login-btn"
-            :disabled="!phoneNumber || !verifyCode"
-            @click="phoneLogin"
-          >
-            登录授权
-          </button>
-        </div>
-
-        <!-- QR code login -->
-        <div v-else class="qrcode-login">
-          <div class="qr-placeholder">
-            <QrCode :size="48" />
-          </div>
-          <div class="auth-text">
-            <p class="auth-main">使用Boss直聘APP扫码授权</p>
-            <p class="auth-hint">授权后将自动获取您发布的岗位信息</p>
-          </div>
-          <button class="auth-btn" @click="startAuth">
-            开始授权
-          </button>
         </div>
       </div>
 
@@ -191,9 +102,9 @@ const startAuth = () => {
 
 .auth-overlay-card {
   background: white;
-  border-radius: 16px;
-  padding: 40px;
-  width: 480px;
+  border-radius: 20px;
+  padding: 40px 36px 36px;
+  width: 560px;
   max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   position: relative;
@@ -238,10 +149,131 @@ const startAuth = () => {
   margin: 0;
 }
 
+.qrcode-login {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  align-items: center;
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f8fbff 0%, #f8fafc 100%);
+  border: 1px solid #eef2ff;
+}
+
+.qr-card {
+  position: relative;
+}
+
+.qr-badge {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qr-placeholder {
+  width: 172px;
+  height: 172px;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08), inset 0 0 0 12px #fff;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.auth-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .expired-hint {
   font-size: 14px;
   color: #dc2626;
   margin: 0;
   font-weight: 500;
+}
+
+.auth-main {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.35;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+.auth-note-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-note-list span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.auth-btn {
+  min-width: 180px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.auth-btn:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 720px) {
+  .auth-overlay-card {
+    width: 92vw;
+    padding: 32px 24px 24px;
+  }
+
+  .qrcode-login {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .auth-content {
+    align-items: center;
+  }
 }
 </style>

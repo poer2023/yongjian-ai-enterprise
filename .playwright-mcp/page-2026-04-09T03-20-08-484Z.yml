@@ -1,0 +1,202 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: 涌见AI
+      - button "切换侧栏展开或收起" [expanded] [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: 首页
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: AI提问
+      - generic [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: 标讯搜索
+      - generic [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e36]: 资讯订阅
+      - generic [ref=e37] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]: 智能体
+        - generic [ref=e42]: 🔥
+      - generic [ref=e43]:
+        - generic [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e50]: 知识库
+          - img [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e60]: 团队知识库
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e65]: 企业素材库
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e70]: 个人知识库
+          - generic [ref=e71] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e75]: 隐藏知识库
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e83]: 小组知识库
+            - img [ref=e84]
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e87]
+        - generic [ref=e92]: 团队管理
+      - generic [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+        - generic [ref=e97]: 个人中心
+  - main [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - heading "企业素材库" [level=1] [ref=e109]
+        - generic [ref=e110]:
+          - img [ref=e111]
+          - textbox "搜索文件名、文件夹名称" [ref=e114]
+          - button "搜索" [ref=e115] [cursor=pointer]
+        - generic [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e119]
+            - generic [ref=e122]: 投标文件
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e128]: 商务技术册
+          - generic [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e134]: 资质认证
+          - generic [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e140]: 业绩与团队
+        - generic [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - generic [ref=e145]: PDF
+            - generic "信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx"
+            - generic [ref=e146]: 约 6.8MB
+            - generic [ref=e147]: 约 17.9 万字符（抽取统计）
+            - generic [ref=e148]: 金盾检测技术股份有限公司
+            - generic [ref=e149]:
+              - button "查看详情" [ref=e150]:
+                - img [ref=e151]
+              - button "更多操作" [ref=e154]:
+                - img [ref=e155]
+          - generic [ref=e159] [cursor=pointer]:
+            - generic [ref=e162]: PDF
+            - generic "南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx"
+            - generic [ref=e163]: 约 4.2MB
+            - generic [ref=e164]: 约 8.5 万字符（抽取统计）
+            - generic [ref=e165]: 鼎信建设集团有限公司
+            - generic [ref=e166]:
+              - button "查看详情" [ref=e167]:
+                - img [ref=e168]
+              - button "更多操作" [ref=e171]:
+                - img [ref=e172]
+      - generic [ref=e179]:
+        - tablist "企业素材库结构化标签页" [ref=e180]:
+          - button "企业资质" [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e185]: 企业资质
+          - button "人员信息" [ref=e186] [cursor=pointer]:
+            - img [ref=e187]
+            - generic [ref=e192]: 人员信息
+          - button "业绩案例" [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+            - generic [ref=e197]: 业绩案例
+          - button "临期资质提醒" [ref=e198] [cursor=pointer]:
+            - img [ref=e199]
+            - generic [ref=e201]: 临期资质提醒
+          - button "企业简介" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - generic [ref=e207]: 企业简介
+        - generic [ref=e210]:
+          - generic [ref=e211]: 信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx
+          - table [ref=e213]:
+            - rowgroup [ref=e214]:
+              - row "序号 资质名称 类别 适用范围/标准 颁发机构 发证日期 到期日期 状态 操作" [ref=e215]:
+                - columnheader "序号" [ref=e216]
+                - columnheader "资质名称" [ref=e217]
+                - columnheader "类别" [ref=e218]
+                - columnheader "适用范围/标准" [ref=e219]
+                - columnheader "颁发机构" [ref=e220]
+                - columnheader "发证日期" [ref=e221]
+                - columnheader "到期日期" [ref=e222]
+                - columnheader "状态" [ref=e223]
+                - columnheader "操作" [ref=e224]
+            - rowgroup [ref=e225]:
+              - row "1 质量管理体系认证证书 体系认证 / 质量管理体系 GB/T 19001 / ISO 9001 中鸿认证（江苏）有限公司 2024-01-18 2027-01-17 有效 详情 定位原文" [ref=e226]:
+                - cell "1" [ref=e227]
+                - cell "质量管理体系认证证书" [ref=e228]
+                - cell "体系认证 / 质量管理体系" [ref=e229]
+                - cell "GB/T 19001 / ISO 9001" [ref=e230]
+                - cell "中鸿认证（江苏）有限公司" [ref=e231]
+                - cell "2024-01-18" [ref=e232]
+                - cell "2027-01-17" [ref=e233]
+                - cell "有效" [ref=e234]:
+                  - generic [ref=e235]: 有效
+                - cell "详情 定位原文" [ref=e236]:
+                  - generic [ref=e237]:
+                    - button "详情" [ref=e238] [cursor=pointer]
+                    - button "定位原文" [ref=e239] [cursor=pointer]
+              - row "2 信息安全管理体系认证证书 体系认证 / 信息安全管理体系 GB/T 22080 / ISO 27001 华信创（北京）认证中心有限公司 2024-12-23 2027-12-22 有效 详情 定位原文" [ref=e240]:
+                - cell "2" [ref=e241]
+                - cell "信息安全管理体系认证证书" [ref=e242]
+                - cell "体系认证 / 信息安全管理体系" [ref=e243]
+                - cell "GB/T 22080 / ISO 27001" [ref=e244]
+                - cell "华信创（北京）认证中心有限公司" [ref=e245]
+                - cell "2024-12-23" [ref=e246]
+                - cell "2027-12-22" [ref=e247]
+                - cell "有效" [ref=e248]:
+                  - generic [ref=e249]: 有效
+                - cell "详情 定位原文" [ref=e250]:
+                  - generic [ref=e251]:
+                    - button "详情" [ref=e252] [cursor=pointer]
+                    - button "定位原文" [ref=e253] [cursor=pointer]
+              - row "3 信息技术服务管理体系认证证书 体系认证 / 信息技术服务管理体系 ISO/IEC 20000 华信创（北京）认证中心有限公司 2024-07-21 2027-07-20 有效 详情 定位原文" [ref=e254]:
+                - cell "3" [ref=e255]
+                - cell "信息技术服务管理体系认证证书" [ref=e256]
+                - cell "体系认证 / 信息技术服务管理体系" [ref=e257]
+                - cell "ISO/IEC 20000" [ref=e258]
+                - cell "华信创（北京）认证中心有限公司" [ref=e259]
+                - cell "2024-07-21" [ref=e260]
+                - cell "2027-07-20" [ref=e261]
+                - cell "有效" [ref=e262]:
+                  - generic [ref=e263]: 有效
+                - cell "详情 定位原文" [ref=e264]:
+                  - generic [ref=e265]:
+                    - button "详情" [ref=e266] [cursor=pointer]
+                    - button "定位原文" [ref=e267] [cursor=pointer]
+              - row "4 检验检测机构资质认定证书 企业资质 / 检验检测资质 — 江苏省市场监督管理局 2021-06-21 2026-09-20 有效 详情 定位原文" [ref=e268]:
+                - cell "4" [ref=e269]
+                - cell "检验检测机构资质认定证书" [ref=e270]
+                - cell "企业资质 / 检验检测资质" [ref=e271]
+                - cell "—" [ref=e272]
+                - cell "江苏省市场监督管理局" [ref=e273]
+                - cell "2021-06-21" [ref=e274]
+                - cell "2026-09-20" [ref=e275]
+                - cell "有效" [ref=e276]:
+                  - generic [ref=e277]: 有效
+                - cell "详情 定位原文" [ref=e278]:
+                  - generic [ref=e279]:
+                    - button "详情" [ref=e280] [cursor=pointer]
+                    - button "定位原文" [ref=e281] [cursor=pointer]
+              - row "5 检验机构认可证书 企业资质 / 认可资质 检验能力范围包括网络安全等级保护测评 中国合格评定国家认可委员会 2023-09-05 2026-09-04 有效 详情 定位原文" [ref=e282]:
+                - cell "5" [ref=e283]
+                - cell "检验机构认可证书" [ref=e284]
+                - cell "企业资质 / 认可资质" [ref=e285]
+                - cell "检验能力范围包括网络安全等级保护测评" [ref=e286]
+                - cell "中国合格评定国家认可委员会" [ref=e287]
+                - cell "2023-09-05" [ref=e288]
+                - cell "2026-09-04" [ref=e289]
+                - cell "有效" [ref=e290]:
+                  - generic [ref=e291]: 有效
+                - cell "详情 定位原文" [ref=e292]:
+                  - generic [ref=e293]:
+                    - button "详情" [ref=e294] [cursor=pointer]
+                    - button "定位原文" [ref=e295] [cursor=pointer]

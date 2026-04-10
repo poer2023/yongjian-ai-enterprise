@@ -274,10 +274,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   padding: 24px 32px;
+  overflow-x: hidden;
   overflow-y: auto;
-  min-width: 480px;
+  min-width: min(480px, 100%);
+  min-height: 0;
   flex-shrink: 0;
   background-color: #eff6ff;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -389,6 +392,7 @@ onUnmounted(() => {
 
 .search-input {
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   font-size: 15px;
@@ -450,6 +454,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+  width: 100%;
 }
 
 /* --- Resizer --- */

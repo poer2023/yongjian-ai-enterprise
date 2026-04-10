@@ -77,7 +77,7 @@ export const mockParsedData = {
 };
 
 export const recentTools: RecentTool[] = [
-  { icon: Zap, label: 'AI标书生成', active: true, route: 'bid-doc-smart-form' },
+  { icon: Zap, label: 'AI标书插件版', active: true, route: 'bid-doc-smart-form' },
   // { icon: FileText, label: 'AI标书生成（表单版）', active: false, route: 'bid-doc-form' },
   { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
   { icon: Bell, label: '资讯订阅', active: false, route: 'bid-subscription' },
@@ -113,9 +113,9 @@ export const matchedTemplates: MatchedTemplate[] = [
 ];
 
 export const features = [
-  '上传招标文件即可自动解析',
-  '智能识别评分标准与资质要求',
-  '自动匹配企业素材库资料',
-  '风险点与时间节点提醒',
-  '一键生成专业投标文件',
+  '只需上传招标文件即可发起生成',
+  '支持填写补充需求与特殊要求',
+  '提交后直接进入等待页',
+  '不再跳转大纲与编辑器页面',
+  '适合插件调用与快速演示流程',
 ];

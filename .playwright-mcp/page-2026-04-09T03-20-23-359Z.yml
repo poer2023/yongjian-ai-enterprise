@@ -1,0 +1,378 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: 涌见AI
+      - button "切换侧栏展开或收起" [expanded] [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: 首页
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: AI提问
+      - generic [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: 标讯搜索
+      - generic [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e36]: 资讯订阅
+      - generic [ref=e37] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]: 智能体
+        - generic [ref=e42]: 🔥
+      - generic [ref=e43]:
+        - generic [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e50]: 知识库
+          - img [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e60]: 团队知识库
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e65]: 企业素材库
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e70]: 个人知识库
+          - generic [ref=e71] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e75]: 隐藏知识库
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e83]: 小组知识库
+            - img [ref=e84]
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e87]
+        - generic [ref=e92]: 团队管理
+      - generic [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+        - generic [ref=e97]: 个人中心
+  - main [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - heading "企业素材库" [level=1] [ref=e109]
+        - generic [ref=e110]:
+          - img [ref=e111]
+          - textbox "搜索文件名、文件夹名称" [ref=e114]
+          - button "搜索" [ref=e115] [cursor=pointer]
+        - generic [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e119]
+            - generic [ref=e122]: 投标文件
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e128]: 商务技术册
+          - generic [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e134]: 资质认证
+          - generic [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e140]: 业绩与团队
+        - generic [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - generic [ref=e145]: PDF
+            - generic "信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx"
+            - generic [ref=e146]: 约 6.8MB
+            - generic [ref=e147]: 约 17.9 万字符（抽取统计）
+            - generic [ref=e148]: 金盾检测技术股份有限公司
+            - generic [ref=e149]:
+              - button "查看详情" [ref=e150]:
+                - img [ref=e151]
+              - button "更多操作" [ref=e154]:
+                - img [ref=e155]
+          - generic [ref=e159] [cursor=pointer]:
+            - generic [ref=e162]: PDF
+            - generic "南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx"
+            - generic [ref=e163]: 约 4.2MB
+            - generic [ref=e164]: 约 8.5 万字符（抽取统计）
+            - generic [ref=e165]: 鼎信建设集团有限公司
+            - generic [ref=e166]:
+              - button "查看详情" [ref=e167]:
+                - img [ref=e168]
+              - button "更多操作" [ref=e171]:
+                - img [ref=e172]
+      - generic [ref=e179]:
+        - tablist "企业素材库结构化标签页" [ref=e180]:
+          - button "企业资质" [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e185]: 企业资质
+          - button "人员信息" [ref=e186] [cursor=pointer]:
+            - img [ref=e187]
+            - generic [ref=e192]: 人员信息
+          - button "业绩案例" [active] [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+            - generic [ref=e197]: 业绩案例
+          - button "临期资质提醒" [ref=e198] [cursor=pointer]:
+            - img [ref=e199]
+            - generic [ref=e201]: 临期资质提醒
+          - button "企业简介" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - generic [ref=e207]: 企业简介
+        - generic [ref=e297]:
+          - generic [ref=e298]: 信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx
+          - table [ref=e300]:
+            - rowgroup [ref=e301]:
+              - row "序号 项目名称 甲方单位 服务内容 合同金额 签订日期 证明状态 操作" [ref=e302]:
+                - columnheader "序号" [ref=e303]
+                - columnheader "项目名称" [ref=e304]
+                - columnheader "甲方单位" [ref=e305]
+                - columnheader "服务内容" [ref=e306]
+                - columnheader "合同金额" [ref=e307]
+                - columnheader "签订日期" [ref=e308]
+                - columnheader "证明状态" [ref=e309]
+                - columnheader "操作" [ref=e310]
+            - rowgroup [ref=e311]:
+              - row "1 江苏江南农村商业银行股份有限公司2023年等保测评项目咨询服务 江苏江南农村商业银行股份有限公司 等级保护测评 77万元 2023年4月23日 部分证明 详情 定位原文" [ref=e312]:
+                - cell "1" [ref=e313]
+                - cell "江苏江南农村商业银行股份有限公司2023年等保测评项目咨询服务" [ref=e314]
+                - cell "江苏江南农村商业银行股份有限公司" [ref=e315]
+                - cell "等级保护测评" [ref=e316]
+                - cell "77万元" [ref=e317]
+                - cell "2023年4月23日" [ref=e318]
+                - cell "部分证明" [ref=e319]:
+                  - generic [ref=e320]: 部分证明
+                - cell "详情 定位原文" [ref=e321]:
+                  - generic [ref=e322]:
+                    - button "详情" [ref=e323] [cursor=pointer]
+                    - button "定位原文" [ref=e324] [cursor=pointer]
+              - row "2 广州农村商业银行2023年度网络安全等级保护测评 广州农村商业银行股份有限公司 信息安全等级保护测评 36万元 2023年6月29日 部分证明 详情 定位原文" [ref=e325]:
+                - cell "2" [ref=e326]
+                - cell "广州农村商业银行2023年度网络安全等级保护测评" [ref=e327]
+                - cell "广州农村商业银行股份有限公司" [ref=e328]
+                - cell "信息安全等级保护测评" [ref=e329]
+                - cell "36万元" [ref=e330]
+                - cell "2023年6月29日" [ref=e331]
+                - cell "部分证明" [ref=e332]:
+                  - generic [ref=e333]: 部分证明
+                - cell "详情 定位原文" [ref=e334]:
+                  - generic [ref=e335]:
+                    - button "详情" [ref=e336] [cursor=pointer]
+                    - button "定位原文" [ref=e337] [cursor=pointer]
+              - row "3 江苏昆山农村商业银行股份有限公司昆山农商银行2023年重要系统信息安全等级保护测评 江苏昆山农村商业银行股份有限公司 信息安全等级保护测评 31万元 2023年6月20日 列表摘录 详情 定位原文" [ref=e338]:
+                - cell "3" [ref=e339]
+                - cell "江苏昆山农村商业银行股份有限公司昆山农商银行2023年重要系统信息安全等级保护测评" [ref=e340]
+                - cell "江苏昆山农村商业银行股份有限公司" [ref=e341]
+                - cell "信息安全等级保护测评" [ref=e342]
+                - cell "31万元" [ref=e343]
+                - cell "2023年6月20日" [ref=e344]
+                - cell "列表摘录" [ref=e345]:
+                  - generic [ref=e346]: 列表摘录
+                - cell "详情 定位原文" [ref=e347]:
+                  - generic [ref=e348]:
+                    - button "详情" [ref=e349] [cursor=pointer]
+                    - button "定位原文" [ref=e350] [cursor=pointer]
+              - row "4 南京银行2024年度信息安全等级保护测评项目 南京银行股份有限公司 信息安全等级保护测评 25.6万元 2024年9月5日 列表摘录 详情 定位原文" [ref=e351]:
+                - cell "4" [ref=e352]
+                - cell "南京银行2024年度信息安全等级保护测评项目" [ref=e353]
+                - cell "南京银行股份有限公司" [ref=e354]
+                - cell "信息安全等级保护测评" [ref=e355]
+                - cell "25.6万元" [ref=e356]
+                - cell "2024年9月5日" [ref=e357]
+                - cell "列表摘录" [ref=e358]:
+                  - generic [ref=e359]: 列表摘录
+                - cell "详情 定位原文" [ref=e360]:
+                  - generic [ref=e361]:
+                    - button "详情" [ref=e362] [cursor=pointer]
+                    - button "定位原文" [ref=e363] [cursor=pointer]
+              - row "5 兴业南京分行2024年度信息系统等级保护测评服务项目 中信银行股份有限公司南京分行 信息系统等级保护测评服务 12.264151万元 2024年06月13日 列表摘录 详情 定位原文" [ref=e364]:
+                - cell "5" [ref=e365]
+                - cell "兴业南京分行2024年度信息系统等级保护测评服务项目" [ref=e366]
+                - cell "中信银行股份有限公司南京分行" [ref=e367]
+                - cell "信息系统等级保护测评服务" [ref=e368]
+                - cell "12.264151万元" [ref=e369]
+                - cell "2024年06月13日" [ref=e370]
+                - cell "列表摘录" [ref=e371]:
+                  - generic [ref=e372]: 列表摘录
+                - cell "详情 定位原文" [ref=e373]:
+                  - generic [ref=e374]:
+                    - button "详情" [ref=e375] [cursor=pointer]
+                    - button "定位原文" [ref=e376] [cursor=pointer]
+              - row "6 江苏省农村信用社联合社2023年等级保护测评服务 江苏省农村信用社联合社 等级保护测评 42万元 2023年12月26日 列表摘录 详情 定位原文" [ref=e377]:
+                - cell "6" [ref=e378]
+                - cell "江苏省农村信用社联合社2023年等级保护测评服务" [ref=e379]
+                - cell "江苏省农村信用社联合社" [ref=e380]
+                - cell "等级保护测评" [ref=e381]
+                - cell "42万元" [ref=e382]
+                - cell "2023年12月26日" [ref=e383]
+                - cell "列表摘录" [ref=e384]:
+                  - generic [ref=e385]: 列表摘录
+                - cell "详情 定位原文" [ref=e386]:
+                  - generic [ref=e387]:
+                    - button "详情" [ref=e388] [cursor=pointer]
+                    - button "定位原文" [ref=e389] [cursor=pointer]
+              - row "7 利安人寿保险股份有限公司2023年系统等级保护测评项目 利安人寿保险股份有限公司 等级保护测评 36万元 2023年11月 列表摘录 详情 定位原文" [ref=e390]:
+                - cell "7" [ref=e391]
+                - cell "利安人寿保险股份有限公司2023年系统等级保护测评项目" [ref=e392]
+                - cell "利安人寿保险股份有限公司" [ref=e393]
+                - cell "等级保护测评" [ref=e394]
+                - cell "36万元" [ref=e395]
+                - cell "2023年11月" [ref=e396]
+                - cell "列表摘录" [ref=e397]:
+                  - generic [ref=e398]: 列表摘录
+                - cell "详情 定位原文" [ref=e399]:
+                  - generic [ref=e400]:
+                    - button "详情" [ref=e401] [cursor=pointer]
+                    - button "定位原文" [ref=e402] [cursor=pointer]
+              - row "8 恒泰保险经纪有限公司2023年恒泰互联网保险平台网络安全等级保护测评服务 恒泰保险经纪有限公司 网络安全等级保护测评服务 6.5万元 2023年7月 列表摘录 详情 定位原文" [ref=e403]:
+                - cell "8" [ref=e404]
+                - cell "恒泰保险经纪有限公司2023年恒泰互联网保险平台网络安全等级保护测评服务" [ref=e405]
+                - cell "恒泰保险经纪有限公司" [ref=e406]
+                - cell "网络安全等级保护测评服务" [ref=e407]
+                - cell "6.5万元" [ref=e408]
+                - cell "2023年7月" [ref=e409]
+                - cell "列表摘录" [ref=e410]:
+                  - generic [ref=e411]: 列表摘录
+                - cell "详情 定位原文" [ref=e412]:
+                  - generic [ref=e413]:
+                    - button "详情" [ref=e414] [cursor=pointer]
+                    - button "定位原文" [ref=e415] [cursor=pointer]
+              - row "9 恒泰保险经纪有限公司2025 年官网平台网络安全等级保护测评服务 恒泰保险经纪有限公司 网络安全等级保护测评服务 3.5万元 2025年9月 列表摘录 详情 定位原文" [ref=e416]:
+                - cell "9" [ref=e417]
+                - cell "恒泰保险经纪有限公司2025 年官网平台网络安全等级保护测评服务" [ref=e418]
+                - cell "恒泰保险经纪有限公司" [ref=e419]
+                - cell "网络安全等级保护测评服务" [ref=e420]
+                - cell "3.5万元" [ref=e421]
+                - cell "2025年9月" [ref=e422]
+                - cell "列表摘录" [ref=e423]:
+                  - generic [ref=e424]: 列表摘录
+                - cell "详情 定位原文" [ref=e425]:
+                  - generic [ref=e426]:
+                    - button "详情" [ref=e427] [cursor=pointer]
+                    - button "定位原文" [ref=e428] [cursor=pointer]
+              - row "10 江苏长江商业银行股份有限公司 2024年网络安全等级保护测评服务 江苏长江商业银行股份有限公司 网络安全等级保护测评服务 26万元 2024年10月8日 列表摘录 详情 定位原文" [ref=e429]:
+                - cell "10" [ref=e430]
+                - cell "江苏长江商业银行股份有限公司 2024年网络安全等级保护测评服务" [ref=e431]
+                - cell "江苏长江商业银行股份有限公司" [ref=e432]
+                - cell "网络安全等级保护测评服务" [ref=e433]
+                - cell "26万元" [ref=e434]
+                - cell "2024年10月8日" [ref=e435]
+                - cell "列表摘录" [ref=e436]:
+                  - generic [ref=e437]: 列表摘录
+                - cell "详情 定位原文" [ref=e438]:
+                  - generic [ref=e439]:
+                    - button "详情" [ref=e440] [cursor=pointer]
+                    - button "定位原文" [ref=e441] [cursor=pointer]
+              - row "11 中国银行股份有限公司江苏省分行2023年信息系统等级保护测评项目 中国银行股份有限公司江苏省分行 网络安全等级保护测评服务 15.4万元 2024年1月16日 列表摘录 详情 定位原文" [ref=e442]:
+                - cell "11" [ref=e443]
+                - cell "中国银行股份有限公司江苏省分行2023年信息系统等级保护测评项目" [ref=e444]
+                - cell "中国银行股份有限公司江苏省分行" [ref=e445]
+                - cell "网络安全等级保护测评服务" [ref=e446]
+                - cell "15.4万元" [ref=e447]
+                - cell "2024年1月16日" [ref=e448]
+                - cell "列表摘录" [ref=e449]:
+                  - generic [ref=e450]: 列表摘录
+                - cell "详情 定位原文" [ref=e451]:
+                  - generic [ref=e452]:
+                    - button "详情" [ref=e453] [cursor=pointer]
+                    - button "定位原文" [ref=e454] [cursor=pointer]
+              - row "12 南京证券股份有限公司南京证券2024年等级保护测评项目 南京证券股份有限公司 等级保护测评 42.78万元 2024年12月4日 列表摘录 详情 定位原文" [ref=e455]:
+                - cell "12" [ref=e456]
+                - cell "南京证券股份有限公司南京证券2024年等级保护测评项目" [ref=e457]
+                - cell "南京证券股份有限公司" [ref=e458]
+                - cell "等级保护测评" [ref=e459]
+                - cell "42.78万元" [ref=e460]
+                - cell "2024年12月4日" [ref=e461]
+                - cell "列表摘录" [ref=e462]:
+                  - generic [ref=e463]: 列表摘录
+                - cell "详情 定位原文" [ref=e464]:
+                  - generic [ref=e465]:
+                    - button "详情" [ref=e466] [cursor=pointer]
+                    - button "定位原文" [ref=e467] [cursor=pointer]
+              - row "13 华泰证券股份有限公司2024年等级保护测评项目 华泰证券股份有限公司 等级保护测评 68万元 2024年4月19日 列表摘录 详情 定位原文" [ref=e468]:
+                - cell "13" [ref=e469]
+                - cell "华泰证券股份有限公司2024年等级保护测评项目" [ref=e470]
+                - cell "华泰证券股份有限公司" [ref=e471]
+                - cell "等级保护测评" [ref=e472]
+                - cell "68万元" [ref=e473]
+                - cell "2024年4月19日" [ref=e474]
+                - cell "列表摘录" [ref=e475]:
+                  - generic [ref=e476]: 列表摘录
+                - cell "详情 定位原文" [ref=e477]:
+                  - generic [ref=e478]:
+                    - button "详情" [ref=e479] [cursor=pointer]
+                    - button "定位原文" [ref=e480] [cursor=pointer]
+              - row "14 华能贵诚信托有限公司华能贵诚2024年信息系统等级保护测评项目 华能贵诚信托有限公司 信息系统等级保护测评 16.5万元 2024年12月6日 列表摘录 详情 定位原文" [ref=e481]:
+                - cell "14" [ref=e482]
+                - cell "华能贵诚信托有限公司华能贵诚2024年信息系统等级保护测评项目" [ref=e483]
+                - cell "华能贵诚信托有限公司" [ref=e484]
+                - cell "信息系统等级保护测评" [ref=e485]
+                - cell "16.5万元" [ref=e486]
+                - cell "2024年12月6日" [ref=e487]
+                - cell "列表摘录" [ref=e488]:
+                  - generic [ref=e489]: 列表摘录
+                - cell "详情 定位原文" [ref=e490]:
+                  - generic [ref=e491]:
+                    - button "详情" [ref=e492] [cursor=pointer]
+                    - button "定位原文" [ref=e493] [cursor=pointer]
+              - row "15 2023年南银法巴消费金融有限公司网络安全等级保护服务项目 南银法巴消费金融有限公司 网络安全等级保护服务 47万元 2023年4月 列表摘录 详情 定位原文" [ref=e494]:
+                - cell "15" [ref=e495]
+                - cell "2023年南银法巴消费金融有限公司网络安全等级保护服务项目" [ref=e496]
+                - cell "南银法巴消费金融有限公司" [ref=e497]
+                - cell "网络安全等级保护服务" [ref=e498]
+                - cell "47万元" [ref=e499]
+                - cell "2023年4月" [ref=e500]
+                - cell "列表摘录" [ref=e501]:
+                  - generic [ref=e502]: 列表摘录
+                - cell "详情 定位原文" [ref=e503]:
+                  - generic [ref=e504]:
+                    - button "详情" [ref=e505] [cursor=pointer]
+                    - button "定位原文" [ref=e506] [cursor=pointer]
+              - row "16 2024年深圳平安综合金融服务有限公司【信息安全等级保护测评】项目 深圳平安综合金融服务有限公司 信息安全等级保护测评 504万元 2024年8月29日 列表摘录 详情 定位原文" [ref=e507]:
+                - cell "16" [ref=e508]
+                - cell "2024年深圳平安综合金融服务有限公司【信息安全等级保护测评】项目" [ref=e509]
+                - cell "深圳平安综合金融服务有限公司" [ref=e510]
+                - cell "信息安全等级保护测评" [ref=e511]
+                - cell "504万元" [ref=e512]
+                - cell "2024年8月29日" [ref=e513]
+                - cell "列表摘录" [ref=e514]:
+                  - generic [ref=e515]: 列表摘录
+                - cell "详情 定位原文" [ref=e516]:
+                  - generic [ref=e517]:
+                    - button "详情" [ref=e518] [cursor=pointer]
+                    - button "定位原文" [ref=e519] [cursor=pointer]
+              - row "17 2024年高频采购安全软件产品和服务开展入围（安全评估服务）包件一：网络安全等级保护测评服务框架合同 上海农村商业银行股份有限公司 网络安全等级保护测评服务 / 2024年10月15日 列表摘录 详情 定位原文" [ref=e520]:
+                - cell "17" [ref=e521]
+                - cell "2024年高频采购安全软件产品和服务开展入围（安全评估服务）包件一：网络安全等级保护测评服务框架合同" [ref=e522]
+                - cell "上海农村商业银行股份有限公司" [ref=e523]
+                - cell "网络安全等级保护测评服务" [ref=e524]
+                - cell / [ref=e525]
+                - cell "2024年10月15日" [ref=e526]
+                - cell "列表摘录" [ref=e527]:
+                  - generic [ref=e528]: 列表摘录
+                - cell "详情 定位原文" [ref=e529]:
+                  - generic [ref=e530]:
+                    - button "详情" [ref=e531] [cursor=pointer]
+                    - button "定位原文" [ref=e532] [cursor=pointer]
+              - row "18 凯本财产保险(中国)有限公司2023年系统等级保护测评项目 凯本财产保险(中国)有限公司 网络安全等级保护测评服务 6万元 2023年10月31日 列表摘录 详情 定位原文" [ref=e533]:
+                - cell "18" [ref=e534]
+                - cell "凯本财产保险(中国)有限公司2023年系统等级保护测评项目" [ref=e535]
+                - cell "凯本财产保险(中国)有限公司" [ref=e536]
+                - cell "网络安全等级保护测评服务" [ref=e537]
+                - cell "6万元" [ref=e538]
+                - cell "2023年10月31日" [ref=e539]
+                - cell "列表摘录" [ref=e540]:
+                  - generic [ref=e541]: 列表摘录
+                - cell "详情 定位原文" [ref=e542]:
+                  - generic [ref=e543]:
+                    - button "详情" [ref=e544] [cursor=pointer]
+                    - button "定位原文" [ref=e545] [cursor=pointer]
+              - row "19 凯本财产保险网络安全等级保护测评服务 凯本财产保险(中国)有限公司 网络安全等级保护测评服务 / 2024年12月 列表摘录 详情 定位原文" [ref=e546]:
+                - cell "19" [ref=e547]
+                - cell "凯本财产保险网络安全等级保护测评服务" [ref=e548]
+                - cell "凯本财产保险(中国)有限公司" [ref=e549]
+                - cell "网络安全等级保护测评服务" [ref=e550]
+                - cell / [ref=e551]
+                - cell "2024年12月" [ref=e552]
+                - cell "列表摘录" [ref=e553]:
+                  - generic [ref=e554]: 列表摘录
+                - cell "详情 定位原文" [ref=e555]:
+                  - generic [ref=e556]:
+                    - button "详情" [ref=e557] [cursor=pointer]
+                    - button "定位原文" [ref=e558] [cursor=pointer]

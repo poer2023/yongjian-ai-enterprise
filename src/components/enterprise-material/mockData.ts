@@ -1,1116 +1,2084 @@
-// Mock data for enterprise material components
-import type { Folder, SourceFile, Material, FilePreview, AttachmentRef } from './types';
+// Mock data extracted from user-provided bid document:
+// 信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx
+import type {
+  Folder,
+  SourceFile,
+  Material,
+  FilePreview,
+  PersonnelSourceItem,
+  Person,
+  PersonQualification,
+  QualificationRecord,
+  PerformanceCaseEvidence,
+  SourcePreviewEvidence
+} from './types';
+import jindunTeamRows from './jindunTeamRows.json';
+
+type JindunTeamRow = [number, string, string, string, string, string];
+
+const teamRows = jindunTeamRows as JindunTeamRow[];
+
+// Shared helper: generate a coloured SVG placeholder for demo certificate previews
+function makeCertPreview(label: string, name: string, accent: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="480" viewBox="0 0 720 480">
+      <rect width="720" height="480" fill="#ffffff"/>
+      <rect x="20" y="20" width="680" height="440" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+      <rect x="20" y="20" width="680" height="72" rx="12" fill="${accent}" opacity="0.1"/>
+      <text x="44" y="68" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial" font-size="20" fill="${accent}" font-weight="700">${label}</text>
+      <text x="44" y="114" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial" font-size="14" fill="#64748b">持证人：${name}</text>
+      <text x="44" y="160" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial" font-size="13" fill="#94a3b8">此处展示证书扫描件（Demo 占位图）</text>
+      <rect x="44" y="190" width="632" height="240" rx="8" fill="#f1f5f9"/>
+      <text x="360" y="322" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial" font-size="13" fill="#cbd5e1" text-anchor="middle">证书图片区域</text>
+    </svg>`
+  )}`;
+}
+
+function makeTextPreview(
+  title: string,
+  content: string[],
+  options: {
+    subtitle?: string;
+    pageLabel?: string;
+    targetPage?: number;
+  } = {}
+): SourcePreviewEvidence {
+  return {
+    title,
+    content,
+    subtitle: options.subtitle,
+    pageLabel: options.pageLabel,
+    targetPage: options.targetPage
+  };
+}
 
 export const folders: Folder[] = [
-  { id: 1, name: '资质证书' },
-  { id: 2, name: '业绩案例' },
-  { id: 3, name: '项目团队' },
-  { id: 4, name: '公司简介' },
-  { id: 5, name: '荣誉奖项' },
-  { id: 6, name: '技术方案' },
-  { id: 7, name: '合同模板' },
-  { id: 8, name: '投标文件' },
-  { id: 9, name: '产品资料' },
-  { id: 10, name: '培训材料' },
-  { id: 11, name: '财务报表' },
-  { id: 12, name: '法律文书' },
-  { id: 13, name: '模板文档' }
+  { id: 1, name: '投标文件' },
+  { id: 2, name: '商务技术册' },
+  { id: 3, name: '资质认证' },
+  { id: 4, name: '业绩与团队' }
+];
+
+const BID_FILE_NAME =
+  '信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx';
+
+const bidSourceFileBase = {
+  id: 1,
+  name: BID_FILE_NAME,
+  size: '约 6.8MB',
+  words: '约 17.9 万字符（抽取统计）',
+  creator: '金盾检测技术股份有限公司',
+  status: 'completed' as const
+};
+
+/** 业绩案例行（与标书表格字段一致） */
+interface JindunCaseRow {
+  id: string;
+  listKey: string;
+  section: '基本资质要求' | '评标办法';
+  name: string;
+  signedAt: string;
+  client: string;
+  service: string;
+  amount: string;
+  pageHint: string;
+  projectType?: Material['projectType'];
+}
+
+const jindunCaseRows: JindunCaseRow[] = [
+  {
+    id: 'jd-case-b-1',
+    listKey: '1-1',
+    section: '基本资质要求',
+    name: '江苏江南农村商业银行股份有限公司2023年等保测评项目咨询服务',
+    signedAt: '2023年4月23日',
+    client: '江苏江南农村商业银行股份有限公司',
+    service: '等级保护测评',
+    amount: '77万元',
+    pageHint: '第91页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-b-2',
+    listKey: '1-2',
+    section: '基本资质要求',
+    name: '广州农村商业银行2023年度网络安全等级保护测评',
+    signedAt: '2023年6月29日',
+    client: '广州农村商业银行股份有限公司',
+    service: '信息安全等级保护测评',
+    amount: '36万元',
+    pageHint: '第91页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-1',
+    listKey: '1-1',
+    section: '评标办法',
+    name: '江苏昆山农村商业银行股份有限公司昆山农商银行2023年重要系统信息安全等级保护测评',
+    signedAt: '2023年6月20日',
+    client: '江苏昆山农村商业银行股份有限公司',
+    service: '信息安全等级保护测评',
+    amount: '31万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-2',
+    listKey: '1-2',
+    section: '评标办法',
+    name: '南京银行2024年度信息安全等级保护测评项目',
+    signedAt: '2024年9月5日',
+    client: '南京银行股份有限公司',
+    service: '信息安全等级保护测评',
+    amount: '25.6万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-3',
+    listKey: '1-3',
+    section: '评标办法',
+    name: '兴业南京分行2024年度信息系统等级保护测评服务项目',
+    signedAt: '2024年06月13日',
+    client: '中信银行股份有限公司南京分行',
+    service: '信息系统等级保护测评服务',
+    amount: '12.264151万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-4',
+    listKey: '1-4',
+    section: '评标办法',
+    name: '江苏省农村信用社联合社2023年等级保护测评服务',
+    signedAt: '2023年12月26日',
+    client: '江苏省农村信用社联合社',
+    service: '等级保护测评',
+    amount: '42万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-5',
+    listKey: '1-5',
+    section: '评标办法',
+    name: '利安人寿保险股份有限公司2023年系统等级保护测评项目',
+    signedAt: '2023年11月',
+    client: '利安人寿保险股份有限公司',
+    service: '等级保护测评',
+    amount: '36万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-6',
+    listKey: '1-6',
+    section: '评标办法',
+    name: '恒泰保险经纪有限公司2023年恒泰互联网保险平台网络安全等级保护测评服务',
+    signedAt: '2023年7月',
+    client: '恒泰保险经纪有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '6.5万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-7',
+    listKey: '1-7',
+    section: '评标办法',
+    name: '恒泰保险经纪有限公司2025 年官网平台网络安全等级保护测评服务',
+    signedAt: '2025年9月',
+    client: '恒泰保险经纪有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '3.5万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-8',
+    listKey: '1-8',
+    section: '评标办法',
+    name: '江苏长江商业银行股份有限公司 2024年网络安全等级保护测评服务',
+    signedAt: '2024年10月8日',
+    client: '江苏长江商业银行股份有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '26万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-9',
+    listKey: '1-9',
+    section: '评标办法',
+    name: '中国银行股份有限公司江苏省分行2023年信息系统等级保护测评项目',
+    signedAt: '2024年1月16日',
+    client: '中国银行股份有限公司江苏省分行',
+    service: '网络安全等级保护测评服务',
+    amount: '15.4万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-10',
+    listKey: '1-10',
+    section: '评标办法',
+    name: '南京证券股份有限公司南京证券2024年等级保护测评项目',
+    signedAt: '2024年12月4日',
+    client: '南京证券股份有限公司',
+    service: '等级保护测评',
+    amount: '42.78万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-11',
+    listKey: '1-11',
+    section: '评标办法',
+    name: '华泰证券股份有限公司2024年等级保护测评项目',
+    signedAt: '2024年4月19日',
+    client: '华泰证券股份有限公司',
+    service: '等级保护测评',
+    amount: '68万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-12',
+    listKey: '1-12',
+    section: '评标办法',
+    name: '华能贵诚信托有限公司华能贵诚2024年信息系统等级保护测评项目',
+    signedAt: '2024年12月6日',
+    client: '华能贵诚信托有限公司',
+    service: '信息系统等级保护测评',
+    amount: '16.5万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-13',
+    listKey: '1-13',
+    section: '评标办法',
+    name: '2023年南银法巴消费金融有限公司网络安全等级保护服务项目',
+    signedAt: '2023年4月',
+    client: '南银法巴消费金融有限公司',
+    service: '网络安全等级保护服务',
+    amount: '47万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-14',
+    listKey: '1-14',
+    section: '评标办法',
+    name: '2024年深圳平安综合金融服务有限公司【信息安全等级保护测评】项目',
+    signedAt: '2024年8月29日',
+    client: '深圳平安综合金融服务有限公司',
+    service: '信息安全等级保护测评',
+    amount: '504万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-15',
+    listKey: '1-15',
+    section: '评标办法',
+    name:
+      '2024年高频采购安全软件产品和服务开展入围（安全评估服务）包件一：网络安全等级保护测评服务框架合同',
+    signedAt: '2024年10月15日',
+    client: '上海农村商业银行股份有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '/',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-16',
+    listKey: '1-16',
+    section: '评标办法',
+    name: '凯本财产保险(中国)有限公司2023年系统等级保护测评项目',
+    signedAt: '2023年10月31日',
+    client: '凯本财产保险(中国)有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '6万元',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  },
+  {
+    id: 'jd-case-s-17',
+    listKey: '1-17',
+    section: '评标办法',
+    name: '凯本财产保险网络安全等级保护测评服务',
+    signedAt: '2024年12月',
+    client: '凯本财产保险(中国)有限公司',
+    service: '网络安全等级保护测评服务',
+    amount: '/',
+    pageHint: '第125页起',
+    projectType: '等保测评'
+  }
+];
+
+const inferIndustryFromClient = (client: string) => {
+  if (/(银行|保险|证券|信托|消费金融)/.test(client)) return '金融';
+  if (/(政府|财政厅|公安|网信|政务)/.test(client)) return '政务';
+  if (/(医院|医疗|卫生)/.test(client)) return '医疗';
+  return '综合';
+};
+
+const inferCaseLevelCoverage = (row: JindunCaseRow) =>
+  row.section === '基本资质要求' ? '二级 / 三级' : '未注明';
+
+const inferCaseScope = (row: JindunCaseRow) => {
+  const systemMatch = row.name.match(/(\d+)(个系统|套系统)/);
+  const systemText = systemMatch ? `覆盖 ${systemMatch[1]}${systemMatch[2]}，` : '';
+
+  if (/框架合同|入围/.test(row.name)) {
+    return `${systemText}框架合同类项目，支持多批次系统测评与持续服务，具体范围以合同关键页为准。`;
+  }
+
+  if (/风险评估/.test(row.service) || /风险评估/.test(row.name)) {
+    return `${systemText}包含等级保护测评与安全防护评估相关工作，具体工作范围以合同关键页为准。`;
+  }
+
+  return `${systemText}当前已沉淀 ${row.service} 相关案例信息，具体工作范围以合同关键页为准。`;
+};
+
+const inferCaseTags = (row: JindunCaseRow) => {
+  const tags = [
+    `${inferIndustryFromClient(row.client)}行业`,
+    row.section === '基本资质要求' ? '基本资质' : '评分案例'
+  ];
+
+  if (row.projectType) tags.push(row.projectType);
+  if (/框架合同|入围/.test(row.name)) tags.push('框架合同');
+  if (/风险评估/.test(row.service) || /风险评估/.test(row.name)) tags.push('风险评估');
+  if (/(\d+)(个系统|套系统)/.test(row.name)) tags.push('多系统');
+
+  return Array.from(new Set(tags));
+};
+
+const buildCaseProofDocuments = (row: JindunCaseRow): NonNullable<Material['proofDocuments']> => {
+  if (row.section !== '基本资质要求') return [];
+
+  return [
+    {
+      name: `${row.name} · 合同首页`,
+      type: 'contract',
+      fileId: 1
+    },
+    {
+      name: `${row.name} · 服务内容页`,
+      type: 'contract',
+      fileId: 1
+    },
+    {
+      name: `${row.name} · 金额/时间页`,
+      type: 'contract',
+      fileId: 1
+    }
+  ];
+};
+
+const buildCaseEvidenceRecord = (row: JindunCaseRow): PerformanceCaseEvidence => ({
+  organizationId: 'org-jindun',
+  projectName: row.name,
+  clientName: row.client,
+  projectType: row.projectType,
+  industry: inferIndustryFromClient(row.client),
+  serviceContent: row.service,
+  contractAmount: row.amount,
+  signedAt: row.signedAt,
+  sourceSection: row.section,
+  evidenceType: 'case_list',
+  proofStatus: row.section === '基本资质要求' ? 'partial' : 'list_only',
+  scopeSummary: inferCaseScope(row),
+  highlights: inferCaseTags(row).join(' / '),
+  quoteText: `合同/项目名称：${row.name}；签订时间：${row.signedAt}；使用单位：${row.client}；案例主要服务内容：${row.service}；合同总金额：${row.amount}。`,
+  confidence: 0.93
+});
+
+function buildJindunCaseMaterials(): Material[] {
+  return jindunCaseRows.map((row, index) => ({
+    id: row.id,
+    name: `[${row.section} ${row.listKey}] ${row.name}`,
+    category: 'case',
+    categoryLabel: '业绩案例',
+    summary: `${row.client} · 签订 ${row.signedAt} · 合同总额 ${row.amount}`,
+    contentType: 'text',
+    fullText: `业绩案例列表（${row.section}）序号 ${row.listKey}。合同/项目名称：${row.name}。签订时间：${row.signedAt}。使用单位：${row.client}。案例主要服务内容：${row.service}。合同总金额：${row.amount}。`,
+    keyInfo: [
+      { key: '表格序号', value: row.listKey },
+      { key: '列表章节', value: row.section },
+      { key: '来源场景', value: row.section },
+      { key: '项目名称', value: row.name },
+      { key: '客户单位', value: row.client },
+      { key: '甲方单位', value: row.client },
+      { key: '案例主要服务内容', value: row.service },
+      { key: '服务内容', value: row.service },
+      { key: '服务范围说明', value: inferCaseScope(row) },
+      { key: '合同金额', value: row.amount },
+      { key: '签订日期', value: row.signedAt },
+      { key: '等保等级覆盖', value: inferCaseLevelCoverage(row) },
+      { key: '关键标签', value: inferCaseTags(row).join(' / ') },
+      { key: '项目状态', value: '已公示于投标文件' }
+    ],
+    sourceFileId: 1,
+    pageRange: row.pageHint,
+    projectType: row.projectType,
+    proofDocuments: buildCaseProofDocuments(row),
+    listOrder: index + 1,
+    caseEvidence: buildCaseEvidenceRecord(row)
+  }));
+}
+
+function buildPersonnelSources(idx: number, name: string, role: string): PersonnelSourceItem[] {
+  const fileId = 1;
+  const makePreview = (label: string, accent: string) =>
+    `data:image/svg+xml;utf8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
+        <rect width="720" height="420" fill="#ffffff"/>
+        <rect x="24" y="24" width="672" height="372" rx="14" fill="#f8fafc" stroke="#e2e8f0"/>
+        <rect x="24" y="24" width="672" height="64" rx="14" fill="${accent}" opacity="0.12"/>
+        <text x="48" y="66" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="18" fill="#0f172a" font-weight="700">${label}</text>
+        <text x="48" y="104" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="14" fill="#64748b">${name} · ${role} · 证据预览（Demo）</text>
+        <text x="48" y="152" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial" font-size="13" fill="#334155">此处展示原图/扫描件预览（原型占位）。点击「查看素材」定位到源文件页码。</text>
+      </svg>`
+    )}`;
+  const items: PersonnelSourceItem[] = [
+    {
+      id: `jd-team-${idx}-src-table`,
+      title: `人员配置表 · 第 ${idx} 行（姓名 / 学历 / 资质认证）`,
+      kind: 'table',
+      sourceFileId: fileId,
+      pageRange: '第456页起',
+      note: '《服务团队人员列表》'
+    },
+    {
+      id: `jd-team-${idx}-src-cert`,
+      title: `${name} — 网络安全等级测评师证书复印件`,
+      kind: 'certificate',
+      sourceFileId: fileId,
+      pageRange: '人员资质文件分册',
+      note: '与列表序号一致的资质复印件装订顺序',
+      previewDataUrl: makePreview('证书复印件', '#2563eb')
+    }
+  ];
+  if (role === '项目经理' || idx === 1) {
+    items.push({
+      id: `jd-team-${idx}-src-resume`,
+      title: `${name} — 项目经理简历`,
+      kind: 'resume',
+      sourceFileId: fileId,
+      pageRange: '第4175页起',
+      note: '简历与项目经验证明',
+      previewDataUrl: makePreview('简历页', '#16a34a')
+    });
+  }
+  return items;
+}
+
+function buildJindunTeamMaterials(): Material[] {
+  const base: Material[] = teamRows.map(([idx, name, edu, exp, cert, role]) => ({
+    id: `jd-team-${idx}`,
+    name: `${name} - ${role}`,
+    category: 'team' as const,
+    categoryLabel: '项目团队',
+    summary: `投标文件「人员配置」表第 ${idx} 行：${cert}，测评相关经验 ${exp}。`,
+    contentType: 'text' as const,
+    keyInfo: [
+      { key: '序号', value: String(idx) },
+      { key: '姓名', value: name },
+      { key: '职务', value: role },
+      { key: '学历', value: edu },
+      { key: '网络安全等级保护测评工作经验', value: exp },
+      { key: '资质认证', value: cert }
+    ],
+    sourceFileId: 1,
+    pageRange: '人员配置表（约第3347行文本位置）',
+    listOrder: idx,
+    personnelSources: buildPersonnelSources(idx, name, role)
+  }));
+
+  // Add multi-record examples: same person with multiple certifications/experience entries.
+  // These rows share the same 姓名/职务 so the UI can collapse/expand them as "other entries".
+  const chen = base.find((m) => m.id === 'jd-team-1');
+  if (chen) {
+    base.push({
+      ...chen,
+      id: 'jd-team-1-b',
+      summary: '同一人员的第二条资质/经验记录（用于演示折叠展开）。',
+      keyInfo: [
+        { key: '序号', value: '1-2' },
+        { key: '姓名', value: '陈大文' },
+        { key: '职务', value: '项目经理' },
+        { key: '学历', value: '本科' },
+        { key: '网络安全等级保护测评工作经验', value: '13年' },
+        { key: '资质认证', value: 'CISP（国家注册信息安全专业人员）' }
+      ],
+      // Keep near original ordering but let stable sort place it after the primary row.
+      listOrder: (chen.listOrder ?? 1) + 0.01
+    });
+  }
+
+  const li = base.find((m) => m.id === 'jd-team-2');
+  if (li) {
+    const getVal = (key: string) => li.keyInfo.find((kv) => kv.key === key)?.value ?? '';
+    base.push({
+      ...li,
+      id: 'jd-team-2-b',
+      summary: '同一人员的第二条资质/经验记录（用于演示折叠展开）。',
+      keyInfo: [
+        { key: '序号', value: '2-2' },
+        { key: '姓名', value: getVal('姓名') || '—' },
+        { key: '职务', value: getVal('职务') || '—' },
+        { key: '学历', value: getVal('学历') || '—' },
+        { key: '网络安全等级保护测评工作经验', value: '9年' },
+        { key: '资质认证', value: '中级测评师（补充资质记录）' }
+      ],
+      listOrder: (li.listOrder ?? 2) + 0.01
+    });
+  }
+
+  return base;
+}
+
+interface JindunResumeProjectRow {
+  year: string;
+  projectName: string;
+  clientName?: string;
+  role: string;
+  domain: string;
+  caseId?: string;
+}
+
+interface JindunResumeProfile {
+  age: string;
+  school: string;
+  major: string;
+  degree: string;
+  professionalTitle: string;
+  currentPosition: string;
+  workYears: number;
+  coreYears: number;
+  assignedRole: string;
+  joinedSummary: string;
+  similarExperience: string;
+  resumeSummary: string;
+  projects: JindunResumeProjectRow[];
+  resumePreview: SourcePreviewEvidence;
+  educationPreview?: SourcePreviewEvidence;
+  degreePreview?: SourcePreviewEvidence;
+  socialSecurityPreview?: SourcePreviewEvidence;
+}
+
+const jindunResumeProfiles: Record<string, JindunResumeProfile> = {
+  陈大文: {
+    age: '36岁',
+    school: '南京大学',
+    major: '信息管理与信息系统专业',
+    degree: '学士',
+    professionalTitle: '高级工程师',
+    currentPosition: '技术总监',
+    workYears: 15,
+    coreYears: 13,
+    assignedRole: '项目经理',
+    joinedSummary: '陈大文2010年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '陈大文，本科学历，毕业于南京大学信息管理与信息系统专业，现任技术总监，累计15年网络安全从业经验，其中13年聚焦等级保护测评，拟任本项目项目经理。',
+    projects: [
+      {
+        year: '2025年',
+        projectName: '中国光大银行股份有限公司南京分行南京分行2025年安全等级保护测评项目',
+        clientName: '中国光大银行股份有限公司南京分行',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-1'
+      },
+      {
+        year: '2023年',
+        projectName: '中国农业银行股份有限公司江苏省分行2023年中国农业银行股份有限公司江苏省分行信息系统等级保护第三方测评服务项目',
+        clientName: '中国农业银行股份有限公司江苏省分行',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-2'
+      },
+      {
+        year: '2025年',
+        projectName: '中国农业银行股份有限公司苏州分行2025年网络安全等级保护测评服务',
+        clientName: '中国农业银行股份有限公司苏州分行',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-3'
+      },
+      {
+        year: '2024年',
+        projectName: '中国邮政储蓄银行北京分行2024年网络安全等级保护测评服务',
+        clientName: '中国邮政储蓄银行北京分行',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-4'
+      },
+      {
+        year: '2023年',
+        projectName: '中银金融商务（昆山）有限公司2023年骨干网网络安全等级保护备案与测评',
+        clientName: '中银金融商务（昆山）有限公司',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-5'
+      },
+      {
+        year: '2020年',
+        projectName: '兴业银行股份有限公司南京分行兴业南京分行2024年度信息系统等级保护测评服务',
+        clientName: '兴业银行股份有限公司南京分行',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-6'
+      },
+      {
+        year: '2024年',
+        projectName: '江苏常熟农村商业银行股份有限公司常熟农村商业银行2024年等级保护测评项目',
+        clientName: '江苏常熟农村商业银行股份有限公司',
+        role: '项目经理',
+        domain: '等级保护测评',
+        caseId: 'jd-case-r-7'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '陈大文-项目经理简历',
+      [
+        '姓名：陈大文',
+        '年龄：36岁',
+        '毕业学校：南京大学',
+        '专业：信息管理与信息系统专业',
+        '学位：学士',
+        '职称：高级工程师',
+        '职务：技术总监',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：15年',
+        '拟在本项目担任职务：项目经理',
+        '同类项目工作经验：江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务'
+      ],
+      {
+        subtitle: '服务团队人员资质文件摘录',
+        pageLabel: '陈大文-项目经理简历',
+        targetPage: 4175
+      }
+    ),
+    educationPreview: makeTextPreview(
+      '陈大文-学历信息摘录',
+      ['毕业学校：南京大学', '专业：信息管理与信息系统专业', '学位：学士'],
+      { subtitle: '项目经理简历', pageLabel: '陈大文-项目经理简历', targetPage: 4175 }
+    ),
+    degreePreview: makeTextPreview(
+      '陈大文-学位信息摘录',
+      ['学位：学士', '毕业学校：南京大学', '专业：信息管理与信息系统专业'],
+      { subtitle: '项目经理简历', pageLabel: '陈大文-项目经理简历', targetPage: 4175 }
+    )
+  },
+  邢伟: {
+    age: '38岁',
+    school: '滁州学院',
+    major: '信息与计算机学专业',
+    degree: '',
+    professionalTitle: '高级工程师',
+    currentPosition: '技术副总监',
+    workYears: 15,
+    coreYears: 9,
+    assignedRole: '团队人员',
+    joinedSummary: '2015年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '邢伟，本科学历，毕业于滁州学院信息与计算机学专业，现任技术副总监，累计15年从业经验，其中9年从事等级保护测评工作。',
+    projects: [
+      {
+        year: '2023年',
+        projectName: '中国光大银行股份有限公司南京分行',
+        clientName: '中国光大银行股份有限公司南京分行',
+        role: '测评师',
+        domain: '等保测评'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '邢伟-团队人员简历',
+      [
+        '姓名：邢伟',
+        '年龄：38岁',
+        '毕业学校：滁州学院',
+        '专业：信息与计算机学专业',
+        '职称：高级工程师',
+        '职务：技术副总监',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：15年',
+        '拟在本项目担任职务：团队人员',
+        '主要经历：2015年入职金盾检测技术股份有限公司至今'
+      ],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '邢伟-团队人员简历', targetPage: 4201 }
+    ),
+    educationPreview: makeTextPreview(
+      '邢伟-学历信息摘录',
+      ['毕业学校：滁州学院', '专业：信息与计算机学专业'],
+      { subtitle: '团队人员简历', pageLabel: '邢伟-团队人员简历', targetPage: 4201 }
+    )
+  },
+  邵君立: {
+    age: '33岁',
+    school: '南京林业大学南方学院',
+    major: '计算机科学与技术',
+    degree: '',
+    professionalTitle: '高级工程师',
+    currentPosition: '测评师',
+    workYears: 8,
+    coreYears: 8,
+    assignedRole: '团队人员',
+    joinedSummary: '2017年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '邵君立，本科学历，毕业于南京林业大学南方学院计算机科学与技术专业，现任测评师，累计8年等级保护测评相关经验。',
+    projects: [
+      {
+        year: '2023年',
+        projectName: '中国光大银行股份有限公司南京分行',
+        clientName: '中国光大银行股份有限公司南京分行',
+        role: '测评师',
+        domain: '等保测评'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '邵君立-团队人员简历',
+      [
+        '姓名：邵君立',
+        '年龄：33岁',
+        '毕业学校：南京林业大学南方学院',
+        '专业：计算机科学与技术',
+        '职称：高级工程师',
+        '职务：测评师',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：8年',
+        '拟在本项目担任职务：团队人员',
+        '主要经历：2017年入职金盾检测技术股份有限公司至今'
+      ],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '邵君立-团队人员简历', targetPage: 4202 }
+    ),
+    educationPreview: makeTextPreview(
+      '邵君立-学历信息摘录',
+      ['毕业学校：南京林业大学南方学院', '专业：计算机科学与技术'],
+      { subtitle: '团队人员简历', pageLabel: '邵君立-团队人员简历', targetPage: 4202 }
+    )
+  },
+  程嘉: {
+    age: '27岁',
+    school: '南京大学金陵学院',
+    major: '计算机科学与技术',
+    degree: '',
+    professionalTitle: '高级工程师',
+    currentPosition: '测评师',
+    workYears: 5,
+    coreYears: 5,
+    assignedRole: '团队人员',
+    joinedSummary: '2020年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '程嘉，本科学历，毕业于南京大学金陵学院计算机科学与技术专业，现任测评师，累计5年等级保护测评相关经验。',
+    projects: [
+      {
+        year: '2023年',
+        projectName: '中国光大银行股份有限公司南京分行',
+        clientName: '中国光大银行股份有限公司南京分行',
+        role: '测评师',
+        domain: '等保测评'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '程嘉-团队人员简历',
+      [
+        '姓名：程嘉',
+        '年龄：27岁',
+        '毕业学校：南京大学金陵学院',
+        '专业：计算机科学与技术',
+        '职称：高级工程师',
+        '职务：测评师',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：5年',
+        '拟在本项目担任职务：团队人员',
+        '主要经历：2020年入职金盾检测技术股份有限公司至今'
+      ],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '程嘉-团队人员简历', targetPage: 4203 }
+    ),
+    educationPreview: makeTextPreview(
+      '程嘉-学历信息摘录',
+      ['毕业学校：南京大学金陵学院', '专业：计算机科学与技术'],
+      { subtitle: '团队人员简历', pageLabel: '程嘉-团队人员简历', targetPage: 4203 }
+    )
+  },
+  叶茂: {
+    age: '27岁',
+    school: '江苏大学京江学院',
+    major: '通信工程',
+    degree: '',
+    professionalTitle: '高级工程师',
+    currentPosition: '测评师',
+    workYears: 5,
+    coreYears: 3,
+    assignedRole: '团队人员',
+    joinedSummary: '2020年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '叶茂，本科学历，毕业于江苏大学京江学院通信工程专业，现任测评师，累计5年从业经验，其中3年从事等级保护测评工作。',
+    projects: [
+      {
+        year: '2024年',
+        projectName: '中国邮政储蓄银行北京分行',
+        clientName: '中国邮政储蓄银行北京分行',
+        role: '测评师',
+        domain: '等保测评'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '叶茂-团队人员简历',
+      [
+        '姓名：叶茂',
+        '年龄：27岁',
+        '毕业学校：江苏大学京江学院',
+        '专业：通信工程',
+        '职称：高级工程师',
+        '职务：测评师',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：5年',
+        '拟在本项目担任职务：团队人员',
+        '主要经历：2020年入职金盾检测技术股份有限公司至今'
+      ],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '叶茂-团队人员简历', targetPage: 4204 }
+    ),
+    educationPreview: makeTextPreview(
+      '叶茂-学历信息摘录',
+      ['毕业学校：江苏大学京江学院', '专业：通信工程'],
+      { subtitle: '团队人员简历', pageLabel: '叶茂-团队人员简历', targetPage: 4204 }
+    )
+  },
+  陈洁: {
+    age: '47岁',
+    school: '解放军电子工程学院',
+    major: '军事通信学',
+    degree: '',
+    professionalTitle: '高级工程师',
+    currentPosition: '测评师',
+    workYears: 5,
+    coreYears: 20,
+    assignedRole: '团队人员',
+    joinedSummary: '2020年入职金盾检测技术股份有限公司至今',
+    similarExperience: '江苏省财政厅财政信息管理中心江苏省财政厅信息系统等级保护测评服务',
+    resumeSummary:
+      '陈洁，硕士研究生学历，毕业于解放军电子工程学院军事通信学专业，现任测评师，团队列表载明其具备20年等级保护测评工作经验。',
+    projects: [
+      {
+        year: '2023年',
+        projectName: '中国光大银行股份有限公司南京分行',
+        clientName: '中国光大银行股份有限公司南京分行',
+        role: '测评师',
+        domain: '等保测评'
+      }
+    ],
+    resumePreview: makeTextPreview(
+      '陈洁-团队人员简历',
+      [
+        '姓名：陈洁',
+        '年龄：47岁',
+        '毕业学校：解放军电子工程学院',
+        '专业：军事通信学',
+        '职称：高级工程师',
+        '职务：测评师',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：5年',
+        '拟在本项目担任职务：团队人员',
+        '主要经历：2020年入职金盾检测技术股份有限公司至今'
+      ],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '陈洁-团队人员简历', targetPage: 4205 }
+    ),
+    educationPreview: makeTextPreview(
+      '陈洁-学历信息摘录',
+      ['毕业学校：解放军电子工程学院', '专业：军事通信学', '学历：硕士研究生'],
+      { subtitle: '团队人员简历', pageLabel: '陈洁-团队人员简历', targetPage: 4205 }
+    ),
+    socialSecurityPreview: makeTextPreview(
+      '陈洁-社保证明',
+      ['投标文件在“陈洁-资质认证”后附有“社保”材料页。'],
+      { subtitle: '服务团队人员资质文件摘录', pageLabel: '陈洁-社保', targetPage: 4206 }
+    )
+  }
+};
+
+const chenResumeProfile = jindunResumeProfiles['陈大文'];
+
+const jindunResumeCaseRows = (chenResumeProfile?.projects ?? []).filter(
+  (project): project is JindunResumeProjectRow & { caseId: string } => Boolean(project.caseId)
+);
+
+const jindunResumeCaseMaterials: Material[] = jindunResumeCaseRows.map((project, index) => ({
+  id: project.caseId,
+  name: project.projectName,
+  category: 'case',
+  categoryLabel: '项目经理业绩',
+  summary: `${project.clientName} · ${project.year} · ${project.role}`,
+  contentType: 'text',
+  keyInfo: [
+    { key: '项目名称', value: project.projectName },
+    { key: '客户单位', value: project.clientName ?? '—' },
+    { key: '签订日期', value: project.year },
+    { key: '服务内容', value: project.domain },
+    { key: '来源说明', value: '陈大文-项目经理的相关项目经验 / 合同关键页目录' }
+  ],
+  sourceFileId: 1,
+  pageRange: '陈大文-项目经理的相关项目经验',
+  projectType: '等保测评',
+  proofDocuments: [
+    {
+      name: `${project.projectName} · 合同关键页`,
+      type: 'contract',
+      fileId: 1
+    }
+  ],
+  caseEvidence: {
+    organizationId: 'org-jindun',
+    projectName: project.projectName,
+    clientName: project.clientName ?? '',
+    projectType: '等保测评',
+    industry: '金融',
+    serviceContent: '等级保护测评',
+    signedAt: project.year,
+    sourceSection: '项目经理相关项目经验',
+    evidenceType: 'contract',
+    proofStatus: 'partial',
+    scopeSummary: '投标文件列示了合同关键页/合同名称，可作为项目经理履历证明。',
+    highlights: '项目经理履历 / 合同关键页',
+    quoteText: `${project.year} ${project.projectName}`,
+    confidence: 0.92
+  },
+  previewEvidence: makeTextPreview(
+    `${project.projectName} - 合同关键页目录`,
+    [
+      '来源：陈大文-项目经理的相关项目经验',
+      `项目名称：${project.projectName}`,
+      `甲方单位：${project.clientName ?? '—'}`,
+      `担任何职：${project.role}`,
+      `服务类型：${project.domain}`,
+      `时间：${project.year}`
+    ],
+    {
+      subtitle: `证据 ${index + 1}`,
+      pageLabel: '陈大文-项目经理的相关项目经验',
+      targetPage: 4181 + index
+    }
+  )
+}));
+
+function buildQualificationRecord(
+  overrides: Partial<QualificationRecord> & Pick<QualificationRecord, 'organizationId' | 'category' | 'name'>
+): QualificationRecord {
+  return {
+    subcategory: '',
+    level: '',
+    majorScope: '',
+    standardCode: '',
+    issuer: '',
+    certificateNo: '',
+    issuedAt: '',
+    expiresAt: '',
+    status: 'valid',
+    honorLevel: '',
+    description: '',
+    rawText: '',
+    isStructured: true,
+    ...overrides
+  };
+}
+
+const jindunCertificateMaterials: Material[] = [
+  {
+    id: 'jd-cert-1',
+    name: '企业法人营业执照副本',
+    listOrder: 1,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '主体证明，用于资格审查中的独立法人实体校验。',
+    contentType: 'mixed',
+    keyInfo: [
+      { key: '统一社会信用代码', value: '91320000559284761U' },
+      { key: '登记机关', value: '南京市市场监督管理局' },
+      { key: '法定代表人', value: '孙晶华' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第16页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '主体证明',
+      subcategory: '营业执照',
+      name: '企业法人营业执照副本',
+      majorScope: '用于证明投标主体合法存续、具备独立法人资格。',
+      issuer: '南京市市场监督管理局',
+      issuedAt: '2025-07-23',
+      status: 'valid',
+      bucket: '主体证明',
+      biddingRole: '准入',
+      serviceDomains: ['通用'],
+      proofType: '证书',
+      verificationMethod: '通过统一社会信用代码进行工商信息核验',
+      description: '对应资格审查中的主体合法性要求，通常与工商变更材料一起提交。',
+      rawText: '企业法人营业执照副本'
+    })
+  },
+  {
+    id: 'jd-cert-2',
+    name: '公司名称及法定代表人变更说明',
+    listOrder: 2,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '主体证明补充材料，用于解释名称和法定代表人变更。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '证明形式', value: '说明函 + 变更登记通知书' },
+      { key: '适用场景', value: '历史合同、证书、公章信息与现主体名称不一致时使用' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第17页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '主体证明',
+      subcategory: '变更说明',
+      name: '公司名称及法定代表人变更说明',
+      majorScope: '用于解释营业执照法定代表人变更、公司名称沿革等主体连续性问题。',
+      issuer: '金盾检测技术股份有限公司',
+      issuedAt: '2025-11-26',
+      status: 'valid',
+      bucket: '主体证明',
+      biddingRole: '辅助证明',
+      serviceDomains: ['通用'],
+      proofType: '说明函',
+      verificationMethod: '结合营业执照复印件与工商变更登记通知书交叉核验',
+      description: '解决投标文件中历史业绩、旧公章或旧公司名称与当前主体名称不一致的问题。',
+      rawText: '关于营业执照法定代表人变更的声明 / 关于本公司名称变更的重要事项说明'
+    })
+  },
+  {
+    id: 'jd-cert-3',
+    name: '网络安全等级测评与检测评估机构服务认证证书',
+    listOrder: 3,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '等保项目准入资质，对应招标文件合格投标人基本资质要求。',
+    contentType: 'mixed',
+    keyInfo: [
+      { key: '资质认证名称', value: '网络安全等级测评与检测评估机构服务认证证书' },
+      { key: '适用服务线', value: '等级保护测评' },
+      { key: '证明形式', value: '证书复印件' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第37页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '准入资质',
+      subcategory: '等保测评准入',
+      name: '网络安全等级测评与检测评估机构服务认证证书',
+      majorScope: '用于证明企业具备开展网络安全等级保护测评服务的准入资格。',
+      issuer: '公安部第三研究所（认证中心）',
+      status: 'valid',
+      bucket: '准入资质',
+      biddingRole: '准入',
+      serviceDomains: ['等保'],
+      proofType: '证书',
+      verificationMethod: '结合证书信息与认监委/主管单位公开信息核验',
+      description: '在等保测评项目中通常属于一票否决型基础资质。',
+      rawText: '具备国家认监委认定机构颁发的、有效期内的《网络安全等级测评与检测评估机构服务认证证书》'
+    })
+  },
+  {
+    id: 'jd-cert-4',
+    name: '全国网络安全等级测评与检测评估机构目录截图',
+    listOrder: 4,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '准入证明截图，用于证明企业在官方名录内。',
+    contentType: 'mixed',
+    keyInfo: [
+      { key: '证明网站', value: 'www.djbh.net' },
+      { key: '证明形式', value: '官方目录截图' },
+      { key: '适用服务线', value: '等级保护测评' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第47页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '准入资质',
+      subcategory: '官方目录',
+      name: '全国网络安全等级测评与检测评估机构目录截图',
+      majorScope: '用于证明企业已列入全国网络安全等级测评与检测评估机构目录。',
+      issuer: '网络安全等级保护网',
+      status: 'valid',
+      bucket: '准入资质',
+      biddingRole: '准入',
+      serviceDomains: ['等保'],
+      proofType: '目录截图',
+      verificationMethod: '官网目录截图与企业名称匹配核验',
+      description: '与等保测评服务认证证书配套出现，是招标文件常见的双重准入证明。',
+      rawText: '投标人须在“网络安全等级保护网（www.djbh.net）”上的《全国网络安全等级测评与检测评估机构目录》中，须提供截图证明'
+    })
+  },
+  {
+    id: 'jd-cert-5',
+    name: '质量管理体系认证证书',
+    listOrder: 5,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '管理体系认证，常作为评分项中的体系能力证明。',
+    contentType: 'mixed',
+    keyInfo: [
+      {
+        key: '资质认证名称',
+        value: '质量管理体系认证证书，认证依据为GB/T 19001或ISO 9001'
+      },
+      { key: '颁发机构', value: '中鸿认证（江苏）有限公司' },
+      { key: '颁发时间', value: '2024年01月18日' },
+      { key: '认证依据', value: 'GB/T 19001 / ISO 9001' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第63页',
+    expiryDate: '2027-01-17',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '管理体系认证',
+      subcategory: '质量管理体系',
+      name: '质量管理体系认证证书',
+      standardCode: 'GB/T 19001 / ISO 9001',
+      issuer: '中鸿认证（江苏）有限公司',
+      issuedAt: '2024-01-18',
+      expiresAt: '2027-01-17',
+      status: 'valid',
+      bucket: '管理体系认证',
+      biddingRole: '评分',
+      serviceDomains: ['通用'],
+      proofType: '证书',
+      verificationMethod: '国家认证认可监督管理委员会官网查验截图',
+      description: '用于证明企业质量管理体系符合标准要求，是投标文件中提供的正式认证证书之一。',
+      rawText: '质量管理体系认证证书，认证依据为GB/T 19001或ISO 9001'
+    })
+  },
+  {
+    id: 'jd-cert-6',
+    name: '信息安全管理体系认证证书',
+    listOrder: 6,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '管理体系认证，常用于安全管理能力评分。',
+    contentType: 'mixed',
+    keyInfo: [
+      {
+        key: '资质认证名称',
+        value: '信息安全管理体系认证证书，认证依据为GB/T 22080或ISO 27001'
+      },
+      { key: '颁发机构', value: '华信创（北京）认证中心有限公司' },
+      { key: '颁发时间', value: '2024年12月23日' },
+      { key: '认证依据', value: 'GB/T 22080 / ISO 27001' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第63页',
+    expiryDate: '2027-12-22',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '管理体系认证',
+      subcategory: '信息安全管理体系',
+      name: '信息安全管理体系认证证书',
+      standardCode: 'GB/T 22080 / ISO 27001',
+      issuer: '华信创（北京）认证中心有限公司',
+      issuedAt: '2024-12-23',
+      expiresAt: '2027-12-22',
+      status: 'valid',
+      bucket: '管理体系认证',
+      biddingRole: '评分',
+      serviceDomains: ['通用', '等保'],
+      proofType: '证书',
+      verificationMethod: '国家认证认可监督管理委员会官网查验截图',
+      description: '用于证明企业具备信息安全管理体系能力，适合招投标中的安全管理能力响应。',
+      rawText: '信息安全管理体系认证证书，认证依据为GB/T 22080或ISO 27001'
+    })
+  },
+  {
+    id: 'jd-cert-7',
+    name: '信息技术服务管理体系认证证书',
+    listOrder: 7,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '管理体系认证，常用于信息技术服务能力评分。',
+    contentType: 'mixed',
+    keyInfo: [
+      {
+        key: '资质认证名称',
+        value: '信息技术服务管理体认证证书，认证依据为ISO/IEC 20000'
+      },
+      { key: '颁发机构', value: '华信创（北京）认证中心有限公司' },
+      { key: '颁发时间', value: '2024年7月21日' },
+      { key: '认证依据', value: 'ISO/IEC 20000' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第63页',
+    expiryDate: '2027-07-20',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '管理体系认证',
+      subcategory: '信息技术服务管理体系',
+      name: '信息技术服务管理体系认证证书',
+      standardCode: 'ISO/IEC 20000',
+      issuer: '华信创（北京）认证中心有限公司',
+      issuedAt: '2024-07-21',
+      expiresAt: '2027-07-20',
+      status: 'valid',
+      bucket: '管理体系认证',
+      biddingRole: '评分',
+      serviceDomains: ['通用'],
+      proofType: '证书',
+      verificationMethod: '国家认证认可监督管理委员会官网查验截图',
+      description: '用于证明企业在信息技术服务管理方面具备规范化体系能力。',
+      rawText: '信息技术服务管理体认证证书，认证依据为ISO/IEC 20000'
+    })
+  },
+  {
+    id: 'jd-cert-8',
+    name: '检验检测机构资质认定 CMA 证书',
+    listOrder: 8,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '能力资质，常作为测评能力加分项。',
+    contentType: 'mixed',
+    keyInfo: [
+      { key: '资质认证名称', value: '检验检测机构资质认定CMA证书' },
+      { key: '颁发机构', value: '江苏省市场监督管理局' },
+      { key: '颁发时间', value: '2021年6月21日（2023年9月21日）' },
+      { key: '备注', value: '含延续日期表述' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第64页',
+    expiryDate: '2026-09-20',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '能力资质',
+      subcategory: '检验检测资质',
+      name: '检验检测机构资质认定证书',
+      issuer: '江苏省市场监督管理局',
+      issuedAt: '2021-06-21',
+      expiresAt: '2026-09-20',
+      status: 'valid',
+      bucket: '能力资质',
+      biddingRole: '评分',
+      serviceDomains: ['等保'],
+      proofType: '证书',
+      verificationMethod: '证书复印件与主管部门公开信息核验',
+      description: '原文列示发证时间为“2021年6月21日（2023年9月21日）”，可理解为首发日期与延续/变更日期并存。',
+      rawText: '检验检测机构资质认定CMA证书',
+      isStructured: true
+    })
+  },
+  {
+    id: 'jd-cert-9',
+    name: 'CNAS 检验机构认可证书（含等保测评能力）',
+    listOrder: 9,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '能力资质，常作为高权重加分项。',
+    contentType: 'mixed',
+    keyInfo: [
+      {
+        key: '资质认证名称',
+        value:
+          '中国合格评定国家认可委员会（CNAS）颁发的检验机构认可证书，且认可得检验能力范围包括网络安全等级保护测评'
+      },
+      { key: '颁发机构', value: '中国合格评定国家认可委员会' },
+      { key: '颁发时间', value: '2023年9月5日' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第64页',
+    expiryDate: '2026-09-04',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '能力资质',
+      subcategory: '认可资质',
+      name: '检验机构认可证书',
+      majorScope: '检验能力范围包括网络安全等级保护测评',
+      issuer: '中国合格评定国家认可委员会',
+      issuedAt: '2023-09-05',
+      expiresAt: '2026-09-04',
+      status: 'valid',
+      bucket: '能力资质',
+      biddingRole: '评分',
+      serviceDomains: ['等保'],
+      proofType: '证书',
+      verificationMethod: '证书复印件与能力范围页核验',
+      description: '该认可证书体现企业具备检验机构认可能力，且能力范围覆盖网络安全等级保护测评。',
+      rawText: '中国合格评定国家认可委员会（CNAS）颁发的检验机构认可证书，且认可得检验能力范围包括网络安全等级保护测评'
+    })
+  },
+  {
+    id: 'jd-cert-10',
+    name: '高新技术企业证书',
+    listOrder: 10,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '荣誉品牌类证明，常用于商务包装与企业综合实力展示。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '资质级别', value: '国家级' },
+      { key: '适用场景', value: '商务部分展示、企业介绍' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第946页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '荣誉品牌',
+      subcategory: '科技创新类',
+      name: '高新技术企业证书',
+      issuer: '江苏省科学技术厅等',
+      status: 'valid',
+      bucket: '荣誉品牌',
+      biddingRole: '展示',
+      serviceDomains: ['通用'],
+      proofType: '证书',
+      verificationMethod: '高新技术企业认定公示信息核验',
+      description: '用于证明企业创新能力和品牌形象，通常在商务部分形成加分或形象背书。',
+      rawText: '企业资质：具备高新技术企业、双软企业、专精特新企业'
+    })
+  },
+  {
+    id: 'jd-cert-11',
+    name: '国家标准起草参与证明',
+    listOrder: 11,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary: '行业参与类材料，用于证明企业在标准制定和行业治理中的参与度。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '参与方向', value: '商用密码 / 信息系统密码应用安全' },
+      { key: '证明形式', value: '说明材料或官方标准起草单位页' }
+    ],
+    sourceFileId: 1,
+    pageRange: '第950页',
+    qualification: buildQualificationRecord({
+      organizationId: 'org-jindun',
+      category: '行业参与',
+      subcategory: '标准起草',
+      name: '国家标准起草参与证明',
+      majorScope: '用于证明企业参与国家级或行业级网络安全、密码应用相关标准制定。',
+      issuer: '标准发布或归口单位',
+      status: 'valid',
+      bucket: '行业参与',
+      biddingRole: '展示',
+      serviceDomains: ['密评', '数据安全'],
+      proofType: '说明函',
+      verificationMethod: '标准发布页或起草单位名单核验',
+      description: '在能源、核电等项目中，这类材料通常体现专业影响力与行业参与深度。',
+      rawText: '我公司作为起草单位参与了国家标准 GB/T 39786-2021《信息安全技术 信息系统密码应用基本要求》'
+    })
+  }
+];
+
+const jindunProfileCompany: Material = {
+  id: 'jd-profile-company',
+  name: '金盾检测技术股份有限公司',
+  category: 'company',
+  categoryLabel: '企业简介',
+  summary:
+    '成立于2010年，法定代表人为孙晶华，总部位于南京；主营检验检测、互联网安全服务、信息技术咨询及系统运维等综合服务体系。',
+  contentType: 'text',
+  fullText: `# 金盾检测技术股份有限公司
+
+## 企业介绍
+
+金盾检测技术股份有限公司是一家专注于网络安全与信息技术服务的高新技术企业。公司成立于2010年，法定代表人为孙晶华，总部位于南京。其核心业务范围涵盖检验检测服务、互联网安全服务、信息技术咨询及系统运行维护，并具备输电、供电、受电电力设施的安装、维修和试验等专业能力，形成了覆盖网络安全评估、技术支撑与基础设施服务的综合服务体系。
+
+作为江苏省网络安全重点企业和南京市瞪羚企业，公司展现了强劲的创新活力与发展潜力。在技术研发与创新方面，公司构建了坚实的科研平台，被认定为省级企业技术中心、市级企业技术中心及市级企业工程中心。其技术实力在国家级竞赛中得到印证，曾于2023年荣获数字中国创新大赛网络数据安全赛道铜奖。同时，公司在漏洞挖掘与响应领域具备专业能力，拥有中国信息安全测评中心颁发的漏洞报送证明，并向国家互联网应急中心（CNCERT）报送并获得原创漏洞证明，体现了其在网络安全前沿领域的主动贡献与技术深度。
+
+公司长期为江苏省关键信息基础设施的安全保障提供专业支持，是江苏省委网信办“网安2020”、“网安2021”网络安全保障行动的指定检查服务机构，并入选江苏省公安厅网络安全应急支撑团队。这些资质反映了公司在区域网络安全治理和应急响应体系中的重要地位。此外，公司积极推动行业生态建设，担任江苏省信息网络安全协会副会长单位及中关村信息安全测评联盟副理事长单位，在行业标准制定与交流合作中发挥着积极作用。
+
+凭借扎实的技术服务与规范的管理，公司获得了“质量标杆”的省级荣誉认可。金盾检测技术股份有限公司正以其全面的资质体系、专业的技术服务能力和深厚的行业积累，致力于为客户提供可靠的安全检测与技术服务解决方案。
+
+## 资质信息概要
+
+### 一、 企业主体与创新资质
+*   合法经营主体：持有南京市市场监督管理局颁发的营业执照。
+*   高新技术企业：获得国家高新技术企业认定。
+*   创新成长企业：被认定为南京市瞪羚企业、江苏省网络安全重点企业。
+*   研发平台：设有省级企业技术中心、市级企业技术中心及市级企业工程中心。
+
+### 二、 网络安全专业资质与行业地位
+*   政府技术支撑单位：江苏省委网信办“网安2020”、“网安2021”网络安全保障行动检查服务机构；江苏省公安厅网络安全应急支撑团队。
+*   漏洞研究与响应能力：持有中国信息安全测评中心颁发的漏洞报送证明；拥有国家互联网应急中心（CNCERT）签发的原创漏洞证明。
+*   行业组织职务：江苏省信息网络安全协会副会长单位；中关村信息安全测评联盟副理事长单位。
+
+### 三、 荣誉与奖项
+*   技术竞赛奖项：荣获2023数字中国创新大赛网络数据安全赛道铜奖（国家级）。
+*   质量管理荣誉：获得省级“质量标杆”称号。`,
+  keyInfo: [
+    { key: '法定代表人', value: '孙晶华' },
+    { key: '成立年份', value: '2010年' },
+    { key: '总部', value: '南京' },
+    { key: '素材类型', value: '公司简介（企业介绍 + 资质信息概要）' }
+  ],
+  sourceFileId: 1,
+  pageRange: '投标人情况介绍（企业简介）'
+};
+
+const jindunCaseMaterials: Material[] = buildJindunCaseMaterials();
+const jindunTeamMaterials: Material[] = buildJindunTeamMaterials();
+
+const SECOND_FILE_ID = 2;
+const SECOND_FILE_NAME =
+  '南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx';
+
+const secondFileTeamMaterials: Material[] = [
+  {
+    id: 'dx-team-1',
+    name: '王建国 - 项目经理',
+    category: 'team',
+    categoryLabel: '项目团队',
+    summary: '投标文件「项目管理团队」第 1 行：一级建造师（建筑工程）。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '序号', value: '1' },
+      { key: '姓名', value: '王建国' },
+      { key: '职务', value: '项目经理' },
+      { key: '学历', value: '本科' },
+      { key: '注册建造师等级', value: '一级建造师（建筑工程）' },
+      { key: '安全员证书', value: 'B类安全员' },
+      { key: '从业年限', value: '18年' }
+    ],
+    sourceFileId: SECOND_FILE_ID,
+    pageRange: '第126页',
+    listOrder: 1,
+    personnelSources: []
+  },
+  {
+    id: 'dx-team-2',
+    name: '李明辉 - 技术负责人',
+    category: 'team',
+    categoryLabel: '项目团队',
+    summary: '投标文件「项目管理团队」第 2 行：高级工程师（结构工程）。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '序号', value: '2' },
+      { key: '姓名', value: '李明辉' },
+      { key: '职务', value: '技术负责人' },
+      { key: '学历', value: '硕士' },
+      { key: '注册建造师等级', value: '一级建造师（市政公用工程）' },
+      { key: '职称', value: '高级工程师（结构工程）' },
+      { key: '从业年限', value: '15年' }
+    ],
+    sourceFileId: SECOND_FILE_ID,
+    pageRange: '第127页',
+    listOrder: 2,
+    personnelSources: []
+  },
+  {
+    id: 'dx-team-3',
+    name: '赵春华 - 质量员',
+    category: 'team',
+    categoryLabel: '项目团队',
+    summary: '投标文件「项目管理团队」第 3 行：质量员证书。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '序号', value: '3' },
+      { key: '姓名', value: '赵春华' },
+      { key: '职务', value: '质量员' },
+      { key: '学历', value: '本科' },
+      { key: '安全员证书', value: 'C类安全员' },
+      { key: '职称', value: '中级工程师（土木工程）' },
+      { key: '从业年限', value: '10年' }
+    ],
+    sourceFileId: SECOND_FILE_ID,
+    pageRange: '第128页',
+    listOrder: 3,
+    personnelSources: []
+  },
+  {
+    id: 'dx-team-4',
+    name: '孙丽 - 安全员',
+    category: 'team',
+    categoryLabel: '项目团队',
+    summary: '投标文件「项目管理团队」第 4 行：注册安全工程师。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '序号', value: '4' },
+      { key: '姓名', value: '孙丽' },
+      { key: '职务', value: '安全员' },
+      { key: '学历', value: '本科' },
+      { key: '安全员证书', value: 'A类安全员' },
+      { key: '注册安全工程师', value: '注册安全工程师（建筑施工安全）' },
+      { key: '从业年限', value: '12年' }
+    ],
+    sourceFileId: SECOND_FILE_ID,
+    pageRange: '第129页',
+    listOrder: 4,
+    personnelSources: []
+  },
+  {
+    id: 'dx-team-5',
+    name: '周强 - 造价员',
+    category: 'team',
+    categoryLabel: '项目团队',
+    summary: '投标文件「项目管理团队」第 5 行：注册造价工程师。',
+    contentType: 'text',
+    keyInfo: [
+      { key: '序号', value: '5' },
+      { key: '姓名', value: '周强' },
+      { key: '职务', value: '造价员' },
+      { key: '学历', value: '本科' },
+      { key: '注册造价工程师', value: '一级造价工程师（土建）' },
+      { key: 'BIM证书', value: 'BIM技术应用工程师（高级）' },
+      { key: '从业年限', value: '9年' }
+    ],
+    sourceFileId: SECOND_FILE_ID,
+    pageRange: '第130页',
+    listOrder: 5,
+    personnelSources: []
+  }
+];
+
+export const initialMaterials: Material[] = [
+  ...jindunCertificateMaterials,
+  ...jindunCaseMaterials,
+  ...jindunResumeCaseMaterials,
+  ...jindunTeamMaterials,
+  ...secondFileTeamMaterials,
+  jindunProfileCompany
 ];
 
 export const initialFiles: SourceFile[] = [
-  { id: 1, name: '营业执照副本_2024.pdf', size: '2.36MB', words: '0.12万字', creator: '管理员', status: 'completed', materialCount: 2 },
-  { id: 2, name: 'ISO9001质量管理体系认证证书.pdf', size: '1.85MB', words: '0.08万字', creator: '管理员', status: 'completed', materialCount: 2 },
-  { id: 3, name: '高新技术企业证书_2023-2026.pdf', size: '956KB', words: '0.05万字', creator: '管理员', status: 'completed', materialCount: 2 },
-  { id: 4, name: '软件著作权登记证书汇编.pdf', size: '15.20MB', words: '2.30万字', creator: '技术部', status: 'completed', materialCount: 10 },
-  { id: 5, name: '公司核心团队成员简介.docx', size: '3.45MB', words: '1.25万字', creator: 'HR部门', status: 'completed', materialCount: 6 },
-  { id: 6, name: '2023年度典型项目案例集.pdf', size: '28.60MB', words: '8.50万字', creator: '市场部', status: 'completed', materialCount: 8 },
-  { id: 7, name: '企业宣传手册_v3.2.pdf', size: '45.30MB', words: '0.85万字', creator: '品牌部', status: 'completed', materialCount: 5 },
-  { id: 8, name: '技术服务合同模板_标准版.docx', size: '256KB', words: '0.35万字', creator: '法务部', status: 'completed', materialCount: 1 },
-  { id: 9, name: '投标报价单模板.xlsx', size: '128KB', words: '-', creator: '商务部', status: 'processing', materialCount: 0 },
-  { id: 10, name: '政府采购22条承诺函模板.docx', size: '156KB', words: '0.28万字', creator: '法务部', status: 'completed', materialCount: 1 },
-  { id: 11, name: '通用承诺模板汇编.docx', size: '245KB', words: '0.52万字', creator: '法务部', status: 'completed', materialCount: 1 }
+  {
+    ...bidSourceFileBase,
+    materialCount:
+      jindunCertificateMaterials.length +
+      jindunCaseMaterials.length +
+      jindunResumeCaseMaterials.length +
+      jindunTeamMaterials.length +
+      1
+  },
+  {
+    id: SECOND_FILE_ID,
+    name: SECOND_FILE_NAME,
+    size: '约 4.2MB',
+    words: '约 8.5 万字符（抽取统计）',
+    creator: '鼎信建设集团有限公司',
+    status: 'completed' as const,
+    materialCount: secondFileTeamMaterials.length
+  }
 ];
 
 export const filePreviewData: FilePreview[] = [
   {
     fileId: 1,
+    totalPages: 4306,
     content: [
-      '营 业 执 照',
-      '',
-      '统一社会信用代码：91440300MA5EXXXX',
-      '',
-      '名    称：深圳市智联云科技术有限公司',
-      '类    型：有限责任公司',
-      '法定代表人：王建国',
-      '注册资本：5000万元人民币',
-      '成立日期：2010年03月15日',
-      '营业期限：2010年03月15日 至 长期',
-      '',
-      '住    所：深圳市南山区科技园南区',
-      '          高新技术产业园A栋15层',
-      '',
-      '经营范围：计算机软件技术开发；信息系统集成服务；',
-      '          企业管理咨询；技术咨询服务；数据处理',
-      '          和存储服务；人工智能应用软件开发；',
-      '          云计算装备技术服务。',
-      '',
-      '登记机关：深圳市市场监督管理局',
-      '核准日期：2024年01月10日',
-      '',
-      '                        [公章]',
-    ]
-  },
-  {
-    fileId: 2,
-    content: [
-      '质量管理体系认证证书',
-      'QUALITY MANAGEMENT SYSTEM CERTIFICATE',
-      '',
-      '证书编号：00124Q34567R0M',
-      '',
-      '兹证明',
-      '',
-      '深圳市智联云科技术有限公司',
-      'Shenzhen Zhilian Yunke Technology Co., Ltd.',
-      '',
-      '地址：深圳市南山区科技园南区高新技术产业园A栋15层',
-      '',
-      '所建立的质量管理体系符合',
-      '',
-      'GB/T 19001-2016 / ISO 9001:2015',
-      '',
-      '标准的要求',
-      '',
-      '覆盖范围：',
-      '计算机软件的设计、开发与技术服务',
-      '信息系统集成服务',
-      '',
-      '初次发证日期：2018年06月20日',
-      '有效期：2023年06月20日 至 2026年06月19日',
-      '',
-      '认证机构：中国质量认证中心（CQC）',
-      '',
-      '                [认证机构公章]',
-    ]
-  },
-  {
-    fileId: 3,
-    content: [
-      '高新技术企业证书',
-      '',
-      '证书编号：GR202344001234',
-      '',
-      '深圳市智联云科技术有限公司',
-      '',
-      '根据《高新技术企业认定管理办法》和',
-      '《高新技术企业认定管理工作指引》有关规定，',
-      '',
-      '经广东省高新技术企业认定管理工作领导小组办公室',
-      '组织专家评审，该企业符合《高新技术企业认定管理办法》',
-      '规定的高新技术企业条件，特颁发此证书。',
-      '',
-      '企业注册地址：深圳市南山区',
-      '所属技术领域：电子信息技术',
-      '发证日期：2023年12月08日',
-      '证书有效期：三年（2023年-2026年）',
-      '',
-      '广东省科学技术厅',
-      '广东省财政厅',
-      '国家税务总局广东省税务局',
-      '',
-      '                [联合公章]',
-    ]
-  },
-  {
-    fileId: 4,
-    content: [
-      '软件著作权登记证书汇编',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【证书一】',
-      '登记号：2023SR0012345',
-      '软件名称：智联云企业数据中台系统 V3.0',
-      '著作权人：深圳市智联云科技术有限公司',
-      '开发完成日期：2023年03月',
-      '首次发表日期：2023年05月',
-      '权利取得方式：原始取得',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【证书二】',
-      '登记号：2023SR0023456',
-      '软件名称：智能招投标分析平台 V2.5',
-      '著作权人：深圳市智联云科技术有限公司',
-      '开发完成日期：2023年06月',
-      '首次发表日期：2023年08月',
-      '权利取得方式：原始取得',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【证书三】',
-      '登记号：2022SR0156789',
-      '软件名称：政务服务一体化平台 V4.0',
-      '著作权人：深圳市智联云科技术有限公司',
-      '开发完成日期：2022年09月',
-      '首次发表日期：2022年11月',
-      '权利取得方式：原始取得',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【证书四】',
-      '登记号：2022SR0167890',
-      '软件名称：AI智能文档处理系统 V1.0',
-      '著作权人：深圳市智联云科技术有限公司',
-      '开发完成日期：2022年11月',
-      '首次发表日期：2023年01月',
-      '权利取得方式：原始取得',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【证书五】',
-      '登记号：2021SR0234567',
-      '软件名称：企业知识图谱管理系统 V2.0',
-      '著作权人：深圳市智联云科技术有限公司',
-      '开发完成日期：2021年08月',
-      '首次发表日期：2021年10月',
-      '权利取得方式：原始取得',
-      '',
-      '═══════════════════════════════════════',
-    ]
-  },
-  {
-    fileId: 5,
-    content: [
-      '公司核心团队成员简介',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【总经理】王建国',
-      '',
-      '学历：清华大学计算机科学与技术专业硕士',
-      '职称：高级工程师',
-      '从业年限：20年',
-      '',
-      '个人简介：',
-      '曾任职于华为技术有限公司、腾讯科技等知名企业。',
-      '2010年创立深圳市智联云科技术有限公司，带领公司',
-      '发展成为国家高新技术企业。主导完成多个省部级重大',
-      '信息化项目，获得"深圳市优秀创业者"等荣誉称号。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【技术总监】张伟',
-      '',
-      '学历：北京大学软件工程专业硕士',
-      '职称：高级工程师',
-      '认证：系统架构设计师',
-      '从业年限：15年',
-      '',
-      '个人简介：',
-      '曾任职于阿里巴巴集团担任技术专家。负责公司技术',
-      '战略规划和核心产品研发，主导设计了智联云企业数据',
-      '中台系统架构。精通分布式系统、微服务架构、大数据',
-      '处理等技术领域。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【项目总监】李明',
-      '',
-      '学历：武汉大学信息管理专业本科',
-      '职称：中级工程师',
-      '认证：PMP、PRINCE2',
-      '从业年限：12年',
-      '',
-      '个人简介：',
-      '成功交付政务、金融、能源等行业大型信息化项目30余个，',
-      '累计合同金额超过5亿元。擅长大型复杂项目的规划、执行',
-      '和风险管控。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【产品总监】陈静',
-      '',
-      '学历：浙江大学人机交互专业硕士',
-      '认证：NPDP产品经理',
-      '从业年限：10年',
-      '',
-      '个人简介：',
-      '曾任职于字节跳动担任高级产品经理。负责公司产品战略',
-      '规划和用户体验设计，主导完成智能招投标分析平台、',
-      '政务服务一体化平台等核心产品的设计工作。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【AI算法专家】刘洋',
-      '',
-      '学历：中国科学技术大学人工智能专业博士',
-      '论文：ACL、EMNLP等顶会论文8篇',
-      '专利：发明专利12项',
-      '',
-      '个人简介：',
-      '曾在微软亚洲研究院从事自然语言处理研究。负责公司AI',
-      '核心算法研发，主导开发了文档智能理解、知识图谱构建、',
-      '智能问答等关键技术模块。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【质量总监】赵敏',
-      '',
-      '学历：华中科技大学软件工程专业硕士',
-      '职称：中级工程师',
-      '认证：ISO9001内审员、CMMI评估师',
-      '从业年限：13年',
-      '',
-      '个人简介：',
-      '曾任职于中软国际担任质量经理。负责公司ISO9001质量',
-      '管理体系建设和持续改进，主导公司通过CMMI3级认证。',
-      '',
-      '═══════════════════════════════════════',
-    ]
-  },
-  {
-    fileId: 6,
-    content: [
-      '2023年度典型项目案例集',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【案例一】深圳市政务服务数据管理平台项目',
-      '',
-      '甲方单位：深圳市政务服务数据管理局',
-      '合同金额：2800万元',
-      '项目周期：2023.03 - 2023.12',
-      '',
-      '项目概述：',
-      '为深圳市政务服务数据管理局建设统一的政务服务数据',
-      '管理平台，实现全市各部门政务数据的汇聚、治理、共享',
-      '和开放。平台已接入市级58个部门数据资源，累计汇聚',
-      '数据超过80亿条。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【案例二】广东省公共资源交易智慧监管平台项目',
-      '',
-      '甲方单位：广东省公共资源交易中心',
-      '合同金额：1950万元',
-      '项目周期：2022.11 - 2023.09',
-      '',
-      '项目概述：',
-      '运用大数据和人工智能技术实现对全省公共资源交易活动',
-      '的智能监测和风险预警。平台已接入全省21个地市交易数据，',
-      '实现对年交易额超3万亿元的公共资源交易活动实时监控。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【案例三】招商银行智能合同审核系统项目',
-      '',
-      '甲方单位：招商银行股份有限公司',
-      '合同金额：1200万元',
-      '项目周期：2023.01 - 2023.08',
-      '',
-      '项目概述：',
-      '利用自然语言处理和机器学习技术实现合同文本的自动',
-      '解析、条款抽取、风险识别和合规检查。系统上线后合同',
-      '审核效率提升60%，关键条款识别准确率达95%以上。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【案例四】中国南方电网知识管理平台项目',
-      '',
-      '甲方单位：中国南方电网有限责任公司',
-      '合同金额：1580万元',
-      '项目周期：2022.08 - 2023.06',
-      '',
-      '项目概述：',
-      '为南方电网总部及下属五省区电网公司建设统一的知识',
-      '管理平台。平台已积累电力专业知识条目50万余条，构建',
-      '电力知识图谱实体200万个、关系1000万条。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '（更多案例详见完整文档...）',
-    ]
-  },
-  {
-    fileId: 7,
-    content: [
-      '深圳市智联云科技术有限公司',
-      '企 业 宣 传 手 册',
-      'v3.2',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【公司概况】',
-      '',
-      '深圳市智联云科技术有限公司成立于2010年，是一家专注于',
-      '政企数字化转型的国家高新技术企业。公司总部位于深圳市',
-      '南山区科技园，在广州、北京、上海设有分支机构，现有员工',
-      '380余人，其中研发人员占比超过60%。',
-      '',
-      '公司以"让数据创造价值，让技术服务社会"为使命，致力于',
-      '为政府和大型企业提供数字化解决方案和专业技术服务。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【发展历程】',
-      '',
-      '2010年  公司成立，启动第一个政务信息化项目',
-      '2014年  通过ISO9001认证，中标首个省级项目',
-      '2016年  获得CMMI3级认证',
-      '2018年  获评国家高新技术企业',
-      '2019年  发布智联云数据中台产品',
-      '2020年  完成B轮融资，设立北京、上海分公司',
-      '2022年  年营收突破2亿元',
-      '2023年  累计获得软件著作权50余项',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【核心技术能力】',
-      '',
-      '• 数据中台技术：自主研发，日处理数据量达PB级别',
-      '• 自然语言处理：行业领先准确率',
-      '• 知识图谱技术：大规模自动构建能力',
-      '• 低代码开发平台：开发效率提升80%以上',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【资质荣誉】',
-      '',
-      '• 国家高新技术企业',
-      '• 广东省专精特新中小企业',
-      '• ISO9001/ISO27001认证',
-      '• CMMI3级认证',
-      '• 软件著作权50余项',
-      '• 发明专利15项',
-      '',
-      '═══════════════════════════════════════',
-    ]
-  },
-  {
-    fileId: 10,
-    content: [
-      '政府采购22条承诺函模板',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '致：[采购人名称]',
-      '',
-      '我公司（供应商名称）参加贵单位组织的 [项目名称] 政府',
-      '采购项目（项目编号：[项目编号]），现就政府采购相关',
-      '法律法规要求，郑重承诺如下：',
-      '',
-      '一、主体资格承诺',
-      '1. 我公司具有独立承担民事责任的能力；',
-      '2. 我公司具有良好的商业信誉和健全的财务会计制度；',
-      '3. 我公司具有履行合同所必需的设备和专业技术能力；',
-      '4. 我公司有依法缴纳税收和社会保障资金的良好记录；',
-      '5. 参加政府采购活动前三年内，在经营活动中没有重大违法记录；',
-      '',
-      '二、公平竞争承诺',
-      '6. 我公司不存在与其他投标供应商串通投标的行为；',
-      '7. 我公司不存在以向采购人或代理机构行贿谋取中标的行为；',
-      '8. 我公司不存在提供虚假材料谋取中标的行为；',
-      '',
-      '（以下省略其余条款...）',
-      '',
-      '承诺单位（盖章）：',
-      '法定代表人或授权代表（签字）：',
-      '日期：    年  月  日',
-    ]
-  },
-  {
-    fileId: 11,
-    content: [
-      '通用承诺模板汇编',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【模板一】廉洁自律承诺书',
-      '',
-      '为维护政府采购活动的公平、公正，我公司郑重承诺：',
-      '1. 不向采购人、采购代理机构及相关人员行贿或馈赠礼金；',
-      '2. 不与其他投标人串通投标，损害采购人或其他投标人利益；',
-      '3. 自觉接受监督检查，发现违规行为主动报告。',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【模板二】售后服务承诺书',
-      '',
-      '我公司承诺提供以下售后服务保障：',
-      '1. 免费质保期：自验收合格之日起 __ 年；',
-      '2. 响应时间：接到报修后 __ 小时内响应；',
-      '3. 到场时间：__ 小时内技术人员到达现场；',
-      '',
-      '═══════════════════════════════════════',
-      '',
-      '【模板三】人员稳定性承诺书',
-      '',
-      '【模板四】知识产权承诺书',
-      '',
-      '═══════════════════════════════════════',
-    ]
+      '农银人寿保险股份有限公司',
+      '信息系统安全等级保护测评（等保2.0）项目',
+      '投标文件（第一册）',
+      '招标编号：0747-2560SCCZC282',
+      '投标人：金盾检测技术股份有限公司',
+      '日期：2025年11月',
+      '',
+      '── 评标索引表（摘录）──',
+      '商务部分 · 资质证书、业绩案例等见正文对应页码。',
+      '',
+      '── 资质认证列表（2.9.1）──',
+      '序号 | 资质认证名称 | 颁发机构 | 颁发时间',
+      '1 | 质量管理体系认证证书（GB/T 19001 或 ISO 9001）| 中鸿认证（江苏）有限公司 | 2024年01月18日',
+      '2 | 信息安全管理体系认证证书（GB/T 22080 或 ISO 27001）| 华信创（北京）认证中心有限公司 | 2024年12月23日',
+      '3 | 信息技术服务管理体认证（ISO/IEC 20000）| 华信创（北京）认证中心有限公司 | 2024年7月21日',
+      '4 | 检验检测机构资质认定 CMA 证书 | 江苏省市场监督管理局 | 2021年6月21日（2023年9月21日）',
+      '5 | CNAS 检验机构认可证书（能力范围含等保测评）| 中国合格评定国家认可委员会 | 2023年9月5日',
+      '',
+      '── 业绩案例列表（评标办法，摘录）──',
+      '1-1 昆山农商银行2023年重要系统信息安全等级保护测评 | 2023年6月20日 | 31万元',
+      '1-2 南京银行2024年度信息安全等级保护测评 | 2024年9月5日 | 25.6万元',
+      '（以下案例详见右侧结构化列表与原文）',
+      '',
+      '── 服务团队人员列表（摘录）──',
+      '项目经理：陈大文（高级测评师，本科，13年经验）',
+      '团队人员共 56 人（初/中/高级测评师，详见右侧人员资质 Tab）',
+      '',
+      '── 投标人情况介绍（企业简介）──',
+      '高新技术企业 · 南京总部 · 法定代表人孙晶华；含资质信息概要、网安行动支撑与荣誉等。',
+      '（完整 Markdown 结构正文见企业简介 Tab）'
+    ],
+    pages: {
+      1: [
+        '农银人寿保险股份有限公司',
+        '信息系统安全等级保护测评（等保2.0）项目',
+        '投标文件（第一册）',
+        '招标编号：0747-2560SCCZC282',
+        '投标人：金盾检测技术股份有限公司',
+        '日期：2025年11月',
+        '',
+        '── 目录页（摘录）──',
+        '资质证书、业绩案例、服务团队人员资质文件均已装订在本投标文件中。'
+      ],
+      37: [
+        '具备国家认监委认定机构颁发的、有效期内的《网络安全等级测评与检测评估机构服务认证证书》',
+        '注：投标人根据招标文件合格投标人基本资质要求、《评标办法》、《技术要求与服务内容》的评审内容，提供相应资质认证复印件，并加盖公章。',
+        '',
+        '证书名称：网络安全等级测评与检测评估机构服务认证证书',
+        '适用服务：等级保护测评',
+        '投标人：金盾检测技术股份有限公司'
+      ],
+      47: [
+        '全国网络安全等级测评与检测评估机构目录截图',
+        '证明网站：www.djbh.net',
+        '证明形式：官方目录截图',
+        '',
+        '金盾检测技术股份有限公司已列入全国网络安全等级测评与检测评估机构目录。'
+      ],
+      63: [
+        '资质认证列表（2.9.1）',
+        '序号 | 资质认证名称 | 颁发机构 | 颁发时间',
+        '1 | 质量管理体系认证证书（GB/T 19001 或 ISO 9001）| 中鸿认证（江苏）有限公司 | 2024年01月18日',
+        '2 | 信息安全管理体系认证证书（GB/T 22080 或 ISO 27001）| 华信创（北京）认证中心有限公司 | 2024年12月23日',
+        '3 | 信息技术服务管理体认证（ISO/IEC 20000）| 华信创（北京）认证中心有限公司 | 2024年7月21日'
+      ],
+      64: [
+        '资质认证列表（续）',
+        '4 | 检验检测机构资质认定CMA证书 | 江苏省市场监督管理局 | 2021年6月21日（2023年9月21日）',
+        '5 | 中国合格评定国家认可委员会（CNAS）颁发的检验机构认可证书 | 中国合格评定国家认可委员会 | 2023年9月5日'
+      ],
+      91: [
+        '业绩案例列表（基本资质要求）',
+        '1-1 江苏江南农村商业银行股份有限公司2023年等保测评项目咨询服务 | 2023年4月23日 | 77万元',
+        '1-2 广州农村商业银行2023年度网络安全等级保护测评 | 2023年6月29日 | 36万元'
+      ],
+      125: [
+        '业绩案例列表（评标办法）',
+        '1-1 江苏昆山农村商业银行股份有限公司昆山农商银行2023年重要系统信息安全等级保护测评 | 2023年6月20日 | 31万元',
+        '1-2 南京银行2024年度信息安全等级保护测评项目 | 2024年9月5日 | 25.6万元',
+        '1-3 兴业南京分行2024年度信息系统等级保护测评服务项目 | 2024年06月13日 | 12.264151万元'
+      ],
+      456: [
+        '人员配置',
+        '序号 | 姓名 | 学历 | 网络安全等级保护测评工作经验 | 资质认证 | 本项目承担的相应责任',
+        '1 | 陈大文 | 本科 | 13年 | 高级等级测评师证书 | 项目经理',
+        '2 | 邢伟 | 本科 | 9年 | 高级等级测评师证书 | 团队人员',
+        '3 | 邵君立 | 本科 | 8年 | 高级等级测评师证书 | 团队人员',
+        '4 | 程嘉 | 本科 | 5年 | 高级等级测评师证书 | 团队人员',
+        '5 | 叶茂 | 本科 | 3年 | 高级等级测评师证书 | 团队人员',
+        '6 | 陈洁 | 硕士研究生 | 20年 | 高级等级测评师证书 | 团队人员'
+      ],
+      4175: [
+        '陈大文-项目经理简历',
+        '姓名：陈大文',
+        '年龄：36岁',
+        '毕业学校：南京大学',
+        '专业：信息管理与信息系统专业',
+        '学位：学士',
+        '职称：高级工程师',
+        '职务：技术总监',
+        '现所在单位：金盾检测技术股份有限公司',
+        '工作时间：15年',
+        '拟在本项目担任职务：项目经理'
+      ],
+      4181: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：中国光大银行股份有限公司南京分行南京分行2025年安全等级保护测评项目',
+        '甲方单位：中国光大银行股份有限公司南京分行',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2025年'
+      ],
+      4182: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：中国农业银行股份有限公司江苏省分行2023年中国农业银行股份有限公司江苏省分行信息系统等级保护第三方测评服务项目',
+        '甲方单位：中国农业银行股份有限公司江苏省分行',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2023年'
+      ],
+      4183: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：中国农业银行股份有限公司苏州分行2025年网络安全等级保护测评服务',
+        '甲方单位：中国农业银行股份有限公司苏州分行',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2025年'
+      ],
+      4184: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：中国邮政储蓄银行北京分行2024年网络安全等级保护测评服务',
+        '甲方单位：中国邮政储蓄银行北京分行',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2024年'
+      ],
+      4185: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：中银金融商务（昆山）有限公司2023年骨干网网络安全等级保护备案与测评',
+        '甲方单位：中银金融商务（昆山）有限公司',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2023年'
+      ],
+      4186: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：兴业银行股份有限公司南京分行兴业南京分行2024年度信息系统等级保护测评服务',
+        '甲方单位：兴业银行股份有限公司南京分行',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2020年'
+      ],
+      4187: [
+        '陈大文-项目经理的相关项目经验',
+        '项目名称：江苏常熟农村商业银行股份有限公司常熟农村商业银行2024年等级保护测评项目',
+        '甲方单位：江苏常熟农村商业银行股份有限公司',
+        '担任何职：项目经理',
+        '服务类型：等级保护测评',
+        '时间：2024年'
+      ],
+      4201: [
+        '邢伟-团队人员简历',
+        '姓名：邢伟',
+        '年龄：38岁',
+        '毕业学校：滁州学院',
+        '专业：信息与计算机学专业',
+        '职称：高级工程师',
+        '职务：技术副总监'
+      ],
+      4202: [
+        '邵君立-团队人员简历',
+        '姓名：邵君立',
+        '年龄：33岁',
+        '毕业学校：南京林业大学南方学院',
+        '专业：计算机科学与技术',
+        '职称：高级工程师',
+        '职务：测评师'
+      ],
+      4203: [
+        '程嘉-团队人员简历',
+        '姓名：程嘉',
+        '年龄：27岁',
+        '毕业学校：南京大学金陵学院',
+        '专业：计算机科学与技术',
+        '职称：高级工程师',
+        '职务：测评师'
+      ],
+      4204: [
+        '叶茂-团队人员简历',
+        '姓名：叶茂',
+        '年龄：27岁',
+        '毕业学校：江苏大学京江学院',
+        '专业：通信工程',
+        '职称：高级工程师',
+        '职务：测评师'
+      ],
+      4205: [
+        '陈洁-团队人员简历',
+        '姓名：陈洁',
+        '年龄：47岁',
+        '毕业学校：解放军电子工程学院',
+        '专业：军事通信学',
+        '职称：高级工程师',
+        '职务：测评师'
+      ],
+      4206: [
+        '陈洁-社保',
+        '社保证明材料页',
+        '投标文件在“陈洁-资质认证”后附有“社保”材料页。'
+      ],
+      4300: [
+        '服务团队人员资质文件',
+        '网络安全等级保护测评师证书复印件',
+        '复印件应能清晰显示人员姓名、有效期等关键信息。'
+      ],
+      4301: [
+        '服务团队人员资质文件',
+        '高级工程师职称相关材料',
+        '用于证明人员职称信息。'
+      ]
+    }
   }
 ];
 
-export const initialMaterials: Material[] = [
-  // ========== File 1: 营业执照副本_2024.pdf → 2个素材 ==========
-  {
-    id: 'm1-1',
-    name: '营业执照扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '企业法人营业执照扫描件，用于标书附件和资格审查材料',
-    contentType: 'image',
-    keyInfo: [
-      { key: '文件类型', value: '证照扫描件' },
-      { key: '用途', value: '标书附件、资格审查' }
-    ],
-    sourceFileId: 1,
-    pageRange: '第1页',
-    expiryDate: '2026-12-31'
-  },
-  {
-    id: 'm1-2',
-    name: '企业基本信息',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '企业工商登记信息，用于投标人基本情况表和企业概况章节',
-    contentType: 'text',
-    fullText: '深圳市智联云科技术有限公司成立于2010年3月，注册资本5000万元人民币，是一家专注于企业数字化转型的高新技术企业。公司法定代表人为王建国先生，注册地址位于深圳市南山区科技园南区高新技术产业园A栋15层。公司经营范围涵盖计算机软件技术开发、信息系统集成服务、企业管理咨询、技术咨询服务、数据处理和存储服务、人工智能应用软件开发、云计算装备技术服务等领域。',
-    keyInfo: [
-      { key: '企业名称', value: '深圳市智联云科技术有限公司' },
-      { key: '统一社会信用代码', value: '91440300MA5EXXXX' },
-      { key: '法定代表人', value: '王建国' },
-      { key: '注册资本', value: '5000万元人民币' },
-      { key: '成立日期', value: '2010年03月15日' },
-      { key: '营业期限', value: '长期' },
-      { key: '注册地址', value: '深圳市南山区科技园南区高新技术产业园A栋15层' }
-    ],
-    sourceFileId: 1,
-    pageRange: '第1页'
-  },
+// ── Person / PersonQualification mock data (aligned with backend tables) ──
 
-  // ========== File 2: ISO9001质量管理体系认证证书.pdf → 2个素材 ==========
-  {
-    id: 'm2-1',
-    name: 'ISO9001认证证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '质量管理体系认证证书扫描件，用于资质证明附件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '文件类型', value: '认证证书扫描件' },
-      { key: '用途', value: '资质证明附件' }
-    ],
-    sourceFileId: 2,
-    pageRange: '第1页',
-    expiryDate: '2026-02-15'
-  },
-  {
-    id: 'm2-2',
-    name: 'ISO9001认证信息',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '质量管理体系认证详情，用于企业资质描述和质量管理章节',
-    contentType: 'text',
-    fullText: '本公司已通过 ISO 9001:2015 质量管理体系认证（证书编号：00124Q34567R0M），认证范围覆盖计算机软件的设计、开发与技术服务以及信息系统集成服务。该认证由中国质量认证中心（CQC）颁发，初次发证日期为2018年6月20日，当前证书有效期至2026年6月19日。公司严格按照 GB/T 19001-2016 / ISO 9001:2015 标准建立并持续改进质量管理体系，确保为客户提供高质量的软件产品和技术服务。',
-    keyInfo: [
-      { key: '证书编号', value: '00124Q34567R0M' },
-      { key: '认证标准', value: 'GB/T 19001-2016 / ISO 9001:2015' },
-      { key: '认证范围', value: '计算机软件设计开发、信息系统集成服务' },
-      { key: '认证机构', value: '中国质量认证中心（CQC）' },
-      { key: '有效期', value: '2023年06月20日 - 2026年06月19日' }
-    ],
-    sourceFileId: 2,
-    pageRange: '第1页',
-    expiryDate: '2026-02-15'
-  },
+const certLevelMap: Record<string, { type: PersonQualification['qualificationType']; level: string }> = {
+  '高级等级测评师证书': { type: '认证', level: '高级' },
+  '中级等级测评师证书': { type: '认证', level: '中级' },
+  '初级等级测评师证书': { type: '认证', level: '初级' }
+};
 
-  // ========== File 3: 高新技术企业证书_2023-2026.pdf → 2个素材 ==========
-  {
-    id: 'm3-1',
-    name: '高新技术企业证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '国家高新技术企业证书扫描件，用于资质证明附件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '文件类型', value: '高企证书扫描件' },
-      { key: '用途', value: '资质证明附件' }
-    ],
-    sourceFileId: 3,
-    pageRange: '第1页',
-    expiryDate: '2026-04-30'
-  },
-  {
-    id: 'm3-2',
-    name: '高新企业认定信息',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '高新技术企业认定详情，用于企业资质描述和技术实力章节',
-    contentType: 'text',
-    fullText: '本公司于2023年12月获得国家高新技术企业认定（证书编号：GR202344001234），技术领域为电子信息技术，证书有效期三年（2023年-2026年）。公司根据《高新技术企业认定管理办法》和《高新技术企业认定管理工作指引》的规定，经广东省高新技术企业认定管理工作领导小组办公室组织专家评审，在研发投入、知识产权、科技人员占比等方面均符合高新技术企业认定条件。',
-    keyInfo: [
-      { key: '证书编号', value: 'GR202344001234' },
-      { key: '技术领域', value: '电子信息技术' },
-      { key: '认定机关', value: '广东省科学技术厅、财政厅、税务局' },
-      { key: '发证日期', value: '2023年12月08日' },
-      { key: '有效期', value: '2023年 - 2026年（三年）' }
-    ],
-    sourceFileId: 3,
-    pageRange: '第1页',
-    expiryDate: '2026-04-30'
-  },
+const buildJindunPosition = (role: string, years: number) => {
+  if (role === '项目经理') return '网络安全测评项目经理';
+  if (years >= 10) return '高级网络安全测评工程师';
+  return '网络安全测评工程师';
+};
 
-  // ========== File 4: 软件著作权登记证书汇编.pdf → 10个素材（5证书×2） ==========
-  {
-    id: 'm4-1-img',
-    name: '智联云企业数据中台系统 V3.0 证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '软件著作权登记证书扫描件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '登记号', value: '2023SR0012345' },
-      { key: '用途', value: '软著证明附件' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第1-2页'
-  },
-  {
-    id: 'm4-1-txt',
-    name: '智联云企业数据中台系统 V3.0 登记信息',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '软著登记信息，用于技术实力描述',
-    contentType: 'text',
-    fullText: '智联云企业数据中台系统 V3.0 是公司自主研发的企业级数据管理平台，登记号为 2023SR0012345，于2023年3月开发完成，2023年5月首次发表。该系统采用分布式架构设计，支持多源异构数据的采集、清洗、存储和分析，具备实时数据处理能力，日处理数据量可达TB级别。系统已在多个政企客户中成功部署应用。',
-    keyInfo: [
-      { key: '软件名称', value: '智联云企业数据中台系统 V3.0' },
-      { key: '登记号', value: '2023SR0012345' },
-      { key: '开发完成日期', value: '2023年03月' },
-      { key: '首次发表日期', value: '2023年05月' },
-      { key: '权利取得方式', value: '原始取得' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第1-2页'
-  },
-  {
-    id: 'm4-2-img',
-    name: '智能招投标分析平台 V2.5 证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '软件著作权登记证书扫描件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '登记号', value: '2023SR0023456' },
-      { key: '用途', value: '软著证明附件' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第3-4页'
-  },
-  {
-    id: 'm4-2-txt',
-    name: '智能招投标分析平台 V2.5 登记信息',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '软著登记信息，用于技术实力描述',
-    contentType: 'text',
-    fullText: '智能招投标分析平台 V2.5 是公司针对招投标领域开发的智能分析系统，登记号为 2023SR0023456，于2023年6月开发完成，2023年8月首次发表。该平台集成了自然语言处理和机器学习技术，能够自动解析招标文件、提取关键信息、智能匹配历史案例，显著提升投标效率和中标率。',
-    keyInfo: [
-      { key: '软件名称', value: '智能招投标分析平台 V2.5' },
-      { key: '登记号', value: '2023SR0023456' },
-      { key: '开发完成日期', value: '2023年06月' },
-      { key: '首次发表日期', value: '2023年08月' },
-      { key: '权利取得方式', value: '原始取得' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第3-4页'
-  },
-  {
-    id: 'm4-3-img',
-    name: '政务服务一体化平台 V4.0 证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '软件著作权登记证书扫描件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '登记号', value: '2022SR0156789' },
-      { key: '用途', value: '软著证明附件' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第5-6页'
-  },
-  {
-    id: 'm4-3-txt',
-    name: '政务服务一体化平台 V4.0 登记信息',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '软著登记信息，用于技术实力描述',
-    contentType: 'text',
-    fullText: '政务服务一体化平台 V4.0 是公司为政府部门打造的综合政务服务系统，登记号为 2022SR0156789，于2022年9月开发完成，2022年11月首次发表。该平台实现了"一网通办"的政务服务理念，整合多个部门业务系统，支持在线申报、智能审批、电子证照等功能，已在多个地市级政府成功上线运行。',
-    keyInfo: [
-      { key: '软件名称', value: '政务服务一体化平台 V4.0' },
-      { key: '登记号', value: '2022SR0156789' },
-      { key: '开发完成日期', value: '2022年09月' },
-      { key: '首次发表日期', value: '2022年11月' },
-      { key: '权利取得方式', value: '原始取得' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第5-6页'
-  },
-  {
-    id: 'm4-4-img',
-    name: 'AI智能文档处理系统 V1.0 证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '软件著作权登记证书扫描件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '登记号', value: '2022SR0167890' },
-      { key: '用途', value: '软著证明附件' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第7-8页'
-  },
-  {
-    id: 'm4-4-txt',
-    name: 'AI智能文档处理系统 V1.0 登记信息',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '软著登记信息，用于技术实力描述',
-    contentType: 'text',
-    fullText: 'AI智能文档处理系统 V1.0 是公司基于深度学习技术开发的文档智能处理系统，登记号为 2022SR0167890，于2022年11月开发完成，2023年1月首次发表。该系统支持多种格式文档的智能识别、信息提取、自动分类和结构化处理，OCR识别准确率达99%以上，广泛应用于金融、政务、法律等行业。',
-    keyInfo: [
-      { key: '软件名称', value: 'AI智能文档处理系统 V1.0' },
-      { key: '登记号', value: '2022SR0167890' },
-      { key: '开发完成日期', value: '2022年11月' },
-      { key: '首次发表日期', value: '2023年01月' },
-      { key: '权利取得方式', value: '原始取得' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第7-8页'
-  },
-  {
-    id: 'm4-5-img',
-    name: '企业知识图谱管理系统 V2.0 证书扫描件',
-    category: 'certificate',
-    categoryLabel: '资质证书',
-    summary: '软件著作权登记证书扫描件',
-    contentType: 'image',
-    keyInfo: [
-      { key: '登记号', value: '2021SR0234567' },
-      { key: '用途', value: '软著证明附件' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第9-10页'
-  },
-  {
-    id: 'm4-5-txt',
-    name: '企业知识图谱管理系统 V2.0 登记信息',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '软著登记信息，用于技术实力描述',
-    contentType: 'text',
-    fullText: '企业知识图谱管理系统 V2.0 是公司自主研发的知识管理平台，登记号为 2021SR0234567，于2021年8月开发完成，2021年10月首次发表。该系统基于图数据库技术，支持企业知识的自动抽取、关联构建和智能检索，帮助企业实现知识资产的数字化管理和智能化应用。',
-    keyInfo: [
-      { key: '软件名称', value: '企业知识图谱管理系统 V2.0' },
-      { key: '登记号', value: '2021SR0234567' },
-      { key: '开发完成日期', value: '2021年08月' },
-      { key: '首次发表日期', value: '2021年10月' },
-      { key: '权利取得方式', value: '原始取得' }
-    ],
-    sourceFileId: 4,
-    pageRange: '第9-10页'
-  },
+const buildJindunSpecialties = (role: string, level: string) => {
+  const specialties = ['等保测评'];
 
-  // ========== File 5: 公司核心团队成员简介.docx → 6个素材 ==========
-  {
-    id: 'm5-1',
-    name: '王建国 - 总经理',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: '公司创始人兼总经理，20年IT行业经验',
-    contentType: 'text',
-    fullText: '王建国，男，1975年生，公司创始人兼总经理。清华大学计算机科学与技术专业硕士，高级工程师职称。曾任职于华为技术有限公司、腾讯科技等知名企业，拥有20年IT行业从业经验。2010年创立深圳市智联云科技术有限公司，带领公司发展成为国家高新技术企业。主导完成多个省部级重大信息化项目，获得"深圳市优秀创业者"等荣誉称号。',
-    keyInfo: [
-      { key: '姓名', value: '王建国' },
-      { key: '职务', value: '总经理' },
-      { key: '学历', value: '清华大学计算机硕士' },
-      { key: '职称', value: '高级工程师' },
-      { key: '从业年限', value: '20年' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第1页'
-  },
-  {
-    id: 'm5-2',
-    name: '张伟 - 技术总监',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: '技术总监，15年软件架构经验，负责技术战略规划',
-    contentType: 'text',
-    fullText: '张伟，男，1982年生，公司技术总监。北京大学软件工程专业硕士，高级工程师职称，系统架构设计师认证。曾任职于阿里巴巴集团担任技术专家，拥有15年软件开发和架构设计经验。负责公司技术战略规划和核心产品研发，主导设计了智联云企业数据中台系统架构，带领技术团队完成多个千万级项目交付。精通分布式系统、微服务架构、大数据处理等技术领域。',
-    keyInfo: [
-      { key: '姓名', value: '张伟' },
-      { key: '职务', value: '技术总监' },
-      { key: '学历', value: '北京大学软件工程硕士' },
-      { key: '职称', value: '高级工程师' },
-      { key: '认证', value: '系统架构设计师' },
-      { key: '从业年限', value: '15年' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第2页'
-  },
-  {
-    id: 'm5-3',
-    name: '李明 - 项目总监',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: 'PMP认证项目总监，成功交付30+大型项目',
-    contentType: 'text',
-    fullText: '李明，男，1985年生，公司项目总监。武汉大学信息管理专业本科，中级工程师职称，PMP项目管理专业人士认证、PRINCE2认证。拥有12年项目管理经验，成功交付政务、金融、能源等行业大型信息化项目30余个，累计合同金额超过5亿元。擅长大型复杂项目的规划、执行和风险管控，具有丰富的团队管理和客户沟通经验。',
-    keyInfo: [
-      { key: '姓名', value: '李明' },
-      { key: '职务', value: '项目总监' },
-      { key: '学历', value: '武汉大学本科' },
-      { key: '职称', value: '中级工程师' },
-      { key: '认证', value: 'PMP、PRINCE2' },
-      { key: '项目经验', value: '30+大型项目' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第3页'
-  },
-  {
-    id: 'm5-4',
-    name: '陈静 - 产品总监',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: '产品总监，10年产品设计经验，主导多款核心产品',
-    contentType: 'text',
-    fullText: '陈静，女，1988年生，公司产品总监。浙江大学人机交互专业硕士，NPDP产品经理认证。曾任职于字节跳动担任高级产品经理，拥有10年产品设计和管理经验。负责公司产品战略规划和用户体验设计，主导完成智能招投标分析平台、政务服务一体化平台等核心产品的设计工作。对政务、企业服务领域有深入理解，擅长将复杂业务需求转化为简洁易用的产品方案。',
-    keyInfo: [
-      { key: '姓名', value: '陈静' },
-      { key: '职务', value: '产品总监' },
-      { key: '学历', value: '浙江大学人机交互硕士' },
-      { key: '认证', value: 'NPDP产品经理' },
-      { key: '从业年限', value: '10年' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第4页'
-  },
-  {
-    id: 'm5-5',
-    name: '刘洋 - 算法专家',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: 'AI算法专家，博士学历，多篇顶会论文',
-    contentType: 'text',
-    fullText: '刘洋，男，1990年生，公司AI算法专家。中国科学技术大学人工智能专业博士，曾在微软亚洲研究院从事自然语言处理研究。发表ACL、EMNLP等顶级会议论文8篇，拥有发明专利12项。负责公司AI核心算法研发，主导开发了文档智能理解、知识图谱构建、智能问答等关键技术模块，为公司产品提供核心技术支撑。',
-    keyInfo: [
-      { key: '姓名', value: '刘洋' },
-      { key: '职务', value: 'AI算法专家' },
-      { key: '学历', value: '中科大人工智能博士' },
-      { key: '论文', value: '顶会论文8篇' },
-      { key: '专利', value: '发明专利12项' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第5页'
-  },
-  {
-    id: 'm5-6',
-    name: '赵敏 - 质量总监',
-    category: 'team',
-    categoryLabel: '项目团队',
-    summary: '质量总监，负责公司质量管理体系建设',
-    contentType: 'text',
-    fullText: '赵敏，女，1983年生，公司质量总监。华中科技大学软件工程专业硕士，中级工程师职称，ISO9001内审员、CMMI评估师认证。拥有13年软件质量管理经验，曾任职于中软国际担任质量经理。负责公司ISO9001质量管理体系建设和持续改进，主导公司通过CMMI3级认证。建立了完善的软件测试流程和质量控制标准，确保项目交付质量。',
-    keyInfo: [
-      { key: '姓名', value: '赵敏' },
-      { key: '职务', value: '质量总监' },
-      { key: '学历', value: '华中科技大学软件工程硕士' },
-      { key: '职称', value: '中级工程师' },
-      { key: '认证', value: 'ISO9001内审员、CMMI评估师' },
-      { key: '从业年限', value: '13年' }
-    ],
-    sourceFileId: 5,
-    pageRange: '第6页'
-  },
+  if (role === '项目经理') specialties.push('项目管理', '风险评估');
+  else specialties.push(level === '初级' ? '现场实施' : '安全评估');
 
-  // ========== File 6: 2023年度典型项目案例集.pdf → 8个素材 ==========
-  {
-    id: 'm6-1',
-    name: '深圳市政务服务数据管理平台项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '政务大数据平台建设，合同金额2800万元',
-    contentType: 'text',
-    fullText: '项目名称：深圳市政务服务数据管理平台项目\n\n甲方单位：深圳市政务服务数据管理局\n\n项目概述：本项目为深圳市政务服务数据管理局建设统一的政务服务数据管理平台，实现全市各部门政务数据的汇聚、治理、共享和开放。平台采用微服务架构，部署于政务云环境，支持日均千万级数据交换量。\n\n主要建设内容包括：数据汇聚中心、数据治理平台、数据共享交换平台、数据开放门户、数据安全管理系统等5大核心模块。项目于2023年3月启动，2023年12月完成验收，历时10个月。\n\n项目成果：平台已接入市级58个部门数据资源，累计汇聚数据超过80亿条，支撑"秒批"事项200余项，为深圳市数字政府建设提供了重要数据基础。项目获评2023年度深圳市优秀政务信息化项目。',
-    keyInfo: [
-      { key: '项目名称', value: '深圳市政务服务数据管理平台项目' },
-      { key: '甲方单位', value: '深圳市政务服务数据管理局' },
-      { key: '合同金额', value: '2800万元' },
-      { key: '项目周期', value: '2023.03 - 2023.12' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第1-8页'
-  },
-  {
-    id: 'm6-2',
-    name: '广东省公共资源交易智慧监管平台项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '省级公共资源交易监管平台，合同金额1950万元',
-    contentType: 'text',
-    fullText: '项目名称：广东省公共资源交易智慧监管平台项目\n\n甲方单位：广东省公共资源交易中心\n\n项目概述：本项目为广东省公共资源交易中心建设智慧监管平台，运用大数据和人工智能技术实现对全省公共资源交易活动的智能监测和风险预警。平台覆盖工程建设、政府采购、土地使用权、矿业权等四大领域交易活动。\n\n主要建设内容包括：交易数据采集系统、智能分析引擎、风险预警平台、可视化监控大屏、移动监管APP等。项目于2022年11月启动，2023年9月完成验收，历时11个月。\n\n项目成果：平台已接入全省21个地市交易数据，实现对年交易额超3万亿元的公共资源交易活动实时监控，累计预警潜在风险交易1200余起，有效提升了监管效能。',
-    keyInfo: [
-      { key: '项目名称', value: '广东省公共资源交易智慧监管平台项目' },
-      { key: '甲方单位', value: '广东省公共资源交易中心' },
-      { key: '合同金额', value: '1950万元' },
-      { key: '项目周期', value: '2022.11 - 2023.09' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第9-16页'
-  },
-  {
-    id: 'm6-3',
-    name: '招商银行智能合同审核系统项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '金融行业智能合同审核系统，合同金额1200万元',
-    contentType: 'text',
-    fullText: '项目名称：招商银行智能合同审核系统项目\n\n甲方单位：招商银行股份有限公司\n\n项目概述：本项目为招商银行总行法律合规部建设智能合同审核系统，利用自然语言处理和机器学习技术实现合同文本的自动解析、条款抽取、风险识别和合规检查。系统支持信贷合同、担保合同、投资协议等20余类合同模板。\n\n主要建设内容包括：合同OCR识别模块、合同要素抽取引擎、风险规则库、智能审核引擎、审批流程系统等。项目于2023年1月启动，2023年8月完成验收，历时8个月。\n\n项目成果：系统上线后合同审核效率提升60%，关键条款识别准确率达95%以上，年处理合同量超10万份，累计发现合同风险点3000余处，为银行合规经营提供了有力支撑。',
-    keyInfo: [
-      { key: '项目名称', value: '招商银行智能合同审核系统项目' },
-      { key: '甲方单位', value: '招商银行股份有限公司' },
-      { key: '合同金额', value: '1200万元' },
-      { key: '项目周期', value: '2023.01 - 2023.08' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第17-23页'
-  },
-  {
-    id: 'm6-4',
-    name: '中国南方电网知识管理平台项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '央企知识管理平台建设，合同金额1580万元',
-    contentType: 'text',
-    fullText: '项目名称：中国南方电网知识管理平台项目\n\n甲方单位：中国南方电网有限责任公司\n\n项目概述：本项目为南方电网总部及下属五省区电网公司建设统一的知识管理平台，实现电力行业知识的采集、组织、共享和应用。平台基于知识图谱技术构建电力专业知识体系，支持智能搜索和知识推荐。\n\n主要建设内容包括：知识采集系统、知识图谱引擎、智能问答系统、专家库管理、培训学习平台等。项目于2022年8月启动，2023年6月完成验收，历时11个月。\n\n项目成果：平台已积累电力专业知识条目50万余条，构建电力知识图谱实体200万个、关系1000万条，支撑日均访问量10万人次，成为南方电网员工知识获取和技能提升的重要工具。',
-    keyInfo: [
-      { key: '项目名称', value: '中国南方电网知识管理平台项目' },
-      { key: '甲方单位', value: '中国南方电网有限责任公司' },
-      { key: '合同金额', value: '1580万元' },
-      { key: '项目周期', value: '2022.08 - 2023.06' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第24-31页'
-  },
-  {
-    id: 'm6-5',
-    name: '东莞市智慧城管综合管理平台项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '智慧城管平台建设，合同金额980万元',
-    contentType: 'text',
-    fullText: '项目名称：东莞市智慧城管综合管理平台项目\n\n甲方单位：东莞市城市管理和综合执法局\n\n项目概述：本项目为东莞市城管局建设智慧城管综合管理平台，整合城市管理各业务系统，实现城市管理问题的智能发现、快速处置和综合研判。平台对接视频监控、物联传感、市民上报等多源数据，构建城市管理"一张图"。\n\n主要建设内容包括：数据整合平台、AI视频分析系统、问题工单系统、指挥调度中心、移动执法终端等。项目于2023年2月启动，2023年10月完成验收，历时9个月。\n\n项目成果：平台上线后城市管理问题发现时间缩短70%，处置效率提升50%，市民投诉量下降30%，为东莞市创建全国文明城市提供了有力支撑。',
-    keyInfo: [
-      { key: '项目名称', value: '东莞市智慧城管综合管理平台项目' },
-      { key: '甲方单位', value: '东莞市城市管理和综合执法局' },
-      { key: '合同金额', value: '980万元' },
-      { key: '项目周期', value: '2023.02 - 2023.10' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第32-38页'
-  },
-  {
-    id: 'm6-6',
-    name: '平安保险智能理赔辅助系统项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '保险智能理赔系统，合同金额850万元',
-    contentType: 'text',
-    fullText: '项目名称：平安保险智能理赔辅助系统项目\n\n甲方单位：中国平安财产保险股份有限公司\n\n项目概述：本项目为平安产险理赔中心建设智能理赔辅助系统，运用图像识别、知识图谱和规则引擎技术，实现车险理赔案件的智能定损、自动审核和风险识别。系统支持从报案到结案的全流程智能化处理。\n\n主要建设内容包括：影像智能识别系统、定损知识库、自动理算引擎、反欺诈模型、理赔质检平台等。项目于2023年4月启动，2023年11月完成验收，历时8个月。\n\n项目成果：系统上线后简易案件自动处理率达65%，平均结案周期缩短40%，理赔准确率提升至98%，年节约理赔成本约2000万元。',
-    keyInfo: [
-      { key: '项目名称', value: '平安保险智能理赔辅助系统项目' },
-      { key: '甲方单位', value: '中国平安财产保险股份有限公司' },
-      { key: '合同金额', value: '850万元' },
-      { key: '项目周期', value: '2023.04 - 2023.11' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第39-45页'
-  },
-  {
-    id: 'm6-7',
-    name: '广州市不动产登记信息系统升级项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '不动产登记系统升级，合同金额720万元',
-    contentType: 'text',
-    fullText: '项目名称：广州市不动产登记信息系统升级项目\n\n甲方单位：广州市规划和自然资源局\n\n项目概述：本项目对广州市不动产登记信息系统进行全面升级改造，实现与省级平台对接、与相关部门数据共享，支持不动产登记"一窗受理、并行办理"。系统采用新一代技术架构，提升系统性能和用户体验。\n\n主要建设内容包括：登记业务系统升级、数据迁移整合、电子证照对接、自助服务终端、移动查询APP等。项目于2023年5月启动，2023年12月完成验收，历时8个月。\n\n项目成果：系统升级后登记办理时限压缩至1个工作日内，实现"一次不用跑"事项覆盖率90%，群众满意度提升至95%以上。',
-    keyInfo: [
-      { key: '项目名称', value: '广州市不动产登记信息系统升级项目' },
-      { key: '甲方单位', value: '广州市规划和自然资源局' },
-      { key: '合同金额', value: '720万元' },
-      { key: '项目周期', value: '2023.05 - 2023.12' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第46-52页'
-  },
-  {
-    id: 'm6-8',
-    name: '珠海市政务服务一体化平台项目',
-    category: 'case',
-    categoryLabel: '业绩案例',
-    summary: '政务服务一体化平台，合同金额680万元',
-    contentType: 'text',
-    fullText: '项目名称：珠海市政务服务一体化平台项目\n\n甲方单位：珠海市政务服务数据管理局\n\n项目概述：本项目为珠海市建设政务服务一体化平台，整合各部门政务服务事项，实现线上线下融合、市区镇村四级联动的一体化政务服务体系。平台对接粤省事、粤商通等省级平台，实现与省平台互联互通。\n\n主要建设内容包括：统一受理平台、事项管理系统、电子表单引擎、统一用户认证、服务评价系统等。项目于2022年12月启动，2023年8月完成验收，历时9个月。\n\n项目成果：平台上线后网上可办率达100%，"一件事"主题服务覆盖50个高频事项，办事材料精简60%，为珠海市营商环境优化做出重要贡献。',
-    keyInfo: [
-      { key: '项目名称', value: '珠海市政务服务一体化平台项目' },
-      { key: '甲方单位', value: '珠海市政务服务数据管理局' },
-      { key: '合同金额', value: '680万元' },
-      { key: '项目周期', value: '2022.12 - 2023.08' },
-      { key: '项目状态', value: '已验收' }
-    ],
-    sourceFileId: 6,
-    pageRange: '第53-60页'
-  },
+  return Array.from(new Set(specialties));
+};
 
-  // ========== File 7: 企业宣传手册_v3.2.pdf → 5个素材 ==========
-  {
-    id: 'm7-1',
-    name: '公司概况',
-    category: 'company',
-    categoryLabel: '公司简介',
-    summary: '公司整体介绍，用于投标文件企业概况章节',
-    contentType: 'text',
-    fullText: '深圳市智联云科技术有限公司成立于2010年，是一家专注于政企数字化转型的国家高新技术企业。公司总部位于深圳市南山区科技园，在广州、北京、上海设有分支机构，现有员工380余人，其中研发人员占比超过60%，硕士及以上学历占比35%。\n\n公司以"让数据创造价值，让技术服务社会"为使命，致力于为政府和大型企业提供数字化解决方案和专业技术服务。经过十余年发展，公司已形成数据中台、智能政务、智慧城市、企业数智化四大业务板块，累计服务政企客户500余家，项目覆盖广东、北京、上海、浙江等20余个省市。',
-    keyInfo: [
-      { key: '成立时间', value: '2010年' },
-      { key: '企业性质', value: '国家高新技术企业' },
-      { key: '员工规模', value: '380余人' },
-      { key: '研发占比', value: '60%以上' },
-      { key: '服务客户', value: '500+政企客户' }
-    ],
-    sourceFileId: 7,
-    pageRange: '第1-3页'
-  },
-  {
-    id: 'm7-2',
-    name: '发展历程',
-    category: 'company',
-    categoryLabel: '公司简介',
-    summary: '公司发展历程时间线，用于企业介绍章节',
-    contentType: 'text',
-    fullText: '2010年：公司在深圳注册成立，启动第一个政务信息化项目\n2012年：完成首轮融资，团队扩展至50人\n2014年：通过ISO9001质量管理体系认证，中标首个省级项目\n2016年：获得CMMI3级认证，年营收突破5000万元\n2018年：获评国家高新技术企业，设立广州分公司\n2019年：发布智联云数据中台产品，年营收突破1亿元\n2020年：完成B轮融资，设立北京、上海分公司\n2021年：荣获广东省专精特新中小企业认定\n2022年：年营收突破2亿元，员工规模超过300人\n2023年：成功交付多个省市级重大信息化项目，累计获得软件著作权50余项',
-    keyInfo: [
-      { key: '成立年份', value: '2010年' },
-      { key: '融资情况', value: 'B轮融资' },
-      { key: '分支机构', value: '广州、北京、上海' },
-      { key: '当前营收', value: '2亿元+' },
-      { key: '软著数量', value: '50余项' }
-    ],
-    sourceFileId: 7,
-    pageRange: '第4-6页'
-  },
-  {
-    id: 'm7-3',
-    name: '核心技术能力',
-    category: 'technical',
-    categoryLabel: '技术方案',
-    summary: '公司核心技术优势描述，用于技术实力章节',
-    contentType: 'text',
-    fullText: '公司在数据智能领域积累了深厚的技术能力，拥有完全自主知识产权的核心技术体系：\n\n【数据中台技术】自主研发的企业级数据中台产品，支持多源异构数据接入、实时流批一体处理、智能数据治理，日处理数据量可达PB级别，已在多个大型政企客户中成功应用。\n\n【自然语言处理】基于深度学习的NLP技术，包括文档智能理解、实体识别、关系抽取、智能问答等，在政务、法律、金融等垂直领域准确率达到行业领先水平。\n\n【知识图谱技术】自主研发的知识图谱构建和应用平台，支持大规模知识自动抽取、图谱构建和智能推理，已构建多个行业知识图谱。\n\n【低代码开发平台】可视化快速开发平台，支持页面拖拽、流程编排、接口配置，开发效率提升80%以上。',
-    keyInfo: [
-      { key: '数据中台', value: '自主研发，PB级处理能力' },
-      { key: 'NLP技术', value: '行业领先准确率' },
-      { key: '知识图谱', value: '大规模自动构建能力' },
-      { key: '低代码平台', value: '效率提升80%' },
-      { key: '软著数量', value: '50余项' }
-    ],
-    sourceFileId: 7,
-    pageRange: '第7-12页'
-  },
-  {
-    id: 'm7-4',
-    name: '服务能力',
-    category: 'company',
-    categoryLabel: '公司简介',
-    summary: '公司服务范围和能力介绍',
-    contentType: 'text',
-    fullText: '公司具备从咨询规划、方案设计、系统开发、项目实施到运维服务的全生命周期服务能力：\n\n【咨询规划】深入理解客户业务需求，提供信息化规划和数字化转型咨询服务，帮助客户明确建设目标和实施路径。\n\n【方案设计】专业的解决方案团队，针对客户场景定制系统架构和功能方案，确保技术方案的先进性和可落地性。\n\n【系统开发】采用敏捷开发方法论，保证开发质量和交付效率，支持定制开发和产品配置两种交付模式。\n\n【项目实施】PMP认证的项目经理团队，严格的项目管理流程，确保项目按质按期交付。\n\n【运维服务】提供7×24小时运维保障服务，建立完善的SLA服务标准，平均响应时间15分钟内。',
-    keyInfo: [
-      { key: '服务模式', value: '全生命周期服务' },
-      { key: '开发方法', value: '敏捷开发' },
-      { key: '项目管理', value: 'PMP认证团队' },
-      { key: '运维保障', value: '7×24小时' },
-      { key: '响应时间', value: '15分钟内' }
-    ],
-    sourceFileId: 7,
-    pageRange: '第13-16页'
-  },
-  {
-    id: 'm7-5',
-    name: '荣誉资质汇总',
-    category: 'honor',
-    categoryLabel: '荣誉奖项',
-    summary: '公司获得的荣誉和资质列表',
-    contentType: 'text',
-    fullText: '公司凭借持续的技术创新和优质的服务质量，获得了众多荣誉和资质认证：\n\n【企业资质】\n• 国家高新技术企业（2023年认定）\n• 广东省专精特新中小企业\n• ISO9001质量管理体系认证\n• ISO27001信息安全管理体系认证\n• CMMI3级认证\n• 软件企业认定\n\n【行业荣誉】\n• 2023年广东省优秀软件产品\n• 2023年深圳市优秀政务信息化项目\n• 2022年度广东省守合同重信用企业\n• 2022年广州市数字政府建设优秀服务商\n• 2021年深圳市创新型中小企业\n\n【知识产权】\n• 软件著作权50余项\n• 发明专利15项\n• 实用新型专利8项',
-    keyInfo: [
-      { key: '高新技术企业', value: '2023年认定' },
-      { key: 'CMMI', value: '3级认证' },
-      { key: 'ISO认证', value: '9001、27001' },
-      { key: '软件著作权', value: '50余项' },
-      { key: '发明专利', value: '15项' }
-    ],
-    sourceFileId: 7,
-    pageRange: '第17-20页'
-  },
+const buildDxPosition = (role: string) => {
+  if (role.includes('经理')) return '项目管理工程师';
+  if (role.includes('负责人')) return '工程技术管理工程师';
+  if (role.includes('质量')) return '质量管理工程师';
+  if (role.includes('安全')) return '安全管理工程师';
+  if (role.includes('造价')) return '工程造价工程师';
+  return '工程实施工程师';
+};
 
-  // ========== File 10: 政府采购22条承诺函模板.docx → 1个素材 ==========
-  {
-    id: 'm10-1',
-    name: '政府采购22条承诺函模板',
-    category: 'template',
-    categoryLabel: '模板文档',
-    summary: '政府采购供应商资格承诺函标准模板，涵盖主体资格、公平竞争、信用承诺等22条内容',
-    contentType: 'text',
-    fullText: '政府采购22条承诺函是根据《政府采购法》及相关法规要求，供应商参与政府采购项目时需签署的资格承诺文件。主要包含：一、主体资格承诺（5条）：具有独立承担民事责任能力、良好商业信誉、履约能力、依法缴税记录、无重大违法记录；二、公平竞争承诺（3条）：不串通投标、不行贿、不提供虚假材料；三、信用承诺（3条）：未被列入失信被执行人、重大税收违法、政府采购严重违法失信名单；四、其他承诺（11条）：包括中小企业声明、节能环保、信息安全等要求。',
-    keyInfo: [
-      { key: '模板类型', value: '政府采购承诺函' },
-      { key: '适用场景', value: '政府采购项目投标' },
-      { key: '条款数量', value: '22条' },
-      { key: '更新时间', value: '2024年1月' }
-    ],
-    sourceFileId: 10,
-    pageRange: '第1-3页'
-  },
+const buildDxSpecialties = (role: string) => {
+  if (role.includes('经理')) return ['项目管理', '工程统筹'];
+  if (role.includes('负责人')) return ['技术管理', '工程实施'];
+  if (role.includes('质量')) return ['质量管理', '过程控制'];
+  if (role.includes('安全')) return ['安全管理', '施工合规'];
+  if (role.includes('造价')) return ['成本控制', '工程造价'];
+  return ['工程实施'];
+};
 
-  // ========== File 11: 通用承诺模板汇编.docx → 1个素材 ==========
-  {
-    id: 'm11-1',
-    name: '通用承诺模板汇编',
-    category: 'template',
-    categoryLabel: '模板文档',
-    summary: '投标常用承诺书模板汇编，包含廉洁自律、售后服务、人员稳定性、知识产权等承诺书',
-    contentType: 'text',
-    fullText: '本模板汇编收录了招投标过程中常用的各类承诺书模板：\n\n【廉洁自律承诺书】承诺不行贿、不串通、接受监督；\n【售后服务承诺书】承诺质保期、响应时间、到场时间、修复时间等服务标准；\n【人员稳定性承诺书】承诺项目成员为正式员工、不随意更换核心人员；\n【知识产权承诺书】承诺不侵犯第三方知识产权、承担纠纷责任；\n【保密承诺书】承诺对项目信息严格保密；\n【安全生产承诺书】承诺遵守安全生产规定。',
-    keyInfo: [
-      { key: '模板类型', value: '通用承诺书汇编' },
-      { key: '包含模板', value: '6类承诺书' },
-      { key: '适用场景', value: '各类招投标项目' },
-      { key: '更新时间', value: '2024年1月' }
-    ],
-    sourceFileId: 11,
-    pageRange: '第1-4页'
+function buildMockPersons(): Person[] {
+  const persons: Person[] = [];
+
+  for (const [idx, name, edu, exp, _cert, role] of teamRows) {
+    const parsed = certLevelMap[_cert] ?? { type: '认证' as const, level: _cert };
+    const years = parseInt(exp, 10) || 0;
+    const resumeProfile = jindunResumeProfiles[name];
+    const certPreviewDataUrl = makeCertPreview('网络安全等级保护测评师证书', name, '#2563eb');
+    const teamListPreview = makeTextPreview(
+      `${name}-服务团队人员列表摘录`,
+      [
+        `序号：${idx}`,
+        `姓名：${name}`,
+        `学历：${edu}`,
+        `网络安全等级保护测评工作经验：${exp}`,
+        `资质认证：${_cert}`,
+        `本项目承担的相应责任：${role}`
+      ],
+      {
+        subtitle: '人员配置',
+        pageLabel: '服务团队人员列表',
+        targetPage: 456
+      }
+    );
+
+    const qualifications: PersonQualification[] = [
+      {
+        id: `jd-pq-${idx}-1`,
+        personId: `jd-person-${idx}`,
+        qualificationType: parsed.type,
+        qualificationName: '网络安全等级保护测评师',
+        level: parsed.level,
+        majorScope: '网络安全等级保护测评',
+        issuer: '',
+        certificateNo: '',
+        issuedAt: '',
+        expiresAt: '',
+        registrationStatus: '',
+        status: 'valid',
+        isPrimary: true,
+        sourceFileId: 1,
+        pageRange: '服务团队人员资质文件',
+        previewDataUrl: certPreviewDataUrl,
+        previewEvidence: {
+          title: `${name}-等级测评师证书`,
+          subtitle: '服务团队人员资质文件',
+          pageLabel: '资质认证',
+          targetPage: 4300,
+          imageDataUrl: certPreviewDataUrl
+        }
+      }
+    ];
+
+    if (resumeProfile?.professionalTitle) {
+      const titlePreviewDataUrl = makeCertPreview(
+        `${resumeProfile.professionalTitle}职称材料`,
+        name,
+        '#0891b2'
+      );
+      qualifications.push({
+        id: `jd-pq-${idx}-title`,
+        personId: `jd-person-${idx}`,
+        qualificationType: '职称',
+        qualificationName: resumeProfile.professionalTitle,
+        level: resumeProfile.professionalTitle.includes('高级') ? '高级' : '',
+        majorScope: resumeProfile.major,
+        issuer: '',
+        certificateNo: '',
+        issuedAt: '',
+        expiresAt: '',
+        registrationStatus: '',
+        status: 'valid',
+        sourceFileId: 1,
+        pageRange: `${name}-${role === '项目经理' ? '项目经理' : '团队人员'}简历`,
+        previewDataUrl: titlePreviewDataUrl,
+        previewEvidence: {
+          title: `${name}-${resumeProfile.professionalTitle}`,
+          subtitle: '简历职称字段 / 职称材料',
+          pageLabel: `${name}-${role === '项目经理' ? '项目经理' : '团队人员'}简历`,
+          targetPage: 4301,
+          imageDataUrl: titlePreviewDataUrl
+        }
+      });
+    }
+
+    const degreePreview = resumeProfile?.degreePreview;
+    const educationPreview = resumeProfile?.educationPreview;
+
+    const person: Person = {
+      id: `jd-person-${idx}`,
+      organizationId: 'org-jindun',
+      organizationName: '金盾检测技术股份有限公司',
+      name,
+      age: resumeProfile?.age,
+      gender: '',
+      idNoMasked: '',
+      education: edu,
+      school: resumeProfile?.school,
+      major: resumeProfile?.major ?? '',
+      totalYearsOfExperience: resumeProfile?.workYears ?? years,
+      currentPosition: resumeProfile?.currentPosition ?? (role === '项目经理' ? '项目经理' : '测评师'),
+      professionalTitle: resumeProfile?.professionalTitle ?? '',
+      specialties: buildJindunSpecialties(role, parsed.level),
+      coreDomain: '等级保护测评',
+      coreDomainYears: resumeProfile?.coreYears ?? years,
+      projectExperiences: resumeProfile?.projects.map((project, projectIndex) => ({
+        id: `jd-exp-${idx}-${projectIndex + 1}`,
+        personId: `jd-person-${idx}`,
+        projectName: project.projectName,
+        clientName: project.clientName,
+        year: project.year.replace('年', ''),
+        role: project.role,
+        domain: project.domain,
+        caseId: project.caseId
+      })),
+      location: '南京',
+      resumeSummary:
+        resumeProfile?.resumeSummary ??
+        `${name}，${edu}学历，服务团队列表载明具备${exp}网络安全等级保护测评工作经验，资质认证为${_cert}。`,
+      qualifications,
+      documents: {
+        diploma: Boolean(educationPreview),
+        degree: Boolean(degreePreview),
+        socialSecurity: Boolean(resumeProfile?.socialSecurityPreview)
+      },
+      sourceFileId: 1,
+      pageRange: resumeProfile
+        ? `${name}-${role === '项目经理' ? '项目经理' : '团队人员'}简历`
+        : '服务团队人员列表',
+      sourcePreviewEvidence: resumeProfile?.resumePreview ?? teamListPreview,
+      documentPreviewMap: {
+        diploma: educationPreview,
+        degree: degreePreview,
+        socialSecurity: resumeProfile?.socialSecurityPreview
+      }
+    };
+
+    persons.push(person);
   }
-];
+
+  // Add 鼎信 team persons
+  const dxTeam: Array<{
+    name: string; role: string; edu: string; years: number;
+    quals: Array<{ name: string; type: PersonQualification['qualificationType']; level: string; issuer: string; no: string }>;
+  }> = [
+    {
+      name: '王建国', role: '项目经理', edu: '本科', years: 18,
+      quals: [
+        { name: '一级建造师', type: '注册证', level: '一级', issuer: '住房和城乡建设部', no: 'JZ-2015-0431' },
+        { name: 'B类安全员', type: '认证', level: '', issuer: '江苏省住房和城乡建设厅', no: 'AQ-B-2019-112' }
+      ]
+    },
+    {
+      name: '李明辉', role: '技术负责人', edu: '硕士', years: 15,
+      quals: [
+        { name: '一级建造师（市政公用工程）', type: '注册证', level: '一级', issuer: '住房和城乡建设部', no: 'JZ-2017-0822' },
+        { name: '高级工程师（结构工程）', type: '职称', level: '高级', issuer: '江苏省人力资源和社会保障厅', no: 'ZC-JS-2019-3321' }
+      ]
+    },
+    {
+      name: '赵春华', role: '质量员', edu: '本科', years: 10,
+      quals: [
+        { name: 'C类安全员', type: '认证', level: '', issuer: '江苏省住房和城乡建设厅', no: 'AQ-C-2020-055' },
+        { name: '中级工程师（土木工程）', type: '职称', level: '中级', issuer: '南京市人力资源和社会保障局', no: 'ZC-NJ-2018-1102' }
+      ]
+    },
+    {
+      name: '孙丽', role: '安全员', edu: '本科', years: 12,
+      quals: [
+        { name: 'A类安全员', type: '认证', level: '', issuer: '江苏省住房和城乡建设厅', no: 'AQ-A-2017-033' },
+        { name: '注册安全工程师（建筑施工安全）', type: '执业资格', level: '', issuer: '应急管理部', no: 'ZAQ-2020-8712' }
+      ]
+    },
+    {
+      name: '周强', role: '造价员', edu: '本科', years: 9,
+      quals: [
+        { name: '一级造价工程师（土建）', type: '注册证', level: '一级', issuer: '住房和城乡建设部', no: 'ZJ-2021-1105' },
+        { name: 'BIM技术应用工程师', type: '认证', level: '高级', issuer: '中国建筑科学研究院', no: 'BIM-2022-0088' }
+      ]
+    }
+  ];
+
+  dxTeam.forEach((item, i) => {
+    const idx = i + 1;
+    persons.push({
+      id: `dx-person-${idx}`,
+      organizationId: 'org-dingxin',
+      organizationName: '鼎信建设集团有限公司',
+      name: item.name,
+      age: `${28 + item.years}岁`,
+      gender: item.name === '孙丽' ? '女' : '男',
+      idNoMasked: `310***${String(2000 + idx).slice(-4)}`,
+      education: item.edu,
+      school: ['同济大学', '东南大学', '河海大学', '南京工业大学', '江苏大学'][i % 5],
+      major: '土木工程',
+      totalYearsOfExperience: item.years,
+      currentPosition: buildDxPosition(item.role),
+      professionalTitle: item.quals.find((q) => q.type === '职称')?.name ?? '',
+      specialties: buildDxSpecialties(item.role),
+      coreDomain: '智慧城市基础设施',
+      coreDomainYears: item.years,
+      projectExperiences: [
+        {
+          id: `dx-exp-${idx}-1`,
+          personId: `dx-person-${idx}`,
+          projectName: '智慧城市基础设施建设项目',
+          domain: '智慧城市基础设施',
+          role: item.role
+        }
+      ],
+      location: '南京',
+      resumeSummary: `${item.name}，${item.edu}学历，${item.years}年工程相关经验，当前聚焦${buildDxSpecialties(item.role).join('、')}。`,
+      documents: {
+        idCard: true,
+        diploma: true,
+        degree: item.edu === '硕士',
+        socialSecurity: item.role === '项目经理'
+      },
+      qualifications: item.quals.map((q, qi) => ({
+        id: `dx-pq-${idx}-${qi + 1}`,
+        personId: `dx-person-${idx}`,
+        qualificationType: q.type,
+        qualificationName: q.name,
+        level: q.level,
+        majorScope: '',
+        issuer: q.issuer,
+        certificateNo: q.no,
+        issuedAt: '2020-01-01',
+        expiresAt: '',
+        registrationStatus: q.type === '注册证' ? '已注册' : '',
+        status: 'valid' as const,
+        isPrimary: qi === 0,
+        sourceFileId: 2,
+        pageRange: `第${126 + i}页`
+      })),
+      sourceFileId: 2,
+      pageRange: `第${126 + i}页`
+    });
+  });
+
+  return persons;
+}
+
+export const initialPersons: Person[] = buildMockPersons();

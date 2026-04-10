@@ -53,7 +53,7 @@ const newEmployee = ref({
 const uploadedFile = ref<File | null>(null);
 
 const recentTools = [
-  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit' },
+  { icon: UserCheck, label: 'boss招聘助手', route: 'boss-recruit' },
   { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
   { icon: DollarSign, label: '薪酬调查', active: true, route: 'salary-survey-form' },
 ];

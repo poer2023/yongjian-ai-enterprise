@@ -140,9 +140,9 @@
   font-size: 16px;
   font-weight: 600;
   color: #1e293b;
-  margin: 0 0 16px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #2563eb;
+  margin: 0 0 18px 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .doc-subsection {

@@ -24,7 +24,7 @@ const router = useRouter();
 const allAgents = [
   {
     id: 1,
-    name: 'Boss直聘招聘',
+    name: 'boss招聘助手',
     description: '智能RPA招聘助手，自动筛选简历打招呼',
     icon: UserCheck,
     color: '#3b82f6',
@@ -66,6 +66,15 @@ const allAgents = [
     color: '#f59e0b',
     bgColor: '#fffbeb',
     routeName: 'bid-doc-oneclick-form'
+  },
+  {
+    id: 9,
+    name: 'AI标书插件版',
+    description: '插件辅助解析与素材匹配，可配置生成投标文件',
+    icon: Zap,
+    color: '#f59e0b',
+    bgColor: '#fffbeb',
+    routeName: 'bid-doc-smart-form'
   },
   {
     id: 8,

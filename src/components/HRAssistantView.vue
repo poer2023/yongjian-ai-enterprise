@@ -7,7 +7,7 @@ const router = useRouter();
 const tools = [
   {
     id: 1,
-    name: 'Boss直聘招聘',
+    name: 'boss招聘助手',
     description: '智能RPA招聘助手，自动筛选简历打招呼',
     icon: UserCheck,
     color: '#3b82f6',

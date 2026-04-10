@@ -166,27 +166,30 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <!-- Processing Page -->
-  <div v-if="isProcessing" class="processing-page">
-    <div class="processing-content">
-      <h1 class="processing-main-title">解读中</h1>
-      <p class="processing-main-subtitle">请耐心等待，AI正在为您解读标书文件</p>
-
-      <div class="progress-card">
-        <div class="progress-card-header">解读进度</div>
-        <div class="progress-card-body">
-          <div class="loading-dots">
-            <span></span>
-            <span></span>
-            <span></span>
+  <FormPageLayout
+    v-if="isProcessing"
+    :icon="FileSearch"
+    title="解读中"
+    subtitle="请耐心等待，AI正在为您解读招标文件"
+  >
+    <div class="analysis-waiting-shell">
+      <section class="analysis-waiting-card">
+        <div class="analysis-waiting-card-title">解读进度</div>
+        <div class="analysis-waiting-card-body">
+          <div class="analysis-waiting-spinner" aria-hidden="true">
+            <span class="spinner-dot spinner-dot-top"></span>
+            <span class="spinner-dot spinner-dot-right"></span>
+            <span class="spinner-dot spinner-dot-bottom"></span>
+            <span class="spinner-dot spinner-dot-left"></span>
           </div>
-          <p class="progress-status">解读中...</p>
+          <p class="analysis-waiting-status">解读中...</p>
         </div>
-      </div>
-
-      <p class="processing-footer-hint">完成解读大约需要1~3分钟，后续可在 个人中心-使用记录 中查看，感谢理解~</p>
+        <div class="analysis-waiting-note">
+          完成解读大约需要1~3分钟，后续可在 个人中心-使用记录 中查看，感谢理解~
+        </div>
+      </section>
     </div>
-  </div>
+  </FormPageLayout>
 
   <!-- Form Page -->
   <FormPageLayout v-else :icon="FileSearch" title="标讯解读" subtitle="AI智能解析招标文件，快速提取关键信息">
@@ -688,105 +691,150 @@ const handleSubmit = () => {
   background: #eff6ff;
 }
 
-/* Processing Page */
-.processing-page {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.processing-content {
-  text-align: center;
-  max-width: 500px;
-  padding: 40px;
-}
-
-.processing-main-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 12px;
-}
-
-.processing-main-subtitle {
-  font-size: 16px;
-  color: #64748b;
-  margin-bottom: 48px;
-}
-
-.progress-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.progress-card-header {
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.progress-card-body {
+/* Processing state */
+.analysis-waiting-shell {
+  width: min(100%, 760px);
+  min-height: calc(100vh - 188px);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-start;
+  padding: 12px 0 40px;
 }
 
-.loading-dots {
+.analysis-waiting-card {
+  width: 100%;
+  background: white;
+  border: 1px solid #e5edf8;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.analysis-waiting-card {
+  min-height: 232px;
+  padding: 18px 20px 0;
+  overflow: hidden;
+}
+
+.analysis-waiting-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.analysis-waiting-card-body {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 124px;
 }
 
-.loading-dots span {
-  width: 12px;
-  height: 12px;
+.analysis-waiting-spinner {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  animation: waiting-spinner-rotate 1.8s linear infinite;
+}
+
+.spinner-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #3b82f6;
-  animation: bounce 1.4s infinite ease-in-out both;
+  background: linear-gradient(180deg, #7db4ff 0%, #3b82f6 100%);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+  animation: waiting-spinner-pulse 1.1s ease-in-out infinite;
 }
 
-.loading-dots span:nth-child(1) {
-  animation-delay: -0.32s;
+.spinner-dot-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.loading-dots span:nth-child(2) {
-  animation-delay: -0.16s;
+.spinner-dot-right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
 }
 
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-    opacity: 0.5;
+.spinner-dot-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.spinner-dot-left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  animation-delay: 0.2s;
+}
+
+.spinner-dot-right {
+  animation-delay: 0.4s;
+}
+
+.spinner-dot-bottom {
+  animation-delay: 0.6s;
+}
+
+.analysis-waiting-status {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  margin: 0;
+}
+
+.analysis-waiting-note {
+  min-height: 68px;
+  margin-top: 8px;
+  padding: 18px 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  text-align: center;
+  border-top: 1px solid #edf2f7;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+@keyframes waiting-spinner-rotate {
+  from {
+    transform: rotate(0deg);
   }
-  40% {
-    transform: scale(1);
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waiting-spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform-origin: center;
+  }
+
+  50% {
     opacity: 1;
   }
 }
 
-.progress-status {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
+@media (max-width: 768px) {
+  .analysis-waiting-shell {
+    min-height: auto;
+    padding-bottom: 24px;
+  }
 
-.processing-footer-hint {
-  font-size: 13px;
-  color: #94a3b8;
-  line-height: 1.6;
-  margin: 0;
+  .analysis-waiting-card {
+    min-height: 208px;
+    padding: 16px 16px 0;
+  }
 }
 </style>

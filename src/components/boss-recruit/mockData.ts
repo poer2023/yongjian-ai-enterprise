@@ -1,16 +1,31 @@
 import { UserCheck, FileUser, DollarSign } from 'lucide-vue-next';
-import type { BossJD, RecentTool, CandidateFilter, RpaStrategy, Resume, BossAccount } from './types';
+import type { BossJD, RecentTool, CandidateFilter, RpaStrategy, Resume, BossAccount, RecruitStrategy } from './types';
+
+export const defaultRecruitStrategyTemplate: RecruitStrategy = {
+  startTime: '09:00',
+  endTime: '18:00',
+  dailyLimit: 100,
+  hourlyLimit: 20,
+  minInterval: 30,
+  maxInterval: 120,
+  errorHandling: 'pause',
+  enabled: true,
+  minMatchScore: 75,
+  autoCollectResume: true,
+  autoAnalyzeResume: true,
+  greetingMode: 'friendly',
+};
 
 export const mockJdList: BossJD[] = [
-  { id: 1, jobName: 'Java开发工程师', salaryRange: '25K-35K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-02-01', viewCount: 156, resumeCount: 23, isFollowing: true, followStatus: 'running', todayGreetings: 45, todayResumes: 12, totalResumes: 89 },
-  { id: 2, jobName: '前端开发工程师', salaryRange: '20K-30K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-02-02', viewCount: 98, resumeCount: 15, isFollowing: true, followStatus: 'running', todayGreetings: 38, todayResumes: 8, totalResumes: 56 },
-  { id: 3, jobName: '产品经理', salaryRange: '30K-45K', location: '上海', experience: '5年以上', education: '本科', publishDate: '2026-01-28', viewCount: 234, resumeCount: 42, isFollowing: true, followStatus: 'paused', todayGreetings: 0, todayResumes: 0, totalResumes: 42 },
-  { id: 4, jobName: '网络安全工程师', salaryRange: '25K-40K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-01-25', viewCount: 87, resumeCount: 12, isFollowing: false },
-  { id: 5, jobName: 'UI设计师', salaryRange: '15K-25K', location: '上海', experience: '2-3年', education: '大专', publishDate: '2026-02-03', viewCount: 145, resumeCount: 31, isFollowing: false },
-  { id: 6, jobName: '测试工程师', salaryRange: '18K-28K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-01-30', viewCount: 76, resumeCount: 18, isFollowing: false },
-  { id: 7, jobName: '数据分析师', salaryRange: '20K-30K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2025-09-15', viewCount: 312, resumeCount: 67, isFollowing: false, jobStatus: 'closed', closedDate: '2025-12-20', totalResumes: 67 },
-  { id: 8, jobName: '运维工程师', salaryRange: '18K-25K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2025-08-01', viewCount: 198, resumeCount: 34, isFollowing: false, jobStatus: 'closed', closedDate: '2025-11-10', totalResumes: 34 },
-  { id: 9, jobName: 'Go后端开发', salaryRange: '25K-40K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2025-10-10', viewCount: 256, resumeCount: 51, isFollowing: false, jobStatus: 'closed', closedDate: '2026-01-05', totalResumes: 51 },
+  { id: 1, jobName: 'Java开发工程师', salaryRange: '25K-35K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-02-01', viewCount: 156, resumeCount: 23, isFollowing: true, followStatus: 'running', todayGreetings: 45, todayResumes: 12, totalResumes: 89, strategyMode: 'inherit', strategyOverride: null },
+  { id: 2, jobName: '前端开发工程师', salaryRange: '20K-30K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-02-02', viewCount: 98, resumeCount: 15, isFollowing: true, followStatus: 'running', todayGreetings: 38, todayResumes: 8, totalResumes: 56, strategyMode: 'custom', strategyOverride: { ...defaultRecruitStrategyTemplate, dailyLimit: 60, hourlyLimit: 12, minMatchScore: 82, autoAnalyzeResume: false, greetingMode: 'professional' } },
+  { id: 3, jobName: '产品经理', salaryRange: '30K-45K', location: '上海', experience: '5年以上', education: '本科', publishDate: '2026-01-28', viewCount: 234, resumeCount: 42, isFollowing: true, followStatus: 'paused', todayGreetings: 0, todayResumes: 0, totalResumes: 42, strategyMode: 'custom', strategyOverride: { ...defaultRecruitStrategyTemplate, enabled: false, startTime: '10:00', endTime: '17:30', dailyLimit: 30, hourlyLimit: 8, minInterval: 60, maxInterval: 180, minMatchScore: 88, autoCollectResume: false, greetingMode: 'professional' } },
+  { id: 4, jobName: '网络安全工程师', salaryRange: '25K-40K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2026-01-25', viewCount: 87, resumeCount: 12, isFollowing: false, strategyMode: 'inherit', strategyOverride: null },
+  { id: 5, jobName: 'UI设计师', salaryRange: '15K-25K', location: '上海', experience: '2-3年', education: '大专', publishDate: '2026-02-03', viewCount: 145, resumeCount: 31, isFollowing: false, strategyMode: 'inherit', strategyOverride: null },
+  { id: 6, jobName: '测试工程师', salaryRange: '18K-28K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2026-01-30', viewCount: 76, resumeCount: 18, isFollowing: false, strategyMode: 'inherit', strategyOverride: null },
+  { id: 7, jobName: '数据分析师', salaryRange: '20K-30K', location: '上海', experience: '2-4年', education: '本科', publishDate: '2025-09-15', viewCount: 312, resumeCount: 67, isFollowing: false, jobStatus: 'closed', closedDate: '2025-12-20', totalResumes: 67, strategyMode: 'inherit', strategyOverride: null },
+  { id: 8, jobName: '运维工程师', salaryRange: '18K-25K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2025-08-01', viewCount: 198, resumeCount: 34, isFollowing: false, jobStatus: 'closed', closedDate: '2025-11-10', totalResumes: 34, strategyMode: 'inherit', strategyOverride: null },
+  { id: 9, jobName: 'Go后端开发', salaryRange: '25K-40K', location: '上海', experience: '3-5年', education: '本科', publishDate: '2025-10-10', viewCount: 256, resumeCount: 51, isFollowing: false, jobStatus: 'closed', closedDate: '2026-01-05', totalResumes: 51, strategyMode: 'inherit', strategyOverride: null },
 ];
 
 export const mockResumes: Resume[] = [
@@ -32,17 +47,17 @@ export const mockHistoricalResumes: Resume[] = [
 ];
 
 export const recentTools: RecentTool[] = [
-  { icon: UserCheck, label: 'Boss招聘', route: 'boss-recruit' },
+  { icon: UserCheck, label: 'boss招聘助手', route: 'boss-recruit' },
   { icon: FileUser, label: '简历分析', route: 'resume-analysis-form' },
   { icon: DollarSign, label: '薪酬调查', route: 'salary-survey-form' },
 ];
 
 export const features: string[] = [
-  'Boss直聘账号一键授权',
-  '自动同步已发布岗位信息',
-  '批量开启智能招聘关注',
-  'AI自动筛选候选人打招呼',
-  '简历自动收集整理分析',
+  '单账号授权登录演示',
+  'Chrome 插件下载与安装引导',
+  '插件连接测试与运行状态展示',
+  '岗位同步与简历采集流程演示',
+  '进入工作台前的环境检查提示',
 ];
 
 // City options for filter
@@ -97,7 +112,7 @@ export const defaultRpaStrategy: RpaStrategy = {
   enabled: true,
 };
 
-// Mock Boss accounts
+// Mock recruit account
 export const mockAccounts: BossAccount[] = [
   {
     id: 'acc-001',
@@ -108,15 +123,5 @@ export const mockAccounts: BossAccount[] = [
     status: 'active',
     followingCount: 3,
     todayResumes: 12,
-  },
-  {
-    id: 'acc-002',
-    name: '李HR',
-    company: 'YY集团',
-    avatar: '',
-    expiresAt: '',
-    status: 'expired',
-    followingCount: 5,
-    todayResumes: 0,
   },
 ];

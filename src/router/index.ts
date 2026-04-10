@@ -23,6 +23,7 @@ import AssetUploadView from '../components/assets/AssetUploadView.vue';
 
 // HR模块
 import BossRecruitFormView from '../components/boss-recruit/BossRecruitFormView.vue';
+import BossRecruitPluginDemoView from '../components/boss-recruit/BossRecruitPluginDemoView.vue';
 import BossRecruitWorkbench from '../components/boss-recruit/BossRecruitWorkbench.vue';
 import ResumeAnalysisFormView from '../components/resume-analysis/ResumeAnalysisFormView.vue';
 import ResumeAnalysisResultView from '../components/ResumeAnalysisResultView.vue';
@@ -36,7 +37,10 @@ import BidAnalysisFormView from '../components/BidAnalysisFormView.vue';
 import BidAnalysisResultView from '../components/bid-analysis-result/BidAnalysisResultView.vue';
 import BidDocFormView from '../components/bid-doc-form/BidDocFormView.vue';
 import BidDocOneclickFormView from '../components/bid-doc-oneclick/BidDocOneclickFormView.vue';
+import BidDocSmartFormView from '../components/bid-doc-smart/BidDocSmartFormView.vue';
 import BidDocGeneratingView from '../components/BidDocGeneratingView.vue';
+import BidDocPluginResultView from '../components/BidDocPluginResultView.vue';
+import WordPluginMaterialsMockView from '../components/WordPluginMaterialsMockView.vue';
 import BidDocResultView from '../components/BidDocResultView.vue';
 import BidDocSkeletonView from '../components/bid-doc-skeleton/BidDocSkeletonView.vue';
 import BidDetailView from '../components/BidDetailView.vue';
@@ -143,13 +147,19 @@ const routes = [
     path: '/hr/boss-recruit',
     name: 'boss-recruit',
     component: BossRecruitFormView,
-    meta: { title: 'Boss直聘招聘' }
+    meta: { title: 'boss招聘助手' }
+  },
+  {
+    path: '/hr/boss-recruit/plugin-demo',
+    name: 'boss-recruit-plugin-demo',
+    component: BossRecruitPluginDemoView,
+    meta: { title: '插件 Demo', fullScreen: true }
   },
   {
     path: '/hr/boss-recruit/workbench',
     name: 'boss-recruit-workbench',
     component: BossRecruitWorkbench,
-    meta: { title: 'Boss招聘工作台', fullScreen: true }
+    meta: { title: 'boss招聘助手工作台', fullScreen: true }
   },
   {
     path: '/hr/resume-analysis',
@@ -220,13 +230,27 @@ const routes = [
   },
   {
     path: '/bid/doc/smart',
-    redirect: '/bid/doc/oneclick'
+    name: 'bid-doc-smart-form',
+    component: BidDocSmartFormView,
+    meta: { title: 'AI标书插件版' }
   },
   {
     path: '/bid/doc/generating',
     name: 'bid-doc-generating',
     component: BidDocGeneratingView,
     meta: { title: 'AI标书生成中' }
+  },
+  {
+    path: '/bid/doc/plugin-result',
+    name: 'bid-doc-plugin-result',
+    component: BidDocPluginResultView,
+    meta: { title: '插件版标书结果' }
+  },
+  {
+    path: '/bid/doc/plugin-materials-mock',
+    name: 'word-plugin-materials-mock',
+    component: WordPluginMaterialsMockView,
+    meta: { title: 'Word 插件素材推荐 Mock', fullScreen: true }
   },
   {
     path: '/bid/doc/skeleton',

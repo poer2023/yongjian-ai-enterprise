@@ -49,6 +49,11 @@ const emit = defineEmits<{
   transition: all 0.2s;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .file-item-realign:hover {
@@ -86,20 +91,37 @@ const emit = defineEmits<{
 }
 
 .file-col-name {
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
   font-size: 14px;
   color: #1f2937;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 120px;
 }
 
 .file-col-meta {
   font-size: 13px;
   color: #9ca3af;
   white-space: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fixed-ish caps so meta columns shrink before stealing horizontal space */
+.file-item-realign > .file-col-meta:nth-child(3) {
+  max-width: 96px;
+}
+
+.file-item-realign > .file-col-meta:nth-child(4) {
+  max-width: 11em;
+}
+
+.file-item-realign > .file-col-meta:nth-child(5) {
+  max-width: 9em;
 }
 
 .file-col-actions {

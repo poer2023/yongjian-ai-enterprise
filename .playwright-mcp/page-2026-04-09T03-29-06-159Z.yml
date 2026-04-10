@@ -1,0 +1,923 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: 涌见AI
+      - button "切换侧栏展开或收起" [expanded] [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: 首页
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: AI提问
+      - generic [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: 标讯搜索
+      - generic [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e36]: 资讯订阅
+      - generic [ref=e37] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]: 智能体
+        - generic [ref=e42]: 🔥
+      - generic [ref=e43]:
+        - generic [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e50]: 知识库
+          - img [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e60]: 团队知识库
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e65]: 企业素材库
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e70]: 个人知识库
+          - generic [ref=e71] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e75]: 隐藏知识库
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e83]: 小组知识库
+            - img [ref=e84]
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e87]
+        - generic [ref=e92]: 团队管理
+      - generic [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+        - generic [ref=e97]: 个人中心
+  - main [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - heading "企业素材库" [level=1] [ref=e109]
+        - generic [ref=e110]:
+          - img [ref=e111]
+          - textbox "搜索文件名、文件夹名称" [ref=e114]
+          - button "搜索" [ref=e115] [cursor=pointer]
+        - generic [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e119]
+            - generic [ref=e122]: 投标文件
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e128]: 商务技术册
+          - generic [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e134]: 资质认证
+          - generic [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e140]: 业绩与团队
+        - generic [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - generic [ref=e145]: PDF
+            - generic "信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx"
+            - generic [ref=e146]: 约 6.8MB
+            - generic [ref=e147]: 约 17.9 万字符（抽取统计）
+            - generic [ref=e148]: 金盾检测技术股份有限公司
+            - generic [ref=e149]:
+              - button "查看详情" [ref=e150]:
+                - img [ref=e151]
+              - button "更多操作" [ref=e154]:
+                - img [ref=e155]
+          - generic [ref=e159] [cursor=pointer]:
+            - generic [ref=e162]: PDF
+            - generic "南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx"
+            - generic [ref=e163]: 约 4.2MB
+            - generic [ref=e164]: 约 8.5 万字符（抽取统计）
+            - generic [ref=e165]: 鼎信建设集团有限公司
+            - generic [ref=e166]:
+              - button "查看详情" [ref=e167]:
+                - img [ref=e168]
+              - button "更多操作" [ref=e171]:
+                - img [ref=e172]
+      - generic [ref=e179]:
+        - tablist "企业素材库结构化标签页" [ref=e180]:
+          - button "企业资质" [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e185]: 企业资质
+          - button "人员信息" [active] [ref=e186] [cursor=pointer]:
+            - img [ref=e187]
+            - generic [ref=e192]: 人员信息
+          - button "业绩案例" [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+            - generic [ref=e197]: 业绩案例
+          - button "临期资质提醒" [ref=e198] [cursor=pointer]:
+            - img [ref=e199]
+            - generic [ref=e201]: 临期资质提醒
+          - button "企业简介" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - generic [ref=e207]: 企业简介
+        - grid [ref=e298]:
+          - rowgroup [ref=e299]:
+            - row "# 姓名 当前岗位 专业方向 学历 核心经验 核心资质" [ref=e300]:
+              - columnheader [ref=e301]
+              - columnheader "#" [ref=e302]
+              - columnheader "姓名" [ref=e303]
+              - columnheader "当前岗位" [ref=e304]
+              - columnheader "专业方向" [ref=e305]
+              - columnheader "学历" [ref=e306]
+              - columnheader "核心经验" [ref=e307]
+              - columnheader "核心资质" [ref=e308]
+              - columnheader [ref=e309]
+          - rowgroup [ref=e310]:
+            - row "1 陈大文 技术总监 等保测评 / 风险评估 / 项目管理 本科 等级保护测评13年 网络安全等级保护测评师（高级） +2 详情" [ref=e311]:
+              - gridcell [ref=e312]:
+                - button "展开资质" [ref=e313] [cursor=pointer]:
+                  - img [ref=e314]
+              - gridcell "1" [ref=e316]
+              - gridcell "陈大文" [ref=e317]
+              - gridcell "技术总监" [ref=e318]
+              - gridcell "等保测评 / 风险评估 / 项目管理" [ref=e319]
+              - gridcell "本科" [ref=e320]
+              - gridcell "等级保护测评13年" [ref=e321]
+              - gridcell "网络安全等级保护测评师（高级） +2" [ref=e322]
+              - gridcell "详情" [ref=e323]:
+                - button "详情" [ref=e324] [cursor=pointer]
+            - row "2 邢伟 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评9年 网络安全等级保护测评师（高级） 详情" [ref=e325]:
+              - gridcell [ref=e326]:
+                - button "展开资质" [ref=e327] [cursor=pointer]:
+                  - img [ref=e328]
+              - gridcell "2" [ref=e330]
+              - gridcell "邢伟" [ref=e331]
+              - gridcell "网络安全测评工程师" [ref=e332]
+              - gridcell "等保测评 / 安全评估" [ref=e333]
+              - gridcell "本科" [ref=e334]
+              - gridcell "等级保护测评9年" [ref=e335]
+              - gridcell "网络安全等级保护测评师（高级）" [ref=e336]
+              - gridcell "详情" [ref=e337]:
+                - button "详情" [ref=e338] [cursor=pointer]
+            - row "3 邵君立 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评8年 网络安全等级保护测评师（高级） 详情" [ref=e339]:
+              - gridcell [ref=e340]:
+                - button "展开资质" [ref=e341] [cursor=pointer]:
+                  - img [ref=e342]
+              - gridcell "3" [ref=e344]
+              - gridcell "邵君立" [ref=e345]
+              - gridcell "网络安全测评工程师" [ref=e346]
+              - gridcell "等保测评 / 安全评估" [ref=e347]
+              - gridcell "本科" [ref=e348]
+              - gridcell "等级保护测评8年" [ref=e349]
+              - gridcell "网络安全等级保护测评师（高级）" [ref=e350]
+              - gridcell "详情" [ref=e351]:
+                - button "详情" [ref=e352] [cursor=pointer]
+            - row "4 程嘉 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评5年 网络安全等级保护测评师（高级） 详情" [ref=e353]:
+              - gridcell [ref=e354]:
+                - button "展开资质" [ref=e355] [cursor=pointer]:
+                  - img [ref=e356]
+              - gridcell "4" [ref=e358]
+              - gridcell "程嘉" [ref=e359]
+              - gridcell "网络安全测评工程师" [ref=e360]
+              - gridcell "等保测评 / 安全评估" [ref=e361]
+              - gridcell "本科" [ref=e362]
+              - gridcell "等级保护测评5年" [ref=e363]
+              - gridcell "网络安全等级保护测评师（高级）" [ref=e364]
+              - gridcell "详情" [ref=e365]:
+                - button "详情" [ref=e366] [cursor=pointer]
+            - row "5 叶茂 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评3年 网络安全等级保护测评师（高级） 详情" [ref=e367]:
+              - gridcell [ref=e368]:
+                - button "展开资质" [ref=e369] [cursor=pointer]:
+                  - img [ref=e370]
+              - gridcell "5" [ref=e372]
+              - gridcell "叶茂" [ref=e373]
+              - gridcell "网络安全测评工程师" [ref=e374]
+              - gridcell "等保测评 / 安全评估" [ref=e375]
+              - gridcell "本科" [ref=e376]
+              - gridcell "等级保护测评3年" [ref=e377]
+              - gridcell "网络安全等级保护测评师（高级）" [ref=e378]
+              - gridcell "详情" [ref=e379]:
+                - button "详情" [ref=e380] [cursor=pointer]
+            - row "6 陈洁 技术负责人 安全评估 / 等保测评 / 技术管理 硕士研究生 政企安全评估20年 网络安全等级保护测评师（高级） +2 详情" [ref=e381]:
+              - gridcell [ref=e382]:
+                - button "展开资质" [ref=e383] [cursor=pointer]:
+                  - img [ref=e384]
+              - gridcell "6" [ref=e386]
+              - gridcell "陈洁" [ref=e387]
+              - gridcell "技术负责人" [ref=e388]
+              - gridcell "安全评估 / 等保测评 / 技术管理" [ref=e389]
+              - gridcell "硕士研究生" [ref=e390]
+              - gridcell "政企安全评估20年" [ref=e391]
+              - gridcell "网络安全等级保护测评师（高级） +2" [ref=e392]
+              - gridcell "详情" [ref=e393]:
+                - button "详情" [ref=e394] [cursor=pointer]
+            - row "7 高亚敏 高级网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评12年 网络安全等级保护测评师（高级） 详情" [ref=e395]:
+              - gridcell [ref=e396]:
+                - button "展开资质" [ref=e397] [cursor=pointer]:
+                  - img [ref=e398]
+              - gridcell "7" [ref=e400]
+              - gridcell "高亚敏" [ref=e401]
+              - gridcell "高级网络安全测评工程师" [ref=e402]
+              - gridcell "等保测评 / 安全评估" [ref=e403]
+              - gridcell "本科" [ref=e404]
+              - gridcell "等级保护测评12年" [ref=e405]
+              - gridcell "网络安全等级保护测评师（高级）" [ref=e406]
+              - gridcell "详情" [ref=e407]:
+                - button "详情" [ref=e408] [cursor=pointer]
+            - row "8 陆凯金 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评6年 网络安全等级保护测评师（中级） 详情" [ref=e409]:
+              - gridcell [ref=e410]:
+                - button "展开资质" [ref=e411] [cursor=pointer]:
+                  - img [ref=e412]
+              - gridcell "8" [ref=e414]
+              - gridcell "陆凯金" [ref=e415]
+              - gridcell "网络安全测评工程师" [ref=e416]
+              - gridcell "等保测评 / 安全评估" [ref=e417]
+              - gridcell "本科" [ref=e418]
+              - gridcell "等级保护测评6年" [ref=e419]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e420]
+              - gridcell "详情" [ref=e421]:
+                - button "详情" [ref=e422] [cursor=pointer]
+            - row "9 杨仕瑞 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评3年 网络安全等级保护测评师（中级） 详情" [ref=e423]:
+              - gridcell [ref=e424]:
+                - button "展开资质" [ref=e425] [cursor=pointer]:
+                  - img [ref=e426]
+              - gridcell "9" [ref=e428]
+              - gridcell "杨仕瑞" [ref=e429]
+              - gridcell "网络安全测评工程师" [ref=e430]
+              - gridcell "等保测评 / 安全评估" [ref=e431]
+              - gridcell "本科" [ref=e432]
+              - gridcell "等级保护测评3年" [ref=e433]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e434]
+              - gridcell "详情" [ref=e435]:
+                - button "详情" [ref=e436] [cursor=pointer]
+            - row "10 郝钢有 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评7年 网络安全等级保护测评师（中级） 详情" [ref=e437]:
+              - gridcell [ref=e438]:
+                - button "展开资质" [ref=e439] [cursor=pointer]:
+                  - img [ref=e440]
+              - gridcell "10" [ref=e442]
+              - gridcell "郝钢有" [ref=e443]
+              - gridcell "网络安全测评工程师" [ref=e444]
+              - gridcell "等保测评 / 安全评估" [ref=e445]
+              - gridcell "本科" [ref=e446]
+              - gridcell "等级保护测评7年" [ref=e447]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e448]
+              - gridcell "详情" [ref=e449]:
+                - button "详情" [ref=e450] [cursor=pointer]
+            - row "11 徐嘉诚 高级网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评10年 网络安全等级保护测评师（中级） 详情" [ref=e451]:
+              - gridcell [ref=e452]:
+                - button "展开资质" [ref=e453] [cursor=pointer]:
+                  - img [ref=e454]
+              - gridcell "11" [ref=e456]
+              - gridcell "徐嘉诚" [ref=e457]
+              - gridcell "高级网络安全测评工程师" [ref=e458]
+              - gridcell "等保测评 / 安全评估" [ref=e459]
+              - gridcell "本科" [ref=e460]
+              - gridcell "等级保护测评10年" [ref=e461]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e462]
+              - gridcell "详情" [ref=e463]:
+                - button "详情" [ref=e464] [cursor=pointer]
+            - row "12 何燕青 网络安全测评工程师 等保测评 / 安全评估 大专 等级保护测评8年 网络安全等级保护测评师（中级） 详情" [ref=e465]:
+              - gridcell [ref=e466]:
+                - button "展开资质" [ref=e467] [cursor=pointer]:
+                  - img [ref=e468]
+              - gridcell "12" [ref=e470]
+              - gridcell "何燕青" [ref=e471]
+              - gridcell "网络安全测评工程师" [ref=e472]
+              - gridcell "等保测评 / 安全评估" [ref=e473]
+              - gridcell "大专" [ref=e474]
+              - gridcell "等级保护测评8年" [ref=e475]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e476]
+              - gridcell "详情" [ref=e477]:
+                - button "详情" [ref=e478] [cursor=pointer]
+            - row "13 倪晟峰 高级网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评12年 网络安全等级保护测评师（中级） 详情" [ref=e479]:
+              - gridcell [ref=e480]:
+                - button "展开资质" [ref=e481] [cursor=pointer]:
+                  - img [ref=e482]
+              - gridcell "13" [ref=e484]
+              - gridcell "倪晟峰" [ref=e485]
+              - gridcell "高级网络安全测评工程师" [ref=e486]
+              - gridcell "等保测评 / 安全评估" [ref=e487]
+              - gridcell "本科" [ref=e488]
+              - gridcell "等级保护测评12年" [ref=e489]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e490]
+              - gridcell "详情" [ref=e491]:
+                - button "详情" [ref=e492] [cursor=pointer]
+            - row "14 刘向伟 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评7年 网络安全等级保护测评师（中级） 详情" [ref=e493]:
+              - gridcell [ref=e494]:
+                - button "展开资质" [ref=e495] [cursor=pointer]:
+                  - img [ref=e496]
+              - gridcell "14" [ref=e498]
+              - gridcell "刘向伟" [ref=e499]
+              - gridcell "网络安全测评工程师" [ref=e500]
+              - gridcell "等保测评 / 安全评估" [ref=e501]
+              - gridcell "本科" [ref=e502]
+              - gridcell "等级保护测评7年" [ref=e503]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e504]
+              - gridcell "详情" [ref=e505]:
+                - button "详情" [ref=e506] [cursor=pointer]
+            - row "15 杜嵘 网络安全测评工程师 等保测评 / 安全评估 硕士研究生 等级保护测评7年 网络安全等级保护测评师（中级） 详情" [ref=e507]:
+              - gridcell [ref=e508]:
+                - button "展开资质" [ref=e509] [cursor=pointer]:
+                  - img [ref=e510]
+              - gridcell "15" [ref=e512]
+              - gridcell "杜嵘" [ref=e513]
+              - gridcell "网络安全测评工程师" [ref=e514]
+              - gridcell "等保测评 / 安全评估" [ref=e515]
+              - gridcell "硕士研究生" [ref=e516]
+              - gridcell "等级保护测评7年" [ref=e517]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e518]
+              - gridcell "详情" [ref=e519]:
+                - button "详情" [ref=e520] [cursor=pointer]
+            - row "16 贾飞飞 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评7年 网络安全等级保护测评师（中级） 详情" [ref=e521]:
+              - gridcell [ref=e522]:
+                - button "展开资质" [ref=e523] [cursor=pointer]:
+                  - img [ref=e524]
+              - gridcell "16" [ref=e526]
+              - gridcell "贾飞飞" [ref=e527]
+              - gridcell "网络安全测评工程师" [ref=e528]
+              - gridcell "等保测评 / 安全评估" [ref=e529]
+              - gridcell "本科" [ref=e530]
+              - gridcell "等级保护测评7年" [ref=e531]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e532]
+              - gridcell "详情" [ref=e533]:
+                - button "详情" [ref=e534] [cursor=pointer]
+            - row "17 顾国武 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评8年 网络安全等级保护测评师（中级） 详情" [ref=e535]:
+              - gridcell [ref=e536]:
+                - button "展开资质" [ref=e537] [cursor=pointer]:
+                  - img [ref=e538]
+              - gridcell "17" [ref=e540]
+              - gridcell "顾国武" [ref=e541]
+              - gridcell "网络安全测评工程师" [ref=e542]
+              - gridcell "等保测评 / 安全评估" [ref=e543]
+              - gridcell "本科" [ref=e544]
+              - gridcell "等级保护测评8年" [ref=e545]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e546]
+              - gridcell "详情" [ref=e547]:
+                - button "详情" [ref=e548] [cursor=pointer]
+            - row "18 马壮壮 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评8年 网络安全等级保护测评师（中级） 详情" [ref=e549]:
+              - gridcell [ref=e550]:
+                - button "展开资质" [ref=e551] [cursor=pointer]:
+                  - img [ref=e552]
+              - gridcell "18" [ref=e554]
+              - gridcell "马壮壮" [ref=e555]
+              - gridcell "网络安全测评工程师" [ref=e556]
+              - gridcell "等保测评 / 安全评估" [ref=e557]
+              - gridcell "本科" [ref=e558]
+              - gridcell "等级保护测评8年" [ref=e559]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e560]
+              - gridcell "详情" [ref=e561]:
+                - button "详情" [ref=e562] [cursor=pointer]
+            - row "19 钱小军 高级网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评15年 网络安全等级保护测评师（中级） 详情" [ref=e563]:
+              - gridcell [ref=e564]:
+                - button "展开资质" [ref=e565] [cursor=pointer]:
+                  - img [ref=e566]
+              - gridcell "19" [ref=e568]
+              - gridcell "钱小军" [ref=e569]
+              - gridcell "高级网络安全测评工程师" [ref=e570]
+              - gridcell "等保测评 / 安全评估" [ref=e571]
+              - gridcell "本科" [ref=e572]
+              - gridcell "等级保护测评15年" [ref=e573]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e574]
+              - gridcell "详情" [ref=e575]:
+                - button "详情" [ref=e576] [cursor=pointer]
+            - row "20 丁建功 网络安全测评工程师 等保测评 / 安全评估 专科 等级保护测评7年 网络安全等级保护测评师（中级） 详情" [ref=e577]:
+              - gridcell [ref=e578]:
+                - button "展开资质" [ref=e579] [cursor=pointer]:
+                  - img [ref=e580]
+              - gridcell "20" [ref=e582]
+              - gridcell "丁建功" [ref=e583]
+              - gridcell "网络安全测评工程师" [ref=e584]
+              - gridcell "等保测评 / 安全评估" [ref=e585]
+              - gridcell "专科" [ref=e586]
+              - gridcell "等级保护测评7年" [ref=e587]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e588]
+              - gridcell "详情" [ref=e589]:
+                - button "详情" [ref=e590] [cursor=pointer]
+            - row "21 藕超 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评6年 网络安全等级保护测评师（中级） 详情" [ref=e591]:
+              - gridcell [ref=e592]:
+                - button "展开资质" [ref=e593] [cursor=pointer]:
+                  - img [ref=e594]
+              - gridcell "21" [ref=e596]
+              - gridcell "藕超" [ref=e597]
+              - gridcell "网络安全测评工程师" [ref=e598]
+              - gridcell "等保测评 / 安全评估" [ref=e599]
+              - gridcell "本科" [ref=e600]
+              - gridcell "等级保护测评6年" [ref=e601]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e602]
+              - gridcell "详情" [ref=e603]:
+                - button "详情" [ref=e604] [cursor=pointer]
+            - row "22 史意意 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评8年 网络安全等级保护测评师（中级） 详情" [ref=e605]:
+              - gridcell [ref=e606]:
+                - button "展开资质" [ref=e607] [cursor=pointer]:
+                  - img [ref=e608]
+              - gridcell "22" [ref=e610]
+              - gridcell "史意意" [ref=e611]
+              - gridcell "网络安全测评工程师" [ref=e612]
+              - gridcell "等保测评 / 安全评估" [ref=e613]
+              - gridcell "本科" [ref=e614]
+              - gridcell "等级保护测评8年" [ref=e615]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e616]
+              - gridcell "详情" [ref=e617]:
+                - button "详情" [ref=e618] [cursor=pointer]
+            - row "23 岑月月 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评6年 网络安全等级保护测评师（中级） 详情" [ref=e619]:
+              - gridcell [ref=e620]:
+                - button "展开资质" [ref=e621] [cursor=pointer]:
+                  - img [ref=e622]
+              - gridcell "23" [ref=e624]
+              - gridcell "岑月月" [ref=e625]
+              - gridcell "网络安全测评工程师" [ref=e626]
+              - gridcell "等保测评 / 安全评估" [ref=e627]
+              - gridcell "本科" [ref=e628]
+              - gridcell "等级保护测评6年" [ref=e629]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e630]
+              - gridcell "详情" [ref=e631]:
+                - button "详情" [ref=e632] [cursor=pointer]
+            - row "24 王爱青 高级网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评19年 网络安全等级保护测评师（中级） 详情" [ref=e633]:
+              - gridcell [ref=e634]:
+                - button "展开资质" [ref=e635] [cursor=pointer]:
+                  - img [ref=e636]
+              - gridcell "24" [ref=e638]
+              - gridcell "王爱青" [ref=e639]
+              - gridcell "高级网络安全测评工程师" [ref=e640]
+              - gridcell "等保测评 / 安全评估" [ref=e641]
+              - gridcell "本科" [ref=e642]
+              - gridcell "等级保护测评19年" [ref=e643]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e644]
+              - gridcell "详情" [ref=e645]:
+                - button "详情" [ref=e646] [cursor=pointer]
+            - row "25 张鑫鑫 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评5年 网络安全等级保护测评师（中级） 详情" [ref=e647]:
+              - gridcell [ref=e648]:
+                - button "展开资质" [ref=e649] [cursor=pointer]:
+                  - img [ref=e650]
+              - gridcell "25" [ref=e652]
+              - gridcell "张鑫鑫" [ref=e653]
+              - gridcell "网络安全测评工程师" [ref=e654]
+              - gridcell "等保测评 / 安全评估" [ref=e655]
+              - gridcell "本科" [ref=e656]
+              - gridcell "等级保护测评5年" [ref=e657]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e658]
+              - gridcell "详情" [ref=e659]:
+                - button "详情" [ref=e660] [cursor=pointer]
+            - row "26 徐小燕 网络安全测评工程师 等保测评 / 安全评估 本科 等级保护测评4年 网络安全等级保护测评师（中级） 详情" [ref=e661]:
+              - gridcell [ref=e662]:
+                - button "展开资质" [ref=e663] [cursor=pointer]:
+                  - img [ref=e664]
+              - gridcell "26" [ref=e666]
+              - gridcell "徐小燕" [ref=e667]
+              - gridcell "网络安全测评工程师" [ref=e668]
+              - gridcell "等保测评 / 安全评估" [ref=e669]
+              - gridcell "本科" [ref=e670]
+              - gridcell "等级保护测评4年" [ref=e671]
+              - gridcell "网络安全等级保护测评师（中级）" [ref=e672]
+              - gridcell "详情" [ref=e673]:
+                - button "详情" [ref=e674] [cursor=pointer]
+            - row "27 陈真 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评6年 网络安全等级保护测评师（初级） 详情" [ref=e675]:
+              - gridcell [ref=e676]:
+                - button "展开资质" [ref=e677] [cursor=pointer]:
+                  - img [ref=e678]
+              - gridcell "27" [ref=e680]
+              - gridcell "陈真" [ref=e681]
+              - gridcell "网络安全测评工程师" [ref=e682]
+              - gridcell "等保测评 / 现场实施" [ref=e683]
+              - gridcell "本科" [ref=e684]
+              - gridcell "等级保护测评6年" [ref=e685]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e686]
+              - gridcell "详情" [ref=e687]:
+                - button "详情" [ref=e688] [cursor=pointer]
+            - row "28 曾滔 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e689]:
+              - gridcell [ref=e690]:
+                - button "展开资质" [ref=e691] [cursor=pointer]:
+                  - img [ref=e692]
+              - gridcell "28" [ref=e694]
+              - gridcell "曾滔" [ref=e695]
+              - gridcell "网络安全测评工程师" [ref=e696]
+              - gridcell "等保测评 / 现场实施" [ref=e697]
+              - gridcell "本科" [ref=e698]
+              - gridcell "等级保护测评4年" [ref=e699]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e700]
+              - gridcell "详情" [ref=e701]:
+                - button "详情" [ref=e702] [cursor=pointer]
+            - row "29 阚格 网络安全测评工程师 等保测评 / 现场实施 硕士研究生 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e703]:
+              - gridcell [ref=e704]:
+                - button "展开资质" [ref=e705] [cursor=pointer]:
+                  - img [ref=e706]
+              - gridcell "29" [ref=e708]
+              - gridcell "阚格" [ref=e709]
+              - gridcell "网络安全测评工程师" [ref=e710]
+              - gridcell "等保测评 / 现场实施" [ref=e711]
+              - gridcell "硕士研究生" [ref=e712]
+              - gridcell "等级保护测评3年" [ref=e713]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e714]
+              - gridcell "详情" [ref=e715]:
+                - button "详情" [ref=e716] [cursor=pointer]
+            - row "30 葛志豪 网络安全测评工程师 等保测评 / 现场实施 大专 等级保护测评8年 网络安全等级保护测评师（初级） 详情" [ref=e717]:
+              - gridcell [ref=e718]:
+                - button "展开资质" [ref=e719] [cursor=pointer]:
+                  - img [ref=e720]
+              - gridcell "30" [ref=e722]
+              - gridcell "葛志豪" [ref=e723]
+              - gridcell "网络安全测评工程师" [ref=e724]
+              - gridcell "等保测评 / 现场实施" [ref=e725]
+              - gridcell "大专" [ref=e726]
+              - gridcell "等级保护测评8年" [ref=e727]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e728]
+              - gridcell "详情" [ref=e729]:
+                - button "详情" [ref=e730] [cursor=pointer]
+            - row "31 张嘉诚 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评5年 网络安全等级保护测评师（初级） 详情" [ref=e731]:
+              - gridcell [ref=e732]:
+                - button "展开资质" [ref=e733] [cursor=pointer]:
+                  - img [ref=e734]
+              - gridcell "31" [ref=e736]
+              - gridcell "张嘉诚" [ref=e737]
+              - gridcell "网络安全测评工程师" [ref=e738]
+              - gridcell "等保测评 / 现场实施" [ref=e739]
+              - gridcell "本科" [ref=e740]
+              - gridcell "等级保护测评5年" [ref=e741]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e742]
+              - gridcell "详情" [ref=e743]:
+                - button "详情" [ref=e744] [cursor=pointer]
+            - row "32 钟雨 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e745]:
+              - gridcell [ref=e746]:
+                - button "展开资质" [ref=e747] [cursor=pointer]:
+                  - img [ref=e748]
+              - gridcell "32" [ref=e750]
+              - gridcell "钟雨" [ref=e751]
+              - gridcell "网络安全测评工程师" [ref=e752]
+              - gridcell "等保测评 / 现场实施" [ref=e753]
+              - gridcell "本科" [ref=e754]
+              - gridcell "等级保护测评4年" [ref=e755]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e756]
+              - gridcell "详情" [ref=e757]:
+                - button "详情" [ref=e758] [cursor=pointer]
+            - row "33 黄星宇 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e759]:
+              - gridcell [ref=e760]:
+                - button "展开资质" [ref=e761] [cursor=pointer]:
+                  - img [ref=e762]
+              - gridcell "33" [ref=e764]
+              - gridcell "黄星宇" [ref=e765]
+              - gridcell "网络安全测评工程师" [ref=e766]
+              - gridcell "等保测评 / 现场实施" [ref=e767]
+              - gridcell "本科" [ref=e768]
+              - gridcell "等级保护测评4年" [ref=e769]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e770]
+              - gridcell "详情" [ref=e771]:
+                - button "详情" [ref=e772] [cursor=pointer]
+            - row "34 朱贵阳 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e773]:
+              - gridcell [ref=e774]:
+                - button "展开资质" [ref=e775] [cursor=pointer]:
+                  - img [ref=e776]
+              - gridcell "34" [ref=e778]
+              - gridcell "朱贵阳" [ref=e779]
+              - gridcell "网络安全测评工程师" [ref=e780]
+              - gridcell "等保测评 / 现场实施" [ref=e781]
+              - gridcell "本科" [ref=e782]
+              - gridcell "等级保护测评4年" [ref=e783]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e784]
+              - gridcell "详情" [ref=e785]:
+                - button "详情" [ref=e786] [cursor=pointer]
+            - row "35 唐开敏 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e787]:
+              - gridcell [ref=e788]:
+                - button "展开资质" [ref=e789] [cursor=pointer]:
+                  - img [ref=e790]
+              - gridcell "35" [ref=e792]
+              - gridcell "唐开敏" [ref=e793]
+              - gridcell "网络安全测评工程师" [ref=e794]
+              - gridcell "等保测评 / 现场实施" [ref=e795]
+              - gridcell "本科" [ref=e796]
+              - gridcell "等级保护测评3年" [ref=e797]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e798]
+              - gridcell "详情" [ref=e799]:
+                - button "详情" [ref=e800] [cursor=pointer]
+            - row "36 钟航 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e801]:
+              - gridcell [ref=e802]:
+                - button "展开资质" [ref=e803] [cursor=pointer]:
+                  - img [ref=e804]
+              - gridcell "36" [ref=e806]
+              - gridcell "钟航" [ref=e807]
+              - gridcell "网络安全测评工程师" [ref=e808]
+              - gridcell "等保测评 / 现场实施" [ref=e809]
+              - gridcell "本科" [ref=e810]
+              - gridcell "等级保护测评3年" [ref=e811]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e812]
+              - gridcell "详情" [ref=e813]:
+                - button "详情" [ref=e814] [cursor=pointer]
+            - row "37 汪欣 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e815]:
+              - gridcell [ref=e816]:
+                - button "展开资质" [ref=e817] [cursor=pointer]:
+                  - img [ref=e818]
+              - gridcell "37" [ref=e820]
+              - gridcell "汪欣" [ref=e821]
+              - gridcell "网络安全测评工程师" [ref=e822]
+              - gridcell "等保测评 / 现场实施" [ref=e823]
+              - gridcell "本科" [ref=e824]
+              - gridcell "等级保护测评3年" [ref=e825]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e826]
+              - gridcell "详情" [ref=e827]:
+                - button "详情" [ref=e828] [cursor=pointer]
+            - row "38 杨智杰 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e829]:
+              - gridcell [ref=e830]:
+                - button "展开资质" [ref=e831] [cursor=pointer]:
+                  - img [ref=e832]
+              - gridcell "38" [ref=e834]
+              - gridcell "杨智杰" [ref=e835]
+              - gridcell "网络安全测评工程师" [ref=e836]
+              - gridcell "等保测评 / 现场实施" [ref=e837]
+              - gridcell "本科" [ref=e838]
+              - gridcell "等级保护测评4年" [ref=e839]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e840]
+              - gridcell "详情" [ref=e841]:
+                - button "详情" [ref=e842] [cursor=pointer]
+            - row "39 余大新 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e843]:
+              - gridcell [ref=e844]:
+                - button "展开资质" [ref=e845] [cursor=pointer]:
+                  - img [ref=e846]
+              - gridcell "39" [ref=e848]
+              - gridcell "余大新" [ref=e849]
+              - gridcell "网络安全测评工程师" [ref=e850]
+              - gridcell "等保测评 / 现场实施" [ref=e851]
+              - gridcell "本科" [ref=e852]
+              - gridcell "等级保护测评3年" [ref=e853]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e854]
+              - gridcell "详情" [ref=e855]:
+                - button "详情" [ref=e856] [cursor=pointer]
+            - row "40 俞杰斌 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评6年 网络安全等级保护测评师（初级） 详情" [ref=e857]:
+              - gridcell [ref=e858]:
+                - button "展开资质" [ref=e859] [cursor=pointer]:
+                  - img [ref=e860]
+              - gridcell "40" [ref=e862]
+              - gridcell "俞杰斌" [ref=e863]
+              - gridcell "网络安全测评工程师" [ref=e864]
+              - gridcell "等保测评 / 现场实施" [ref=e865]
+              - gridcell "本科" [ref=e866]
+              - gridcell "等级保护测评6年" [ref=e867]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e868]
+              - gridcell "详情" [ref=e869]:
+                - button "详情" [ref=e870] [cursor=pointer]
+            - row "41 张广平 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e871]:
+              - gridcell [ref=e872]:
+                - button "展开资质" [ref=e873] [cursor=pointer]:
+                  - img [ref=e874]
+              - gridcell "41" [ref=e876]
+              - gridcell "张广平" [ref=e877]
+              - gridcell "网络安全测评工程师" [ref=e878]
+              - gridcell "等保测评 / 现场实施" [ref=e879]
+              - gridcell "本科" [ref=e880]
+              - gridcell "等级保护测评3年" [ref=e881]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e882]
+              - gridcell "详情" [ref=e883]:
+                - button "详情" [ref=e884] [cursor=pointer]
+            - row "42 朱莉桦 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e885]:
+              - gridcell [ref=e886]:
+                - button "展开资质" [ref=e887] [cursor=pointer]:
+                  - img [ref=e888]
+              - gridcell "42" [ref=e890]
+              - gridcell "朱莉桦" [ref=e891]
+              - gridcell "网络安全测评工程师" [ref=e892]
+              - gridcell "等保测评 / 现场实施" [ref=e893]
+              - gridcell "本科" [ref=e894]
+              - gridcell "等级保护测评4年" [ref=e895]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e896]
+              - gridcell "详情" [ref=e897]:
+                - button "详情" [ref=e898] [cursor=pointer]
+            - row "43 朱文月 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e899]:
+              - gridcell [ref=e900]:
+                - button "展开资质" [ref=e901] [cursor=pointer]:
+                  - img [ref=e902]
+              - gridcell "43" [ref=e904]
+              - gridcell "朱文月" [ref=e905]
+              - gridcell "网络安全测评工程师" [ref=e906]
+              - gridcell "等保测评 / 现场实施" [ref=e907]
+              - gridcell "本科" [ref=e908]
+              - gridcell "等级保护测评4年" [ref=e909]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e910]
+              - gridcell "详情" [ref=e911]:
+                - button "详情" [ref=e912] [cursor=pointer]
+            - row "44 李权 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e913]:
+              - gridcell [ref=e914]:
+                - button "展开资质" [ref=e915] [cursor=pointer]:
+                  - img [ref=e916]
+              - gridcell "44" [ref=e918]
+              - gridcell "李权" [ref=e919]
+              - gridcell "网络安全测评工程师" [ref=e920]
+              - gridcell "等保测评 / 现场实施" [ref=e921]
+              - gridcell "本科" [ref=e922]
+              - gridcell "等级保护测评3年" [ref=e923]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e924]
+              - gridcell "详情" [ref=e925]:
+                - button "详情" [ref=e926] [cursor=pointer]
+            - row "45 李守旺 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e927]:
+              - gridcell [ref=e928]:
+                - button "展开资质" [ref=e929] [cursor=pointer]:
+                  - img [ref=e930]
+              - gridcell "45" [ref=e932]
+              - gridcell "李守旺" [ref=e933]
+              - gridcell "网络安全测评工程师" [ref=e934]
+              - gridcell "等保测评 / 现场实施" [ref=e935]
+              - gridcell "本科" [ref=e936]
+              - gridcell "等级保护测评4年" [ref=e937]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e938]
+              - gridcell "详情" [ref=e939]:
+                - button "详情" [ref=e940] [cursor=pointer]
+            - row "46 刘琼 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e941]:
+              - gridcell [ref=e942]:
+                - button "展开资质" [ref=e943] [cursor=pointer]:
+                  - img [ref=e944]
+              - gridcell "46" [ref=e946]
+              - gridcell "刘琼" [ref=e947]
+              - gridcell "网络安全测评工程师" [ref=e948]
+              - gridcell "等保测评 / 现场实施" [ref=e949]
+              - gridcell "本科" [ref=e950]
+              - gridcell "等级保护测评4年" [ref=e951]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e952]
+              - gridcell "详情" [ref=e953]:
+                - button "详情" [ref=e954] [cursor=pointer]
+            - row "47 解涛 网络安全测评工程师 等保测评 / 现场实施 大专 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e955]:
+              - gridcell [ref=e956]:
+                - button "展开资质" [ref=e957] [cursor=pointer]:
+                  - img [ref=e958]
+              - gridcell "47" [ref=e960]
+              - gridcell "解涛" [ref=e961]
+              - gridcell "网络安全测评工程师" [ref=e962]
+              - gridcell "等保测评 / 现场实施" [ref=e963]
+              - gridcell "大专" [ref=e964]
+              - gridcell "等级保护测评3年" [ref=e965]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e966]
+              - gridcell "详情" [ref=e967]:
+                - button "详情" [ref=e968] [cursor=pointer]
+            - row "48 张家洛 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评1年 网络安全等级保护测评师（初级） 详情" [ref=e969]:
+              - gridcell [ref=e970]:
+                - button "展开资质" [ref=e971] [cursor=pointer]:
+                  - img [ref=e972]
+              - gridcell "48" [ref=e974]
+              - gridcell "张家洛" [ref=e975]
+              - gridcell "网络安全测评工程师" [ref=e976]
+              - gridcell "等保测评 / 现场实施" [ref=e977]
+              - gridcell "本科" [ref=e978]
+              - gridcell "等级保护测评1年" [ref=e979]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e980]
+              - gridcell "详情" [ref=e981]:
+                - button "详情" [ref=e982] [cursor=pointer]
+            - row "49 李小飞 网络安全测评工程师 等保测评 / 现场实施 大专 等级保护测评1年 网络安全等级保护测评师（初级） 详情" [ref=e983]:
+              - gridcell [ref=e984]:
+                - button "展开资质" [ref=e985] [cursor=pointer]:
+                  - img [ref=e986]
+              - gridcell "49" [ref=e988]
+              - gridcell "李小飞" [ref=e989]
+              - gridcell "网络安全测评工程师" [ref=e990]
+              - gridcell "等保测评 / 现场实施" [ref=e991]
+              - gridcell "大专" [ref=e992]
+              - gridcell "等级保护测评1年" [ref=e993]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e994]
+              - gridcell "详情" [ref=e995]:
+                - button "详情" [ref=e996] [cursor=pointer]
+            - row "50 徐洋洋 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e997]:
+              - gridcell [ref=e998]:
+                - button "展开资质" [ref=e999] [cursor=pointer]:
+                  - img [ref=e1000]
+              - gridcell "50" [ref=e1002]
+              - gridcell "徐洋洋" [ref=e1003]
+              - gridcell "网络安全测评工程师" [ref=e1004]
+              - gridcell "等保测评 / 现场实施" [ref=e1005]
+              - gridcell "本科" [ref=e1006]
+              - gridcell "等级保护测评3年" [ref=e1007]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1008]
+              - gridcell "详情" [ref=e1009]:
+                - button "详情" [ref=e1010] [cursor=pointer]
+            - row "51 赵蓬阁 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评2年 网络安全等级保护测评师（初级） 详情" [ref=e1011]:
+              - gridcell [ref=e1012]:
+                - button "展开资质" [ref=e1013] [cursor=pointer]:
+                  - img [ref=e1014]
+              - gridcell "51" [ref=e1016]
+              - gridcell "赵蓬阁" [ref=e1017]
+              - gridcell "网络安全测评工程师" [ref=e1018]
+              - gridcell "等保测评 / 现场实施" [ref=e1019]
+              - gridcell "本科" [ref=e1020]
+              - gridcell "等级保护测评2年" [ref=e1021]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1022]
+              - gridcell "详情" [ref=e1023]:
+                - button "详情" [ref=e1024] [cursor=pointer]
+            - row "52 周佳欣 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e1025]:
+              - gridcell [ref=e1026]:
+                - button "展开资质" [ref=e1027] [cursor=pointer]:
+                  - img [ref=e1028]
+              - gridcell "52" [ref=e1030]
+              - gridcell "周佳欣" [ref=e1031]
+              - gridcell "网络安全测评工程师" [ref=e1032]
+              - gridcell "等保测评 / 现场实施" [ref=e1033]
+              - gridcell "本科" [ref=e1034]
+              - gridcell "等级保护测评4年" [ref=e1035]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1036]
+              - gridcell "详情" [ref=e1037]:
+                - button "详情" [ref=e1038] [cursor=pointer]
+            - row "53 蔡菲菲 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评3年 网络安全等级保护测评师（初级） 详情" [ref=e1039]:
+              - gridcell [ref=e1040]:
+                - button "展开资质" [ref=e1041] [cursor=pointer]:
+                  - img [ref=e1042]
+              - gridcell "53" [ref=e1044]
+              - gridcell "蔡菲菲" [ref=e1045]
+              - gridcell "网络安全测评工程师" [ref=e1046]
+              - gridcell "等保测评 / 现场实施" [ref=e1047]
+              - gridcell "本科" [ref=e1048]
+              - gridcell "等级保护测评3年" [ref=e1049]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1050]
+              - gridcell "详情" [ref=e1051]:
+                - button "详情" [ref=e1052] [cursor=pointer]
+            - row "54 满静 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e1053]:
+              - gridcell [ref=e1054]:
+                - button "展开资质" [ref=e1055] [cursor=pointer]:
+                  - img [ref=e1056]
+              - gridcell "54" [ref=e1058]
+              - gridcell "满静" [ref=e1059]
+              - gridcell "网络安全测评工程师" [ref=e1060]
+              - gridcell "等保测评 / 现场实施" [ref=e1061]
+              - gridcell "本科" [ref=e1062]
+              - gridcell "等级保护测评4年" [ref=e1063]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1064]
+              - gridcell "详情" [ref=e1065]:
+                - button "详情" [ref=e1066] [cursor=pointer]
+            - row "55 许镇华 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评2年 网络安全等级保护测评师（初级） 详情" [ref=e1067]:
+              - gridcell [ref=e1068]:
+                - button "展开资质" [ref=e1069] [cursor=pointer]:
+                  - img [ref=e1070]
+              - gridcell "55" [ref=e1072]
+              - gridcell "许镇华" [ref=e1073]
+              - gridcell "网络安全测评工程师" [ref=e1074]
+              - gridcell "等保测评 / 现场实施" [ref=e1075]
+              - gridcell "本科" [ref=e1076]
+              - gridcell "等级保护测评2年" [ref=e1077]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1078]
+              - gridcell "详情" [ref=e1079]:
+                - button "详情" [ref=e1080] [cursor=pointer]
+            - row "56 裴宇航 网络安全测评工程师 等保测评 / 现场实施 本科 等级保护测评4年 网络安全等级保护测评师（初级） 详情" [ref=e1081]:
+              - gridcell [ref=e1082]:
+                - button "展开资质" [ref=e1083] [cursor=pointer]:
+                  - img [ref=e1084]
+              - gridcell "56" [ref=e1086]
+              - gridcell "裴宇航" [ref=e1087]
+              - gridcell "网络安全测评工程师" [ref=e1088]
+              - gridcell "等保测评 / 现场实施" [ref=e1089]
+              - gridcell "本科" [ref=e1090]
+              - gridcell "等级保护测评4年" [ref=e1091]
+              - gridcell "网络安全等级保护测评师（初级）" [ref=e1092]
+              - gridcell "详情" [ref=e1093]:
+                - button "详情" [ref=e1094] [cursor=pointer]
+            - row "57 王建国 项目管理工程师 项目管理 / 工程统筹 本科 智慧城市基础设施18年 一级建造师（一级） +1 详情" [ref=e1095]:
+              - gridcell [ref=e1096]:
+                - button "展开资质" [ref=e1097] [cursor=pointer]:
+                  - img [ref=e1098]
+              - gridcell "57" [ref=e1100]
+              - gridcell "王建国" [ref=e1101]
+              - gridcell "项目管理工程师" [ref=e1102]
+              - gridcell "项目管理 / 工程统筹" [ref=e1103]
+              - gridcell "本科" [ref=e1104]
+              - gridcell "智慧城市基础设施18年" [ref=e1105]
+              - gridcell "一级建造师（一级） +1" [ref=e1106]
+              - gridcell "详情" [ref=e1107]:
+                - button "详情" [ref=e1108] [cursor=pointer]
+            - row "58 李明辉 工程技术管理工程师 技术管理 / 工程实施 硕士 智慧城市基础设施15年 一级建造师（市政公用工程）（一级） +1 详情" [ref=e1109]:
+              - gridcell [ref=e1110]:
+                - button "展开资质" [ref=e1111] [cursor=pointer]:
+                  - img [ref=e1112]
+              - gridcell "58" [ref=e1114]
+              - gridcell "李明辉" [ref=e1115]
+              - gridcell "工程技术管理工程师" [ref=e1116]
+              - gridcell "技术管理 / 工程实施" [ref=e1117]
+              - gridcell "硕士" [ref=e1118]
+              - gridcell "智慧城市基础设施15年" [ref=e1119]
+              - gridcell "一级建造师（市政公用工程）（一级） +1" [ref=e1120]
+              - gridcell "详情" [ref=e1121]:
+                - button "详情" [ref=e1122] [cursor=pointer]
+            - row "59 赵春华 质量管理工程师 质量管理 / 过程控制 本科 智慧城市基础设施10年 C类安全员 +1 详情" [ref=e1123]:
+              - gridcell [ref=e1124]:
+                - button "展开资质" [ref=e1125] [cursor=pointer]:
+                  - img [ref=e1126]
+              - gridcell "59" [ref=e1128]
+              - gridcell "赵春华" [ref=e1129]
+              - gridcell "质量管理工程师" [ref=e1130]
+              - gridcell "质量管理 / 过程控制" [ref=e1131]
+              - gridcell "本科" [ref=e1132]
+              - gridcell "智慧城市基础设施10年" [ref=e1133]
+              - gridcell "C类安全员 +1" [ref=e1134]
+              - gridcell "详情" [ref=e1135]:
+                - button "详情" [ref=e1136] [cursor=pointer]
+            - row "60 孙丽 安全管理工程师 安全管理 / 施工合规 本科 智慧城市基础设施12年 A类安全员 +1 详情" [ref=e1137]:
+              - gridcell [ref=e1138]:
+                - button "展开资质" [ref=e1139] [cursor=pointer]:
+                  - img [ref=e1140]
+              - gridcell "60" [ref=e1142]
+              - gridcell "孙丽" [ref=e1143]
+              - gridcell "安全管理工程师" [ref=e1144]
+              - gridcell "安全管理 / 施工合规" [ref=e1145]
+              - gridcell "本科" [ref=e1146]
+              - gridcell "智慧城市基础设施12年" [ref=e1147]
+              - gridcell "A类安全员 +1" [ref=e1148]
+              - gridcell "详情" [ref=e1149]:
+                - button "详情" [ref=e1150] [cursor=pointer]
+            - row "61 周强 工程造价工程师 成本控制 / 工程造价 本科 智慧城市基础设施9年 一级造价工程师（土建）（一级） +1 详情" [ref=e1151]:
+              - gridcell [ref=e1152]:
+                - button "展开资质" [ref=e1153] [cursor=pointer]:
+                  - img [ref=e1154]
+              - gridcell "61" [ref=e1156]
+              - gridcell "周强" [ref=e1157]
+              - gridcell "工程造价工程师" [ref=e1158]
+              - gridcell "成本控制 / 工程造价" [ref=e1159]
+              - gridcell "本科" [ref=e1160]
+              - gridcell "智慧城市基础设施9年" [ref=e1161]
+              - gridcell "一级造价工程师（土建）（一级） +1" [ref=e1162]
+              - gridcell "详情" [ref=e1163]:
+                - button "详情" [ref=e1164] [cursor=pointer]

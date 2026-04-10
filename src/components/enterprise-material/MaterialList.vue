@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { nextTick, ref, watch } from 'vue';
 import { Plus } from 'lucide-vue-next';
 import MaterialCard from './components/MaterialCard.vue';
 import type { Material } from './types';
 
-defineProps<{
+const props = defineProps<{
   materials: Material[];
+  activeMaterialId?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -17,6 +19,20 @@ const emit = defineEmits<{
 const handleUpdateName = (material: Material) => (name: string) => {
   emit('update:materialName', material.id, name);
 };
+
+const listRef = ref<HTMLElement | null>(null);
+
+watch(
+  () => [props.activeMaterialId, props.materials.map((material) => material.id).join(',')],
+  async () => {
+    if (!props.activeMaterialId) return;
+
+    await nextTick();
+    const target = listRef.value?.querySelector<HTMLElement>(`[data-material-id="${props.activeMaterialId}"]`);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -36,11 +52,13 @@ const handleUpdateName = (material: Material) => (name: string) => {
     </div>
 
     <!-- Materials List -->
-    <div class="materials-list">
+    <div ref="listRef" class="materials-list">
       <MaterialCard
         v-for="material in materials"
         :key="material.id"
         :material="material"
+        :active="material.id === activeMaterialId"
+        :data-material-id="material.id"
         @delete="emit('deleteMaterial', $event)"
         @navigate="emit('navigateToPage', $event)"
         @update:name="handleUpdateName(material)"

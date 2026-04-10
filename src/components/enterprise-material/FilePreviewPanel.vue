@@ -8,11 +8,12 @@ import {
   ZoomIn,
   ZoomOut
 } from 'lucide-vue-next';
-import type { SourceFile, FilePreview } from './types';
+import type { FilePreview, SourceFile, SourcePreviewEvidence } from './types';
 
 const props = defineProps<{
   selectedFile: SourceFile;
   filePreview: FilePreview | null;
+  focusedPreview: SourcePreviewEvidence | null;
 }>();
 
 const emit = defineEmits<{
@@ -21,15 +22,20 @@ const emit = defineEmits<{
 
 const currentPage = ref(1);
 const zoomLevel = ref(100);
+const fallbackPreview = computed(() => (!props.filePreview ? props.focusedPreview : null));
 
 const totalPages = computed(() => {
-  if (!props.selectedFile) return 1;
-  const id = props.selectedFile.id;
-  if (id === 4) return 10;
-  if (id === 5) return 6;
-  if (id === 6) return 60;
-  if (id === 7) return 20;
+  if (props.filePreview?.totalPages) return props.filePreview.totalPages;
+  if (props.filePreview?.pages) {
+    const pageNumbers = Object.keys(props.filePreview.pages).map((value) => Number(value));
+    if (pageNumbers.length > 0) return Math.max(...pageNumbers);
+  }
   return 1;
+});
+
+const currentPageContent = computed(() => {
+  if (!props.filePreview) return [];
+  return props.filePreview.pages?.[currentPage.value] ?? props.filePreview.content;
 });
 
 // Expose currentPage for parent component
@@ -57,7 +63,7 @@ defineExpose({
       <div v-if="filePreview" class="preview-document">
         <div class="document-page">
           <div
-            v-for="(line, index) in filePreview.content"
+            v-for="(line, index) in currentPageContent"
             :key="index"
             class="document-line"
             :class="{
@@ -67,6 +73,32 @@ defineExpose({
               'doc-number': line.includes('编号') || line.includes('登记号')
             }"
           >{{ line || '\u00A0' }}</div>
+        </div>
+      </div>
+      <div v-else-if="fallbackPreview" class="preview-document">
+        <div class="document-page">
+          <div class="evidence-header">
+            <div class="evidence-title">{{ fallbackPreview.title }}</div>
+            <div v-if="fallbackPreview.subtitle || fallbackPreview.pageLabel" class="evidence-meta">
+              {{ [fallbackPreview.subtitle, fallbackPreview.pageLabel].filter(Boolean).join(' · ') }}
+            </div>
+          </div>
+
+          <div v-if="fallbackPreview.imageDataUrl" class="evidence-image-wrap">
+            <img class="evidence-image" :src="fallbackPreview.imageDataUrl" :alt="fallbackPreview.title">
+          </div>
+
+          <template v-else-if="fallbackPreview.content?.length">
+            <div
+              v-for="(line, index) in fallbackPreview.content"
+              :key="`${fallbackPreview.title}-${index}`"
+              class="document-line"
+              :class="{
+                'empty-line': line === '',
+                'evidence-heading-line': index === 0
+              }"
+            >{{ line || '\u00A0' }}</div>
+          </template>
         </div>
       </div>
       <div v-else class="preview-placeholder">
@@ -175,11 +207,49 @@ defineExpose({
   font-family: "SimSun", "宋体", serif;
 }
 
+.evidence-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.evidence-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #0f172a;
+}
+
+.evidence-meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.evidence-image-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.evidence-image {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
 .document-line {
   font-size: 14px;
   line-height: 2;
   color: #1f2937;
   white-space: pre-wrap;
+}
+
+.document-line.evidence-heading-line {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .document-line.empty-line {

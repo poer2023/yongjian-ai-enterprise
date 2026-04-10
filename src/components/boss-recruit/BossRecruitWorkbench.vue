@@ -18,11 +18,13 @@ import {
   Calendar,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Settings2,
+  X
 } from 'lucide-vue-next';
 import { useRouter, useRoute } from 'vue-router';
-import type { BossAccount, BossJD } from './types';
-import { mockJdList, mockResumes, mockAccounts, mockHistoricalResumes } from './mockData';
+import type { BossAccount, BossJD, RecruitStrategy } from './types';
+import { mockJdList, mockResumes, mockAccounts, mockHistoricalResumes, defaultRecruitStrategyTemplate } from './mockData';
 
 const router = useRouter();
 const route = useRoute();
@@ -82,6 +84,79 @@ const currentResumes = computed(() => {
   return currentJd.value.jobStatus === 'closed' ? mockHistoricalResumes : mockResumes;
 });
 
+const defaultStrategyTemplate = ref<RecruitStrategy>({ ...defaultRecruitStrategyTemplate });
+const strategyEditorMode = ref<'job' | null>(null);
+const strategyDraft = ref<RecruitStrategy>({ ...defaultRecruitStrategyTemplate });
+
+const createStrategyCopy = (strategy: RecruitStrategy): RecruitStrategy => ({ ...strategy });
+const createEditableStrategy = (strategy?: RecruitStrategy): RecruitStrategy => ({
+  ...defaultRecruitStrategyTemplate,
+  startTime: strategy?.startTime ?? defaultRecruitStrategyTemplate.startTime,
+  endTime: strategy?.endTime ?? defaultRecruitStrategyTemplate.endTime,
+  dailyLimit: strategy?.dailyLimit ?? defaultRecruitStrategyTemplate.dailyLimit,
+  hourlyLimit: strategy?.hourlyLimit ?? defaultRecruitStrategyTemplate.hourlyLimit,
+  minInterval: strategy?.minInterval ?? defaultRecruitStrategyTemplate.minInterval,
+  maxInterval: strategy?.maxInterval ?? defaultRecruitStrategyTemplate.maxInterval,
+});
+const isStrategyUsingDefault = (strategy: RecruitStrategy) => (
+  strategy.startTime === defaultStrategyTemplate.value.startTime
+  && strategy.endTime === defaultStrategyTemplate.value.endTime
+  && strategy.dailyLimit === defaultStrategyTemplate.value.dailyLimit
+  && strategy.hourlyLimit === defaultStrategyTemplate.value.hourlyLimit
+  && strategy.minInterval === defaultStrategyTemplate.value.minInterval
+  && strategy.maxInterval === defaultStrategyTemplate.value.maxInterval
+);
+
+const currentEffectiveStrategy = computed(() => {
+  const jd = currentJd.value;
+  if (!jd || jd.strategyMode !== 'custom' || !jd.strategyOverride) {
+    return defaultStrategyTemplate.value;
+  }
+  return jd.strategyOverride;
+});
+
+const currentStrategySummaryText = computed(() => {
+  const strategy = currentEffectiveStrategy.value;
+  return `${strategy.startTime}-${strategy.endTime} · ${strategy.dailyLimit}次/天 / ${strategy.hourlyLimit}次/小时 · ${strategy.minInterval}-${strategy.maxInterval}秒间隔`;
+});
+
+const canEditCurrentJobStrategy = computed(() => !!currentJd.value && !isArchivedJd.value);
+const canResetCurrentJobStrategy = computed(() => !!currentJd.value && currentJd.value.strategyMode === 'custom' && !isArchivedJd.value);
+
+const openCurrentJobStrategyEditor = () => {
+  if (!currentJd.value || isArchivedJd.value) return;
+  strategyEditorMode.value = 'job';
+  strategyDraft.value = createEditableStrategy(
+    currentJd.value.strategyOverride ?? currentEffectiveStrategy.value
+  );
+};
+
+const closeStrategyEditor = () => {
+  strategyEditorMode.value = null;
+};
+
+const saveStrategyEditor = () => {
+  if (strategyEditorMode.value === 'job' && currentJd.value) {
+    const nextStrategy = createEditableStrategy(strategyDraft.value);
+    if (isStrategyUsingDefault(nextStrategy)) {
+      currentJd.value.strategyMode = 'inherit';
+      currentJd.value.strategyOverride = null;
+    } else {
+      currentJd.value.strategyMode = 'custom';
+      currentJd.value.strategyOverride = createStrategyCopy(nextStrategy);
+    }
+  }
+  closeStrategyEditor();
+};
+
+const resetCurrentJobStrategyToDefault = () => {
+  if (!currentJd.value) return;
+  currentJd.value.strategyMode = 'inherit';
+  currentJd.value.strategyOverride = null;
+  strategyDraft.value = createEditableStrategy(defaultStrategyTemplate.value);
+  closeStrategyEditor();
+};
+
 // Load account on mount
 onMounted(() => {
   const accountId = route.query.accountId as string;
@@ -117,6 +192,8 @@ const followJd = (jd: BossJD) => {
   jd.todayGreetings = 0;
   jd.todayResumes = 0;
   jd.totalResumes = 0;
+  jd.strategyMode = 'inherit';
+  jd.strategyOverride = null;
   selectedJdId.value = jd.id;
 };
 
@@ -139,11 +216,21 @@ const toggleJdStatus = (jd: BossJD) => {
 
 // Sync JD list
 const syncJdList = () => {
-  const currentFollowing = new Set(followingJds.value.map(jd => jd.id));
-  jdList.value = [...mockJdList].map(jd => ({
-    ...jd,
-    isFollowing: currentFollowing.has(jd.id) ? true : jd.isFollowing,
-  }));
+  const currentStateById = new Map(jdList.value.map((jd) => [jd.id, jd]));
+  jdList.value = mockJdList.map((jd) => {
+    const current = currentStateById.get(jd.id);
+    if (!current) return { ...jd };
+    return {
+      ...jd,
+      isFollowing: current.isFollowing,
+      followStatus: current.followStatus,
+      todayGreetings: current.todayGreetings,
+      todayResumes: current.todayResumes,
+      totalResumes: current.totalResumes,
+      strategyMode: current.strategyMode,
+      strategyOverride: current.strategyOverride ? { ...current.strategyOverride } : null,
+    };
+  });
 };
 
 // Switch sidebar tab
@@ -306,6 +393,21 @@ const getSortIcon = (field: string) => {
         <div class="content-inner">
           <!-- JD selected (following or archived): show stats + resume table -->
           <template v-if="currentJd && (currentJd.isFollowing || isArchivedJd)">
+            <div class="strategy-strip" :class="{ readonly: isArchivedJd }">
+              <div class="strategy-strip-main">
+                <span class="strategy-strip-label">运行策略</span>
+                <p class="strategy-strip-text">{{ currentStrategySummaryText }}</p>
+              </div>
+              <button
+                class="strategy-strip-btn"
+                :disabled="!canEditCurrentJobStrategy"
+                @click="openCurrentJobStrategyEditor"
+              >
+                <Settings2 :size="14" />
+                {{ isArchivedJd ? '只读查看' : '编辑策略' }}
+              </button>
+            </div>
+
             <!-- Dashboard Stats -->
             <div class="dashboard">
               <div class="stats-row">
@@ -438,7 +540,7 @@ const getSortIcon = (field: string) => {
                   <Star :size="16" />
                   开始关注
                 </button>
-                <p class="follow-hint">开始关注后，系统将自动筛选候选人并打招呼</p>
+                <p class="follow-hint">开始关注后，可在工作台中单独调整运行策略</p>
               </div>
             </div>
           </template>
@@ -453,6 +555,58 @@ const getSortIcon = (field: string) => {
           </template>
         </div>
       </main>
+    </div>
+  </div>
+
+  <div v-if="strategyEditorMode" class="strategy-modal-mask" @click.self="closeStrategyEditor">
+    <div class="strategy-modal">
+      <div class="strategy-modal-header">
+        <div>
+          <h3>编辑运行策略</h3>
+        </div>
+        <button class="strategy-close-btn" @click="closeStrategyEditor">
+          <X :size="16" />
+        </button>
+      </div>
+
+      <div class="strategy-modal-body">
+        <div class="strategy-form-grid">
+          <label class="form-field full">
+            <span>运行时段</span>
+            <div class="inline-inputs">
+              <input v-model="strategyDraft.startTime" type="time" class="strategy-input" />
+              <span class="inline-sep">-</span>
+              <input v-model="strategyDraft.endTime" type="time" class="strategy-input" />
+            </div>
+          </label>
+
+          <label class="form-field">
+            <span>每日上限</span>
+            <input v-model.number="strategyDraft.dailyLimit" type="number" min="1" class="strategy-input" />
+          </label>
+
+          <label class="form-field">
+            <span>每小时上限</span>
+            <input v-model.number="strategyDraft.hourlyLimit" type="number" min="1" class="strategy-input" />
+          </label>
+
+          <label class="form-field">
+            <span>最小间隔</span>
+            <input v-model.number="strategyDraft.minInterval" type="number" min="1" class="strategy-input" />
+          </label>
+
+          <label class="form-field">
+            <span>最大间隔</span>
+            <input v-model.number="strategyDraft.maxInterval" type="number" min="1" class="strategy-input" />
+          </label>
+        </div>
+      </div>
+
+      <div class="strategy-modal-footer">
+        <button v-if="canResetCurrentJobStrategy" class="footer-btn subtle" @click="resetCurrentJobStrategyToDefault">清除单独设置</button>
+        <button class="footer-btn" @click="closeStrategyEditor">取消</button>
+        <button class="footer-btn primary" @click="saveStrategyEditor">保存策略</button>
+      </div>
     </div>
   </div>
 </template>
@@ -1185,6 +1339,221 @@ const getSortIcon = (field: string) => {
   margin: 0;
 }
 
+.strategy-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.strategy-strip.readonly {
+  background: #f8fafc;
+}
+
+.strategy-strip-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strategy-strip-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.strategy-strip-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.strategy-strip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.strategy-strip-btn:hover:not(:disabled) {
+  background: #dbeafe;
+}
+
+.strategy-strip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.strategy-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  backdrop-filter: blur(6px);
+}
+
+.strategy-modal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.2);
+}
+
+.strategy-modal-header,
+.strategy-modal-footer {
+  padding: 18px 22px;
+}
+
+.strategy-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.strategy-modal-header h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.strategy-modal-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.strategy-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.strategy-close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.strategy-modal-body {
+  padding: 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.footer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.strategy-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field.full {
+  grid-column: 1 / -1;
+}
+
+.form-field > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.strategy-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dbe2ec;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px;
+  color: #334155;
+}
+
+.inline-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-sep {
+  color: #94a3b8;
+}
+
+.strategy-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.footer-btn.subtle {
+  margin-right: auto;
+}
+
+.footer-btn.primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.footer-btn.primary:hover {
+  background: #1d4ed8;
+}
+
 /* ===== Empty State ===== */
 .empty-state {
   display: flex;
@@ -1301,6 +1670,25 @@ const getSortIcon = (field: string) => {
 .archived-date {
   font-size: 11px;
   color: #94a3b8;
+}
+
+@media (max-width: 1024px) {
+  .stats-row,
+  .strategy-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .strategy-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .strategy-strip-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 </style>

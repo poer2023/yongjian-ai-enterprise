@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Search, Building2 } from 'lucide-vue-next';
+import {
+  Search,
+  Building2,
+  Plus,
+  ChevronDown,
+  FolderPlus,
+  Upload,
+  Link,
+  ClipboardPaste
+} from 'lucide-vue-next';
 import FileItem from './components/FileItem.vue';
 import type { SourceFile, Folder } from './types';
 
@@ -14,6 +23,7 @@ const emit = defineEmits<{
 }>();
 
 const searchQuery = ref('');
+const showAddMenu = ref(false);
 
 const handleSearch = () => {
   console.log('Searching:', searchQuery.value);
@@ -29,6 +39,35 @@ const handleSearch = () => {
           <Building2 :size="24" color="#3b82f6" />
         </div>
         <h1 class="page-title">企业素材库</h1>
+      </div>
+      <div class="add-file-wrapper">
+        <button class="add-file-btn" @click="showAddMenu = !showAddMenu">
+          <Plus :size="18" stroke-width="2.5" />
+          <span>添加文件</span>
+          <ChevronDown :size="16" stroke-width="2.5" />
+        </button>
+        <div v-if="showAddMenu" class="add-menu">
+          <div class="menu-item">
+            <FolderPlus :size="16" />
+            <span>新建文件夹</span>
+          </div>
+          <div class="menu-item">
+            <Upload :size="16" />
+            <span>本地上传</span>
+          </div>
+          <div class="menu-item">
+            <Link :size="16" />
+            <span>网址导入</span>
+          </div>
+          <div class="menu-item">
+            <Search :size="16" />
+            <span>搜索添加</span>
+          </div>
+          <div class="menu-item">
+            <ClipboardPaste :size="16" />
+            <span>文本粘贴</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -79,8 +118,11 @@ const handleSearch = () => {
   display: flex;
   flex-direction: column;
   padding: 24px 32px;
+  overflow-x: hidden;
   overflow-y: auto;
   height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -115,6 +157,63 @@ const handleSearch = () => {
   letter-spacing: 0.3px;
 }
 
+.add-file-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  transition: background 0.2s;
+}
+
+.add-file-btn:hover {
+  background: #1d4ed8;
+}
+
+.add-file-wrapper {
+  position: relative;
+}
+
+.add-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px 0;
+  min-width: 160px;
+  z-index: 10;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.menu-item:hover {
+  background: #f3f4f6;
+}
+
+.menu-item svg {
+  color: #6b7280;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -134,6 +233,7 @@ const handleSearch = () => {
 
 .search-input {
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   font-size: 15px;
@@ -193,5 +293,7 @@ const handleSearch = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+  width: 100%;
 }
 </style>

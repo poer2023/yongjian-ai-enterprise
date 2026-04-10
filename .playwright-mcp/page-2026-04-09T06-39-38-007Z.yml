@@ -1,0 +1,845 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: 涌见AI
+      - button "切换侧栏展开或收起" [expanded] [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: 首页
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: AI提问
+      - generic [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: 标讯搜索
+      - generic [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e36]: 资讯订阅
+      - generic [ref=e37] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]: 智能体
+        - generic [ref=e42]: 🔥
+      - generic [ref=e43]:
+        - generic [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e50]: 知识库
+          - img [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e60]: 团队知识库
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e65]: 企业素材库
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e70]: 个人知识库
+          - generic [ref=e71] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e75]: 隐藏知识库
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e83]: 小组知识库
+            - img [ref=e84]
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e87]
+        - generic [ref=e92]: 团队管理
+      - generic [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+        - generic [ref=e97]: 个人中心
+  - main [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - heading "企业素材库" [level=1] [ref=e109]
+        - generic [ref=e110]:
+          - img [ref=e111]
+          - textbox "搜索文件名、文件夹名称" [ref=e114]
+          - button "搜索" [ref=e115] [cursor=pointer]
+        - generic [ref=e116]:
+          - generic [ref=e117] [cursor=pointer]:
+            - img [ref=e119]
+            - generic [ref=e122]: 投标文件
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e128]: 商务技术册
+          - generic [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e134]: 资质认证
+          - generic [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e140]: 业绩与团队
+        - generic [ref=e141]:
+          - generic [ref=e142] [cursor=pointer]:
+            - generic [ref=e145]: PDF
+            - generic "信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx"
+            - generic [ref=e146]: 约 6.8MB
+            - generic [ref=e147]: 约 17.9 万字符（抽取统计）
+            - generic [ref=e148]: 金盾检测技术股份有限公司
+            - generic [ref=e149]:
+              - button "查看详情" [ref=e150]:
+                - img [ref=e151]
+              - button "更多操作" [ref=e154]:
+                - img [ref=e155]
+          - generic [ref=e159] [cursor=pointer]:
+            - generic [ref=e162]: PDF
+            - generic "南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx"
+            - generic [ref=e163]: 约 4.2MB
+            - generic [ref=e164]: 约 8.5 万字符（抽取统计）
+            - generic [ref=e165]: 鼎信建设集团有限公司
+            - generic [ref=e166]:
+              - button "查看详情" [ref=e167]:
+                - img [ref=e168]
+              - button "更多操作" [ref=e171]:
+                - img [ref=e172]
+      - generic [ref=e179]:
+        - tablist "企业素材库结构化标签页" [ref=e180]:
+          - button "企业资质" [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e185]: 企业资质
+          - button "人员信息" [active] [ref=e186] [cursor=pointer]:
+            - img [ref=e187]
+            - generic [ref=e192]: 人员信息
+          - button "业绩案例" [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+            - generic [ref=e197]: 业绩案例
+          - button "临期资质提醒" [ref=e198] [cursor=pointer]:
+            - img [ref=e199]
+            - generic [ref=e201]: 临期资质提醒
+          - button "企业简介" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - generic [ref=e207]: 企业简介
+        - generic [ref=e296]:
+          - generic [ref=e297]:
+            - generic [ref=e298]:
+              - img
+              - textbox "搜索姓名…" [ref=e299]
+            - combobox [ref=e300] [cursor=pointer]:
+              - option "全部类型" [selected]
+              - option "执业资格"
+              - option "注册证"
+              - option "职称"
+              - option "认证"
+            - combobox [ref=e301] [cursor=pointer]:
+              - option "全部状态" [selected]
+              - option "有效"
+              - option "已过期"
+              - option "暂停"
+            - generic [ref=e302]: 70 条
+          - grid [ref=e304]:
+            - rowgroup [ref=e305]:
+              - row "# 姓名 资质类型 资质名称 有效期至 状态" [ref=e306]:
+                - columnheader "#" [ref=e307]
+                - columnheader "姓名" [ref=e308]
+                - columnheader "资质类型" [ref=e309]
+                - columnheader "资质名称" [ref=e310]
+                - columnheader "有效期至" [ref=e311]
+                - columnheader "状态" [ref=e312]
+                - columnheader [ref=e313]
+            - rowgroup [ref=e314]:
+              - row "1 陈大文 认证 网络安全等级保护测评师（高级） 长期 有效 详情" [ref=e315]:
+                - gridcell "1" [ref=e316]
+                - gridcell "陈大文" [ref=e317]
+                - gridcell "认证" [ref=e318]:
+                  - generic [ref=e319]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e320]
+                - gridcell "长期" [ref=e321]
+                - gridcell "有效" [ref=e322]
+                - gridcell "详情" [ref=e323]:
+                  - button "详情" [ref=e324] [cursor=pointer]
+              - row "2 陈大文 执业资格 CISP（国家注册信息安全专业人员） 2025-03-19 有效 详情" [ref=e325]:
+                - gridcell "2" [ref=e326]
+                - gridcell "陈大文" [ref=e327]
+                - gridcell "执业资格" [ref=e328]:
+                  - generic [ref=e329]: 执业资格
+                - gridcell "CISP（国家注册信息安全专业人员）" [ref=e330]
+                - gridcell "2025-03-19" [ref=e331]
+                - gridcell "有效" [ref=e332]
+                - gridcell "详情" [ref=e333]:
+                  - button "详情" [ref=e334] [cursor=pointer]
+              - row "3 陈大文 职称 信息安全高级工程师（高级） 长期 有效 详情" [ref=e335]:
+                - gridcell "3" [ref=e336]
+                - gridcell "陈大文" [ref=e337]
+                - gridcell "职称" [ref=e338]:
+                  - generic [ref=e339]: 职称
+                - gridcell "信息安全高级工程师（高级）" [ref=e340]
+                - gridcell "长期" [ref=e341]
+                - gridcell "有效" [ref=e342]
+                - gridcell "详情" [ref=e343]:
+                  - button "详情" [ref=e344] [cursor=pointer]
+              - row "4 邢伟 认证 网络安全等级保护测评师（高级） 2028-03-14 有效 详情" [ref=e345]:
+                - gridcell "4" [ref=e346]
+                - gridcell "邢伟" [ref=e347]
+                - gridcell "认证" [ref=e348]:
+                  - generic [ref=e349]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e350]
+                - gridcell "2028-03-14" [ref=e351]
+                - gridcell "有效" [ref=e352]
+                - gridcell "详情" [ref=e353]:
+                  - button "详情" [ref=e354] [cursor=pointer]
+              - row "5 邵君立 认证 网络安全等级保护测评师（高级） 2026-04-14 有效 详情" [ref=e355]:
+                - gridcell "5" [ref=e356]
+                - gridcell "邵君立" [ref=e357]
+                - gridcell "认证" [ref=e358]:
+                  - generic [ref=e359]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e360]
+                - gridcell "2026-04-14" [ref=e361]
+                - gridcell "有效" [ref=e362]
+                - gridcell "详情" [ref=e363]:
+                  - button "详情" [ref=e364] [cursor=pointer]
+              - row "6 程嘉 认证 网络安全等级保护测评师（高级） 2027-05-14 有效 详情" [ref=e365]:
+                - gridcell "6" [ref=e366]
+                - gridcell "程嘉" [ref=e367]
+                - gridcell "认证" [ref=e368]:
+                  - generic [ref=e369]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e370]
+                - gridcell "2027-05-14" [ref=e371]
+                - gridcell "有效" [ref=e372]
+                - gridcell "详情" [ref=e373]:
+                  - button "详情" [ref=e374] [cursor=pointer]
+              - row "7 叶茂 认证 网络安全等级保护测评师（高级） 2028-06-14 有效 详情" [ref=e375]:
+                - gridcell "7" [ref=e376]
+                - gridcell "叶茂" [ref=e377]
+                - gridcell "认证" [ref=e378]:
+                  - generic [ref=e379]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e380]
+                - gridcell "2028-06-14" [ref=e381]
+                - gridcell "有效" [ref=e382]
+                - gridcell "详情" [ref=e383]:
+                  - button "详情" [ref=e384] [cursor=pointer]
+              - row "8 陈洁 认证 网络安全等级保护测评师（高级） 长期 有效 详情" [ref=e385]:
+                - gridcell "8" [ref=e386]
+                - gridcell "陈洁" [ref=e387]
+                - gridcell "认证" [ref=e388]:
+                  - generic [ref=e389]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e390]
+                - gridcell "长期" [ref=e391]
+                - gridcell "有效" [ref=e392]
+                - gridcell "详情" [ref=e393]:
+                  - button "详情" [ref=e394] [cursor=pointer]
+              - row "9 陈洁 执业资格 CISSP（国际注册信息系统安全专家） 2027-06-14 有效 详情" [ref=e395]:
+                - gridcell "9" [ref=e396]
+                - gridcell "陈洁" [ref=e397]
+                - gridcell "执业资格" [ref=e398]:
+                  - generic [ref=e399]: 执业资格
+                - gridcell "CISSP（国际注册信息系统安全专家）" [ref=e400]
+                - gridcell "2027-06-14" [ref=e401]
+                - gridcell "有效" [ref=e402]
+                - gridcell "详情" [ref=e403]:
+                  - button "详情" [ref=e404] [cursor=pointer]
+              - row "10 陈洁 职称 网络安全高级工程师（高级） 长期 有效 详情" [ref=e405]:
+                - gridcell "10" [ref=e406]
+                - gridcell "陈洁" [ref=e407]
+                - gridcell "职称" [ref=e408]:
+                  - generic [ref=e409]: 职称
+                - gridcell "网络安全高级工程师（高级）" [ref=e410]
+                - gridcell "长期" [ref=e411]
+                - gridcell "有效" [ref=e412]
+                - gridcell "详情" [ref=e413]:
+                  - button "详情" [ref=e414] [cursor=pointer]
+              - row "11 高亚敏 认证 网络安全等级保护测评师（高级） 长期 有效 详情" [ref=e415]:
+                - gridcell "11" [ref=e416]
+                - gridcell "高亚敏" [ref=e417]
+                - gridcell "认证" [ref=e418]:
+                  - generic [ref=e419]: 认证
+                - gridcell "网络安全等级保护测评师（高级）" [ref=e420]
+                - gridcell "长期" [ref=e421]
+                - gridcell "有效" [ref=e422]
+                - gridcell "详情" [ref=e423]:
+                  - button "详情" [ref=e424] [cursor=pointer]
+              - row "12 陆凯金 认证 网络安全等级保护测评师（中级） 2028-09-14 有效 详情" [ref=e425]:
+                - gridcell "12" [ref=e426]
+                - gridcell "陆凯金" [ref=e427]
+                - gridcell "认证" [ref=e428]:
+                  - generic [ref=e429]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e430]
+                - gridcell "2028-09-14" [ref=e431]
+                - gridcell "有效" [ref=e432]
+                - gridcell "详情" [ref=e433]:
+                  - button "详情" [ref=e434] [cursor=pointer]
+              - row "13 杨仕瑞 认证 网络安全等级保护测评师（中级） 2026-01-14 有效 详情" [ref=e435]:
+                - gridcell "13" [ref=e436]
+                - gridcell "杨仕瑞" [ref=e437]
+                - gridcell "认证" [ref=e438]:
+                  - generic [ref=e439]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e440]
+                - gridcell "2026-01-14" [ref=e441]
+                - gridcell "有效" [ref=e442]
+                - gridcell "详情" [ref=e443]:
+                  - button "详情" [ref=e444] [cursor=pointer]
+              - row "14 郝钢有 认证 网络安全等级保护测评师（中级） 2027-02-14 有效 详情" [ref=e445]:
+                - gridcell "14" [ref=e446]
+                - gridcell "郝钢有" [ref=e447]
+                - gridcell "认证" [ref=e448]:
+                  - generic [ref=e449]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e450]
+                - gridcell "2027-02-14" [ref=e451]
+                - gridcell "有效" [ref=e452]
+                - gridcell "详情" [ref=e453]:
+                  - button "详情" [ref=e454] [cursor=pointer]
+              - row "15 徐嘉诚 认证 网络安全等级保护测评师（中级） 长期 有效 详情" [ref=e455]:
+                - gridcell "15" [ref=e456]
+                - gridcell "徐嘉诚" [ref=e457]
+                - gridcell "认证" [ref=e458]:
+                  - generic [ref=e459]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e460]
+                - gridcell "长期" [ref=e461]
+                - gridcell "有效" [ref=e462]
+                - gridcell "详情" [ref=e463]:
+                  - button "详情" [ref=e464] [cursor=pointer]
+              - row "16 何燕青 认证 网络安全等级保护测评师（中级） 2026-04-14 有效 详情" [ref=e465]:
+                - gridcell "16" [ref=e466]
+                - gridcell "何燕青" [ref=e467]
+                - gridcell "认证" [ref=e468]:
+                  - generic [ref=e469]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e470]
+                - gridcell "2026-04-14" [ref=e471]
+                - gridcell "有效" [ref=e472]
+                - gridcell "详情" [ref=e473]:
+                  - button "详情" [ref=e474] [cursor=pointer]
+              - row "17 倪晟峰 认证 网络安全等级保护测评师（中级） 长期 有效 详情" [ref=e475]:
+                - gridcell "17" [ref=e476]
+                - gridcell "倪晟峰" [ref=e477]
+                - gridcell "认证" [ref=e478]:
+                  - generic [ref=e479]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e480]
+                - gridcell "长期" [ref=e481]
+                - gridcell "有效" [ref=e482]
+                - gridcell "详情" [ref=e483]:
+                  - button "详情" [ref=e484] [cursor=pointer]
+              - row "18 刘向伟 认证 网络安全等级保护测评师（中级） 2028-06-14 有效 详情" [ref=e485]:
+                - gridcell "18" [ref=e486]
+                - gridcell "刘向伟" [ref=e487]
+                - gridcell "认证" [ref=e488]:
+                  - generic [ref=e489]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e490]
+                - gridcell "2028-06-14" [ref=e491]
+                - gridcell "有效" [ref=e492]
+                - gridcell "详情" [ref=e493]:
+                  - button "详情" [ref=e494] [cursor=pointer]
+              - row "19 杜嵘 认证 网络安全等级保护测评师（中级） 2026-07-14 有效 详情" [ref=e495]:
+                - gridcell "19" [ref=e496]
+                - gridcell "杜嵘" [ref=e497]
+                - gridcell "认证" [ref=e498]:
+                  - generic [ref=e499]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e500]
+                - gridcell "2026-07-14" [ref=e501]
+                - gridcell "有效" [ref=e502]
+                - gridcell "详情" [ref=e503]:
+                  - button "详情" [ref=e504] [cursor=pointer]
+              - row "20 贾飞飞 认证 网络安全等级保护测评师（中级） 2027-08-14 有效 详情" [ref=e505]:
+                - gridcell "20" [ref=e506]
+                - gridcell "贾飞飞" [ref=e507]
+                - gridcell "认证" [ref=e508]:
+                  - generic [ref=e509]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e510]
+                - gridcell "2027-08-14" [ref=e511]
+                - gridcell "有效" [ref=e512]
+                - gridcell "详情" [ref=e513]:
+                  - button "详情" [ref=e514] [cursor=pointer]
+              - row "21 顾国武 认证 网络安全等级保护测评师（中级） 2028-09-14 有效 详情" [ref=e515]:
+                - gridcell "21" [ref=e516]
+                - gridcell "顾国武" [ref=e517]
+                - gridcell "认证" [ref=e518]:
+                  - generic [ref=e519]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e520]
+                - gridcell "2028-09-14" [ref=e521]
+                - gridcell "有效" [ref=e522]
+                - gridcell "详情" [ref=e523]:
+                  - button "详情" [ref=e524] [cursor=pointer]
+              - row "22 马壮壮 认证 网络安全等级保护测评师（中级） 2026-01-14 有效 详情" [ref=e525]:
+                - gridcell "22" [ref=e526]
+                - gridcell "马壮壮" [ref=e527]
+                - gridcell "认证" [ref=e528]:
+                  - generic [ref=e529]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e530]
+                - gridcell "2026-01-14" [ref=e531]
+                - gridcell "有效" [ref=e532]
+                - gridcell "详情" [ref=e533]:
+                  - button "详情" [ref=e534] [cursor=pointer]
+              - row "23 钱小军 认证 网络安全等级保护测评师（中级） 长期 有效 详情" [ref=e535]:
+                - gridcell "23" [ref=e536]
+                - gridcell "钱小军" [ref=e537]
+                - gridcell "认证" [ref=e538]:
+                  - generic [ref=e539]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e540]
+                - gridcell "长期" [ref=e541]
+                - gridcell "有效" [ref=e542]
+                - gridcell "详情" [ref=e543]:
+                  - button "详情" [ref=e544] [cursor=pointer]
+              - row "24 丁建功 认证 网络安全等级保护测评师（中级） 2028-03-14 有效 详情" [ref=e545]:
+                - gridcell "24" [ref=e546]
+                - gridcell "丁建功" [ref=e547]
+                - gridcell "认证" [ref=e548]:
+                  - generic [ref=e549]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e550]
+                - gridcell "2028-03-14" [ref=e551]
+                - gridcell "有效" [ref=e552]
+                - gridcell "详情" [ref=e553]:
+                  - button "详情" [ref=e554] [cursor=pointer]
+              - row "25 藕超 认证 网络安全等级保护测评师（中级） 2026-04-14 有效 详情" [ref=e555]:
+                - gridcell "25" [ref=e556]
+                - gridcell "藕超" [ref=e557]
+                - gridcell "认证" [ref=e558]:
+                  - generic [ref=e559]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e560]
+                - gridcell "2026-04-14" [ref=e561]
+                - gridcell "有效" [ref=e562]
+                - gridcell "详情" [ref=e563]:
+                  - button "详情" [ref=e564] [cursor=pointer]
+              - row "26 史意意 认证 网络安全等级保护测评师（中级） 2027-05-14 有效 详情" [ref=e565]:
+                - gridcell "26" [ref=e566]
+                - gridcell "史意意" [ref=e567]
+                - gridcell "认证" [ref=e568]:
+                  - generic [ref=e569]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e570]
+                - gridcell "2027-05-14" [ref=e571]
+                - gridcell "有效" [ref=e572]
+                - gridcell "详情" [ref=e573]:
+                  - button "详情" [ref=e574] [cursor=pointer]
+              - row "27 岑月月 认证 网络安全等级保护测评师（中级） 2028-06-14 有效 详情" [ref=e575]:
+                - gridcell "27" [ref=e576]
+                - gridcell "岑月月" [ref=e577]
+                - gridcell "认证" [ref=e578]:
+                  - generic [ref=e579]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e580]
+                - gridcell "2028-06-14" [ref=e581]
+                - gridcell "有效" [ref=e582]
+                - gridcell "详情" [ref=e583]:
+                  - button "详情" [ref=e584] [cursor=pointer]
+              - row "28 王爱青 认证 网络安全等级保护测评师（中级） 长期 有效 详情" [ref=e585]:
+                - gridcell "28" [ref=e586]
+                - gridcell "王爱青" [ref=e587]
+                - gridcell "认证" [ref=e588]:
+                  - generic [ref=e589]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e590]
+                - gridcell "长期" [ref=e591]
+                - gridcell "有效" [ref=e592]
+                - gridcell "详情" [ref=e593]:
+                  - button "详情" [ref=e594] [cursor=pointer]
+              - row "29 张鑫鑫 认证 网络安全等级保护测评师（中级） 2027-08-14 有效 详情" [ref=e595]:
+                - gridcell "29" [ref=e596]
+                - gridcell "张鑫鑫" [ref=e597]
+                - gridcell "认证" [ref=e598]:
+                  - generic [ref=e599]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e600]
+                - gridcell "2027-08-14" [ref=e601]
+                - gridcell "有效" [ref=e602]
+                - gridcell "详情" [ref=e603]:
+                  - button "详情" [ref=e604] [cursor=pointer]
+              - row "30 徐小燕 认证 网络安全等级保护测评师（中级） 2028-09-14 有效 详情" [ref=e605]:
+                - gridcell "30" [ref=e606]
+                - gridcell "徐小燕" [ref=e607]
+                - gridcell "认证" [ref=e608]:
+                  - generic [ref=e609]: 认证
+                - gridcell "网络安全等级保护测评师（中级）" [ref=e610]
+                - gridcell "2028-09-14" [ref=e611]
+                - gridcell "有效" [ref=e612]
+                - gridcell "详情" [ref=e613]:
+                  - button "详情" [ref=e614] [cursor=pointer]
+              - row "31 陈真 认证 网络安全等级保护测评师（初级） 2026-01-14 有效 详情" [ref=e615]:
+                - gridcell "31" [ref=e616]
+                - gridcell "陈真" [ref=e617]
+                - gridcell "认证" [ref=e618]:
+                  - generic [ref=e619]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e620]
+                - gridcell "2026-01-14" [ref=e621]
+                - gridcell "有效" [ref=e622]
+                - gridcell "详情" [ref=e623]:
+                  - button "详情" [ref=e624] [cursor=pointer]
+              - row "32 曾滔 认证 网络安全等级保护测评师（初级） 2027-02-14 有效 详情" [ref=e625]:
+                - gridcell "32" [ref=e626]
+                - gridcell "曾滔" [ref=e627]
+                - gridcell "认证" [ref=e628]:
+                  - generic [ref=e629]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e630]
+                - gridcell "2027-02-14" [ref=e631]
+                - gridcell "有效" [ref=e632]
+                - gridcell "详情" [ref=e633]:
+                  - button "详情" [ref=e634] [cursor=pointer]
+              - row "33 阚格 认证 网络安全等级保护测评师（初级） 2028-03-14 有效 详情" [ref=e635]:
+                - gridcell "33" [ref=e636]
+                - gridcell "阚格" [ref=e637]
+                - gridcell "认证" [ref=e638]:
+                  - generic [ref=e639]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e640]
+                - gridcell "2028-03-14" [ref=e641]
+                - gridcell "有效" [ref=e642]
+                - gridcell "详情" [ref=e643]:
+                  - button "详情" [ref=e644] [cursor=pointer]
+              - row "34 葛志豪 认证 网络安全等级保护测评师（初级） 2026-04-14 有效 详情" [ref=e645]:
+                - gridcell "34" [ref=e646]
+                - gridcell "葛志豪" [ref=e647]
+                - gridcell "认证" [ref=e648]:
+                  - generic [ref=e649]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e650]
+                - gridcell "2026-04-14" [ref=e651]
+                - gridcell "有效" [ref=e652]
+                - gridcell "详情" [ref=e653]:
+                  - button "详情" [ref=e654] [cursor=pointer]
+              - row "35 张嘉诚 认证 网络安全等级保护测评师（初级） 2027-05-14 有效 详情" [ref=e655]:
+                - gridcell "35" [ref=e656]
+                - gridcell "张嘉诚" [ref=e657]
+                - gridcell "认证" [ref=e658]:
+                  - generic [ref=e659]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e660]
+                - gridcell "2027-05-14" [ref=e661]
+                - gridcell "有效" [ref=e662]
+                - gridcell "详情" [ref=e663]:
+                  - button "详情" [ref=e664] [cursor=pointer]
+              - row "36 钟雨 认证 网络安全等级保护测评师（初级） 2028-06-14 有效 详情" [ref=e665]:
+                - gridcell "36" [ref=e666]
+                - gridcell "钟雨" [ref=e667]
+                - gridcell "认证" [ref=e668]:
+                  - generic [ref=e669]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e670]
+                - gridcell "2028-06-14" [ref=e671]
+                - gridcell "有效" [ref=e672]
+                - gridcell "详情" [ref=e673]:
+                  - button "详情" [ref=e674] [cursor=pointer]
+              - row "37 黄星宇 认证 网络安全等级保护测评师（初级） 2026-07-14 有效 详情" [ref=e675]:
+                - gridcell "37" [ref=e676]
+                - gridcell "黄星宇" [ref=e677]
+                - gridcell "认证" [ref=e678]:
+                  - generic [ref=e679]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e680]
+                - gridcell "2026-07-14" [ref=e681]
+                - gridcell "有效" [ref=e682]
+                - gridcell "详情" [ref=e683]:
+                  - button "详情" [ref=e684] [cursor=pointer]
+              - row "38 朱贵阳 认证 网络安全等级保护测评师（初级） 2027-08-14 有效 详情" [ref=e685]:
+                - gridcell "38" [ref=e686]
+                - gridcell "朱贵阳" [ref=e687]
+                - gridcell "认证" [ref=e688]:
+                  - generic [ref=e689]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e690]
+                - gridcell "2027-08-14" [ref=e691]
+                - gridcell "有效" [ref=e692]
+                - gridcell "详情" [ref=e693]:
+                  - button "详情" [ref=e694] [cursor=pointer]
+              - row "39 唐开敏 认证 网络安全等级保护测评师（初级） 2028-09-14 有效 详情" [ref=e695]:
+                - gridcell "39" [ref=e696]
+                - gridcell "唐开敏" [ref=e697]
+                - gridcell "认证" [ref=e698]:
+                  - generic [ref=e699]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e700]
+                - gridcell "2028-09-14" [ref=e701]
+                - gridcell "有效" [ref=e702]
+                - gridcell "详情" [ref=e703]:
+                  - button "详情" [ref=e704] [cursor=pointer]
+              - row "40 钟航 认证 网络安全等级保护测评师（初级） 2026-01-14 有效 详情" [ref=e705]:
+                - gridcell "40" [ref=e706]
+                - gridcell "钟航" [ref=e707]
+                - gridcell "认证" [ref=e708]:
+                  - generic [ref=e709]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e710]
+                - gridcell "2026-01-14" [ref=e711]
+                - gridcell "有效" [ref=e712]
+                - gridcell "详情" [ref=e713]:
+                  - button "详情" [ref=e714] [cursor=pointer]
+              - row "41 汪欣 认证 网络安全等级保护测评师（初级） 2027-02-14 有效 详情" [ref=e715]:
+                - gridcell "41" [ref=e716]
+                - gridcell "汪欣" [ref=e717]
+                - gridcell "认证" [ref=e718]:
+                  - generic [ref=e719]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e720]
+                - gridcell "2027-02-14" [ref=e721]
+                - gridcell "有效" [ref=e722]
+                - gridcell "详情" [ref=e723]:
+                  - button "详情" [ref=e724] [cursor=pointer]
+              - row "42 杨智杰 认证 网络安全等级保护测评师（初级） 2028-03-14 有效 详情" [ref=e725]:
+                - gridcell "42" [ref=e726]
+                - gridcell "杨智杰" [ref=e727]
+                - gridcell "认证" [ref=e728]:
+                  - generic [ref=e729]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e730]
+                - gridcell "2028-03-14" [ref=e731]
+                - gridcell "有效" [ref=e732]
+                - gridcell "详情" [ref=e733]:
+                  - button "详情" [ref=e734] [cursor=pointer]
+              - row "43 余大新 认证 网络安全等级保护测评师（初级） 2026-04-14 有效 详情" [ref=e735]:
+                - gridcell "43" [ref=e736]
+                - gridcell "余大新" [ref=e737]
+                - gridcell "认证" [ref=e738]:
+                  - generic [ref=e739]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e740]
+                - gridcell "2026-04-14" [ref=e741]
+                - gridcell "有效" [ref=e742]
+                - gridcell "详情" [ref=e743]:
+                  - button "详情" [ref=e744] [cursor=pointer]
+              - row "44 俞杰斌 认证 网络安全等级保护测评师（初级） 2027-05-14 有效 详情" [ref=e745]:
+                - gridcell "44" [ref=e746]
+                - gridcell "俞杰斌" [ref=e747]
+                - gridcell "认证" [ref=e748]:
+                  - generic [ref=e749]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e750]
+                - gridcell "2027-05-14" [ref=e751]
+                - gridcell "有效" [ref=e752]
+                - gridcell "详情" [ref=e753]:
+                  - button "详情" [ref=e754] [cursor=pointer]
+              - row "45 张广平 认证 网络安全等级保护测评师（初级） 2028-06-14 有效 详情" [ref=e755]:
+                - gridcell "45" [ref=e756]
+                - gridcell "张广平" [ref=e757]
+                - gridcell "认证" [ref=e758]:
+                  - generic [ref=e759]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e760]
+                - gridcell "2028-06-14" [ref=e761]
+                - gridcell "有效" [ref=e762]
+                - gridcell "详情" [ref=e763]:
+                  - button "详情" [ref=e764] [cursor=pointer]
+              - row "46 朱莉桦 认证 网络安全等级保护测评师（初级） 2026-07-14 有效 详情" [ref=e765]:
+                - gridcell "46" [ref=e766]
+                - gridcell "朱莉桦" [ref=e767]
+                - gridcell "认证" [ref=e768]:
+                  - generic [ref=e769]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e770]
+                - gridcell "2026-07-14" [ref=e771]
+                - gridcell "有效" [ref=e772]
+                - gridcell "详情" [ref=e773]:
+                  - button "详情" [ref=e774] [cursor=pointer]
+              - row "47 朱文月 认证 网络安全等级保护测评师（初级） 2027-08-14 有效 详情" [ref=e775]:
+                - gridcell "47" [ref=e776]
+                - gridcell "朱文月" [ref=e777]
+                - gridcell "认证" [ref=e778]:
+                  - generic [ref=e779]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e780]
+                - gridcell "2027-08-14" [ref=e781]
+                - gridcell "有效" [ref=e782]
+                - gridcell "详情" [ref=e783]:
+                  - button "详情" [ref=e784] [cursor=pointer]
+              - row "48 李权 认证 网络安全等级保护测评师（初级） 2028-09-14 有效 详情" [ref=e785]:
+                - gridcell "48" [ref=e786]
+                - gridcell "李权" [ref=e787]
+                - gridcell "认证" [ref=e788]:
+                  - generic [ref=e789]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e790]
+                - gridcell "2028-09-14" [ref=e791]
+                - gridcell "有效" [ref=e792]
+                - gridcell "详情" [ref=e793]:
+                  - button "详情" [ref=e794] [cursor=pointer]
+              - row "49 李守旺 认证 网络安全等级保护测评师（初级） 2026-01-14 有效 详情" [ref=e795]:
+                - gridcell "49" [ref=e796]
+                - gridcell "李守旺" [ref=e797]
+                - gridcell "认证" [ref=e798]:
+                  - generic [ref=e799]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e800]
+                - gridcell "2026-01-14" [ref=e801]
+                - gridcell "有效" [ref=e802]
+                - gridcell "详情" [ref=e803]:
+                  - button "详情" [ref=e804] [cursor=pointer]
+              - row "50 刘琼 认证 网络安全等级保护测评师（初级） 2027-02-14 有效 详情" [ref=e805]:
+                - gridcell "50" [ref=e806]
+                - gridcell "刘琼" [ref=e807]
+                - gridcell "认证" [ref=e808]:
+                  - generic [ref=e809]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e810]
+                - gridcell "2027-02-14" [ref=e811]
+                - gridcell "有效" [ref=e812]
+                - gridcell "详情" [ref=e813]:
+                  - button "详情" [ref=e814] [cursor=pointer]
+              - row "51 解涛 认证 网络安全等级保护测评师（初级） 2028-03-14 有效 详情" [ref=e815]:
+                - gridcell "51" [ref=e816]
+                - gridcell "解涛" [ref=e817]
+                - gridcell "认证" [ref=e818]:
+                  - generic [ref=e819]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e820]
+                - gridcell "2028-03-14" [ref=e821]
+                - gridcell "有效" [ref=e822]
+                - gridcell "详情" [ref=e823]:
+                  - button "详情" [ref=e824] [cursor=pointer]
+              - row "52 张家洛 认证 网络安全等级保护测评师（初级） 2026-04-14 有效 详情" [ref=e825]:
+                - gridcell "52" [ref=e826]
+                - gridcell "张家洛" [ref=e827]
+                - gridcell "认证" [ref=e828]:
+                  - generic [ref=e829]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e830]
+                - gridcell "2026-04-14" [ref=e831]
+                - gridcell "有效" [ref=e832]
+                - gridcell "详情" [ref=e833]:
+                  - button "详情" [ref=e834] [cursor=pointer]
+              - row "53 李小飞 认证 网络安全等级保护测评师（初级） 2027-05-14 有效 详情" [ref=e835]:
+                - gridcell "53" [ref=e836]
+                - gridcell "李小飞" [ref=e837]
+                - gridcell "认证" [ref=e838]:
+                  - generic [ref=e839]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e840]
+                - gridcell "2027-05-14" [ref=e841]
+                - gridcell "有效" [ref=e842]
+                - gridcell "详情" [ref=e843]:
+                  - button "详情" [ref=e844] [cursor=pointer]
+              - row "54 徐洋洋 认证 网络安全等级保护测评师（初级） 2028-06-14 有效 详情" [ref=e845]:
+                - gridcell "54" [ref=e846]
+                - gridcell "徐洋洋" [ref=e847]
+                - gridcell "认证" [ref=e848]:
+                  - generic [ref=e849]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e850]
+                - gridcell "2028-06-14" [ref=e851]
+                - gridcell "有效" [ref=e852]
+                - gridcell "详情" [ref=e853]:
+                  - button "详情" [ref=e854] [cursor=pointer]
+              - row "55 赵蓬阁 认证 网络安全等级保护测评师（初级） 2026-07-14 有效 详情" [ref=e855]:
+                - gridcell "55" [ref=e856]
+                - gridcell "赵蓬阁" [ref=e857]
+                - gridcell "认证" [ref=e858]:
+                  - generic [ref=e859]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e860]
+                - gridcell "2026-07-14" [ref=e861]
+                - gridcell "有效" [ref=e862]
+                - gridcell "详情" [ref=e863]:
+                  - button "详情" [ref=e864] [cursor=pointer]
+              - row "56 周佳欣 认证 网络安全等级保护测评师（初级） 2027-08-14 有效 详情" [ref=e865]:
+                - gridcell "56" [ref=e866]
+                - gridcell "周佳欣" [ref=e867]
+                - gridcell "认证" [ref=e868]:
+                  - generic [ref=e869]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e870]
+                - gridcell "2027-08-14" [ref=e871]
+                - gridcell "有效" [ref=e872]
+                - gridcell "详情" [ref=e873]:
+                  - button "详情" [ref=e874] [cursor=pointer]
+              - row "57 蔡菲菲 认证 网络安全等级保护测评师（初级） 2028-09-14 有效 详情" [ref=e875]:
+                - gridcell "57" [ref=e876]
+                - gridcell "蔡菲菲" [ref=e877]
+                - gridcell "认证" [ref=e878]:
+                  - generic [ref=e879]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e880]
+                - gridcell "2028-09-14" [ref=e881]
+                - gridcell "有效" [ref=e882]
+                - gridcell "详情" [ref=e883]:
+                  - button "详情" [ref=e884] [cursor=pointer]
+              - row "58 满静 认证 网络安全等级保护测评师（初级） 2026-01-14 有效 详情" [ref=e885]:
+                - gridcell "58" [ref=e886]
+                - gridcell "满静" [ref=e887]
+                - gridcell "认证" [ref=e888]:
+                  - generic [ref=e889]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e890]
+                - gridcell "2026-01-14" [ref=e891]
+                - gridcell "有效" [ref=e892]
+                - gridcell "详情" [ref=e893]:
+                  - button "详情" [ref=e894] [cursor=pointer]
+              - row "59 许镇华 认证 网络安全等级保护测评师（初级） 2027-02-14 有效 详情" [ref=e895]:
+                - gridcell "59" [ref=e896]
+                - gridcell "许镇华" [ref=e897]
+                - gridcell "认证" [ref=e898]:
+                  - generic [ref=e899]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e900]
+                - gridcell "2027-02-14" [ref=e901]
+                - gridcell "有效" [ref=e902]
+                - gridcell "详情" [ref=e903]:
+                  - button "详情" [ref=e904] [cursor=pointer]
+              - row "60 裴宇航 认证 网络安全等级保护测评师（初级） 2028-03-14 有效 详情" [ref=e905]:
+                - gridcell "60" [ref=e906]
+                - gridcell "裴宇航" [ref=e907]
+                - gridcell "认证" [ref=e908]:
+                  - generic [ref=e909]: 认证
+                - gridcell "网络安全等级保护测评师（初级）" [ref=e910]
+                - gridcell "2028-03-14" [ref=e911]
+                - gridcell "有效" [ref=e912]
+                - gridcell "详情" [ref=e913]:
+                  - button "详情" [ref=e914] [cursor=pointer]
+              - row "61 王建国 注册证 一级建造师（一级） 长期 有效 详情" [ref=e915]:
+                - gridcell "61" [ref=e916]
+                - gridcell "王建国" [ref=e917]
+                - gridcell "注册证" [ref=e918]:
+                  - generic [ref=e919]: 注册证
+                - gridcell "一级建造师（一级）" [ref=e920]
+                - gridcell "长期" [ref=e921]
+                - gridcell "有效" [ref=e922]
+                - gridcell "详情" [ref=e923]:
+                  - button "详情" [ref=e924] [cursor=pointer]
+              - row "62 王建国 认证 B类安全员 长期 有效 详情" [ref=e925]:
+                - gridcell "62" [ref=e926]
+                - gridcell "王建国" [ref=e927]
+                - gridcell "认证" [ref=e928]:
+                  - generic [ref=e929]: 认证
+                - gridcell "B类安全员" [ref=e930]
+                - gridcell "长期" [ref=e931]
+                - gridcell "有效" [ref=e932]
+                - gridcell "详情" [ref=e933]:
+                  - button "详情" [ref=e934] [cursor=pointer]
+              - row "63 李明辉 注册证 一级建造师（市政公用工程）（一级） 长期 有效 详情" [ref=e935]:
+                - gridcell "63" [ref=e936]
+                - gridcell "李明辉" [ref=e937]
+                - gridcell "注册证" [ref=e938]:
+                  - generic [ref=e939]: 注册证
+                - gridcell "一级建造师（市政公用工程）（一级）" [ref=e940]
+                - gridcell "长期" [ref=e941]
+                - gridcell "有效" [ref=e942]
+                - gridcell "详情" [ref=e943]:
+                  - button "详情" [ref=e944] [cursor=pointer]
+              - row "64 李明辉 职称 高级工程师（结构工程）（高级） 长期 有效 详情" [ref=e945]:
+                - gridcell "64" [ref=e946]
+                - gridcell "李明辉" [ref=e947]
+                - gridcell "职称" [ref=e948]:
+                  - generic [ref=e949]: 职称
+                - gridcell "高级工程师（结构工程）（高级）" [ref=e950]
+                - gridcell "长期" [ref=e951]
+                - gridcell "有效" [ref=e952]
+                - gridcell "详情" [ref=e953]:
+                  - button "详情" [ref=e954] [cursor=pointer]
+              - row "65 赵春华 认证 C类安全员 长期 有效 详情" [ref=e955]:
+                - gridcell "65" [ref=e956]
+                - gridcell "赵春华" [ref=e957]
+                - gridcell "认证" [ref=e958]:
+                  - generic [ref=e959]: 认证
+                - gridcell "C类安全员" [ref=e960]
+                - gridcell "长期" [ref=e961]
+                - gridcell "有效" [ref=e962]
+                - gridcell "详情" [ref=e963]:
+                  - button "详情" [ref=e964] [cursor=pointer]
+              - row "66 赵春华 职称 中级工程师（土木工程）（中级） 长期 有效 详情" [ref=e965]:
+                - gridcell "66" [ref=e966]
+                - gridcell "赵春华" [ref=e967]
+                - gridcell "职称" [ref=e968]:
+                  - generic [ref=e969]: 职称
+                - gridcell "中级工程师（土木工程）（中级）" [ref=e970]
+                - gridcell "长期" [ref=e971]
+                - gridcell "有效" [ref=e972]
+                - gridcell "详情" [ref=e973]:
+                  - button "详情" [ref=e974] [cursor=pointer]
+              - row "67 孙丽 认证 A类安全员 长期 有效 详情" [ref=e975]:
+                - gridcell "67" [ref=e976]
+                - gridcell "孙丽" [ref=e977]
+                - gridcell "认证" [ref=e978]:
+                  - generic [ref=e979]: 认证
+                - gridcell "A类安全员" [ref=e980]
+                - gridcell "长期" [ref=e981]
+                - gridcell "有效" [ref=e982]
+                - gridcell "详情" [ref=e983]:
+                  - button "详情" [ref=e984] [cursor=pointer]
+              - row "68 孙丽 执业资格 注册安全工程师（建筑施工安全） 长期 有效 详情" [ref=e985]:
+                - gridcell "68" [ref=e986]
+                - gridcell "孙丽" [ref=e987]
+                - gridcell "执业资格" [ref=e988]:
+                  - generic [ref=e989]: 执业资格
+                - gridcell "注册安全工程师（建筑施工安全）" [ref=e990]
+                - gridcell "长期" [ref=e991]
+                - gridcell "有效" [ref=e992]
+                - gridcell "详情" [ref=e993]:
+                  - button "详情" [ref=e994] [cursor=pointer]
+              - row "69 周强 注册证 一级造价工程师（土建）（一级） 长期 有效 详情" [ref=e995]:
+                - gridcell "69" [ref=e996]
+                - gridcell "周强" [ref=e997]
+                - gridcell "注册证" [ref=e998]:
+                  - generic [ref=e999]: 注册证
+                - gridcell "一级造价工程师（土建）（一级）" [ref=e1000]
+                - gridcell "长期" [ref=e1001]
+                - gridcell "有效" [ref=e1002]
+                - gridcell "详情" [ref=e1003]:
+                  - button "详情" [ref=e1004] [cursor=pointer]
+              - row "70 周强 认证 BIM技术应用工程师（高级） 长期 有效 详情" [ref=e1005]:
+                - gridcell "70" [ref=e1006]
+                - gridcell "周强" [ref=e1007]
+                - gridcell "认证" [ref=e1008]:
+                  - generic [ref=e1009]: 认证
+                - gridcell "BIM技术应用工程师（高级）" [ref=e1010]
+                - gridcell "长期" [ref=e1011]
+                - gridcell "有效" [ref=e1012]
+                - gridcell "详情" [ref=e1013]:
+                  - button "详情" [ref=e1014] [cursor=pointer]

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { FormPageLayout } from './shared';
 import {
   FileText,
   Loader2
@@ -12,6 +13,9 @@ const router = useRouter();
 const displayedOutline = ref('');
 let charIndex = 0;
 let timer: ReturnType<typeof setInterval>;
+let pluginRedirectTimer: ReturnType<typeof setTimeout> | null = null;
+
+const isPluginFlow = computed(() => route.query.source === 'plugin');
 
 // Mock outline content for streaming display
 const fullOutline = `# XX项目技术投标文件
@@ -68,6 +72,16 @@ const fullOutline = `# XX项目技术投标文件
 ### 附录C 相关资质证书复印件`;
 
 onMounted(() => {
+  if (isPluginFlow.value) {
+    pluginRedirectTimer = setTimeout(() => {
+      router.push({
+        name: 'bid-doc-plugin-result',
+        query: route.query,
+      });
+    }, 2600);
+    return;
+  }
+
   // Simulate streaming output
   timer = setInterval(() => {
     if (charIndex < fullOutline.length) {
@@ -81,14 +95,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (timer) clearInterval(timer);
+  if (pluginRedirectTimer) clearTimeout(pluginRedirectTimer);
 });
-
-const handleSkip = () => {
-  router.push({
-    name: 'bid-doc-skeleton',
-    query: route.query
-  });
-};
 
 const handleSkipToSkeleton = () => {
   router.push({
@@ -99,7 +107,32 @@ const handleSkipToSkeleton = () => {
 </script>
 
 <template>
-  <div class="processing-page">
+  <FormPageLayout
+    v-if="isPluginFlow"
+    :icon="FileText"
+    title="生成中"
+    subtitle="请耐心等待，AI正在为您生成投标文件"
+  >
+    <div class="doc-waiting-shell">
+      <section class="doc-waiting-card">
+        <div class="doc-waiting-card-title">生成进度</div>
+        <div class="doc-waiting-card-body">
+          <div class="doc-waiting-spinner" aria-hidden="true">
+            <span class="spinner-dot spinner-dot-top"></span>
+            <span class="spinner-dot spinner-dot-right"></span>
+            <span class="spinner-dot spinner-dot-bottom"></span>
+            <span class="spinner-dot spinner-dot-left"></span>
+          </div>
+          <p class="doc-waiting-status">生成中...</p>
+        </div>
+        <div class="doc-waiting-note">
+          完成生成大约需要1~3分钟，后续可在 个人中心-使用记录 中查看，感谢理解~
+        </div>
+      </section>
+    </div>
+  </FormPageLayout>
+
+  <div v-else class="processing-page">
     <header class="page-header">
       <div class="header-icon">
         <FileText :size="20" />
@@ -131,6 +164,126 @@ const handleSkipToSkeleton = () => {
 </template>
 
 <style scoped>
+.doc-waiting-shell {
+  width: min(100%, 760px);
+  min-height: calc(100vh - 188px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 0 40px;
+}
+
+.doc-waiting-card {
+  width: 100%;
+  background: white;
+  border: 1px solid #e5edf8;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  min-height: 232px;
+  padding: 18px 20px 0;
+  overflow: hidden;
+}
+
+.doc-waiting-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.doc-waiting-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 124px;
+}
+
+.doc-waiting-spinner {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  animation: waiting-spinner-rotate 1.8s linear infinite;
+}
+
+.spinner-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #7db4ff 0%, #3b82f6 100%);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+  animation: waiting-spinner-pulse 1.1s ease-in-out infinite;
+}
+
+.spinner-dot-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.spinner-dot-right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  animation-delay: 0.4s;
+}
+
+.spinner-dot-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 0.6s;
+}
+
+.spinner-dot-left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  animation-delay: 0.2s;
+}
+
+.doc-waiting-status {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  margin: 0;
+}
+
+.doc-waiting-note {
+  min-height: 68px;
+  margin-top: 8px;
+  padding: 18px 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  text-align: center;
+  border-top: 1px solid #edf2f7;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+@keyframes waiting-spinner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes waiting-spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform-origin: center;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
 .processing-page {
   display: flex;
   flex-direction: column;
@@ -275,5 +428,17 @@ const handleSkipToSkeleton = () => {
 
 .action-btn.primary:hover {
   background: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .doc-waiting-shell {
+    min-height: auto;
+    padding-bottom: 24px;
+  }
+
+  .doc-waiting-card {
+    min-height: 208px;
+    padding: 16px 16px 0;
+  }
 }
 </style>

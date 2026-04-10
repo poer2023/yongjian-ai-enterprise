@@ -5,6 +5,7 @@ import type { Material, ExpiryInfo, ExpiryLevel } from '../types';
 
 const props = defineProps<{
   material: Material;
+  active?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -56,7 +57,7 @@ const handleNavigate = () => {
 </script>
 
 <template>
-  <div class="material-item" @click="handleNavigate">
+  <div class="material-item" :class="{ active: active }" @click="handleNavigate">
     <div class="material-header">
       <span class="page-tag">{{ material.pageRange || '—' }}</span>
       <span class="type-tag" :class="material.contentType">
@@ -118,10 +119,21 @@ const handleNavigate = () => {
   padding: 20px 0;
   border-bottom: 1px solid #e5e7eb;
   cursor: pointer;
+  scroll-margin-top: 24px;
+  transition: background 0.2s ease;
 }
 
 .material-item:last-child {
   border-bottom: none;
+}
+
+.material-item.active {
+  background: #f8fbff;
+}
+
+.material-item.active .material-title-row {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
 .material-header {

@@ -36,6 +36,8 @@ export interface BossJD {
   totalResumes?: number;
   jobStatus?: 'active' | 'closed';
   closedDate?: string;
+  strategyMode?: 'inherit' | 'custom';
+  strategyOverride?: RecruitStrategy | null;
 }
 
 export interface RecentTool {
@@ -64,6 +66,13 @@ export interface RpaStrategy {
   maxInterval: number;
   errorHandling: 'pause' | 'skip';
   enabled: boolean;
+}
+
+export interface RecruitStrategy extends RpaStrategy {
+  minMatchScore: number;
+  autoCollectResume: boolean;
+  autoAnalyzeResume: boolean;
+  greetingMode: 'friendly' | 'professional';
 }
 
 // Resume interface for workbench
