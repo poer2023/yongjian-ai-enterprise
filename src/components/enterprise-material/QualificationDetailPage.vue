@@ -10,6 +10,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   back: [];
+  edit: [material: Material];
+  delete: [material: Material];
   locateSource: [
     payload: {
       sourceFileId: number;
@@ -152,10 +154,18 @@ const onLocateSource = () => {
             <span class="fact-value">{{ material.pageRange || '—' }}</span>
           </div>
         </div>
-        <button type="button" class="source-link" @click="onLocateSource">
-          <FileText :size="14" />
-          <span>定位原文</span>
-        </button>
+        <div class="detail-actions">
+          <button type="button" class="source-link ghost-link" @click="emit('edit', material)">
+            <span>编辑条目</span>
+          </button>
+          <button type="button" class="source-link danger-link" @click="emit('delete', material)">
+            <span>删除条目</span>
+          </button>
+          <button type="button" class="source-link" @click="onLocateSource">
+            <FileText :size="14" />
+            <span>定位原文</span>
+          </button>
+        </div>
       </section>
     </div>
   </div>
@@ -270,11 +280,18 @@ const onLocateSource = () => {
   color: #475569;
 }
 
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
 .source-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 12px;
   padding: 6px 12px;
   border: 1px solid #bfdbfe;
   border-radius: 6px;
@@ -288,5 +305,23 @@ const onLocateSource = () => {
 
 .source-link:hover {
   background: #dbeafe;
+}
+
+.ghost-link {
+  background: #ffffff;
+}
+
+.ghost-link:hover {
+  background: #f8fafc;
+}
+
+.danger-link {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.danger-link:hover {
+  background: #fee2e2;
 }
 </style>

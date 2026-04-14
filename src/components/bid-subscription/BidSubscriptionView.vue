@@ -82,7 +82,7 @@ interface DisplayDetail {
 const props = withDefaults(defineProps<{
   mode?: SubscriptionMode;
 }>(), {
-  mode: 'news',
+  mode: 'bid',
 });
 
 const router = useRouter();
@@ -125,7 +125,7 @@ const pageConfig = computed(() => {
   if (isNewsMode.value) {
     return {
       icon: Newspaper,
-      title: '资讯订阅',
+      title: '标讯订阅',
       subtitle: '在原有订阅结果页基础上，聚合多类资讯内容，其中包含“标讯”分类',
       summaryTitle: '今日资讯总结',
       highlightTitle: '重点资讯',
@@ -144,8 +144,8 @@ const pageConfig = computed(() => {
 
   return {
     icon: Bell,
-    title: '资讯订阅',
-    subtitle: '基于您的订阅配置，统一聚合资讯结果，其中包含标讯分类',
+    title: '标讯订阅',
+    subtitle: '基于您的订阅配置，智能推送匹配标讯',
     summaryTitle: '标讯总结',
     highlightTitle: '重点标讯',
     listTitle: '全部标讯',
@@ -263,7 +263,7 @@ const buildFallbackNewsDetail = (id: number): NewsDetail | null => {
     author: '资讯聚合引擎',
     summary: '该资讯已进入当前订阅结果，可进一步加入知识库或交给数据顾问进行整理。',
     keyPoints: [
-      '当前内容来自资讯订阅聚合结果。',
+      '当前内容来自标讯订阅聚合结果。',
       '分类和来源均可回溯查看。',
     ],
     recommendations: [

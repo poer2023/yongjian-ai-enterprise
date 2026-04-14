@@ -25,7 +25,7 @@ type SubscriptionMode = 'bid' | 'news';
 const props = withDefaults(defineProps<{
   mode?: SubscriptionMode;
 }>(), {
-  mode: 'news',
+  mode: 'bid',
 });
 
 const router = useRouter();
@@ -95,13 +95,13 @@ const methodOptions = [
 ];
 
 const bidTemplateTypes = [
-  { icon: Bell, label: '资讯订阅', active: true, routeName: 'bid-info-form' },
+  { icon: Bell, label: '标讯订阅', active: true, routeName: 'bid-info-form' },
   { icon: FileSearch, label: '标讯解读', routeName: 'bid-analysis-form' },
   { icon: FileText, label: 'AI标书生成', routeName: 'bid-doc-oneclick-form' },
 ];
 
 const newsTemplateTypes = [
-  { icon: Newspaper, label: '资讯订阅', active: true, routeName: 'bid-info-form' },
+  { icon: Newspaper, label: '标讯订阅', active: true, routeName: 'bid-info-form' },
   { icon: Database, label: '数据顾问', routeName: 'data-advisor' },
   { icon: Briefcase, label: '销售管理', routeName: 'sales-management' },
   { icon: MessageSquare, label: '咨询客服', routeName: 'customer-service' },
@@ -113,7 +113,7 @@ const pageConfig = computed(() => {
     return {
       icon: Newspaper,
       iconEmoji: '📰',
-      title: '资讯订阅',
+      title: '标讯订阅',
       subtitle: '沿用原有订阅设置方法，统一配置多类资讯推送，其中包含“标讯”分类',
       sidebarTitle: '资讯工具',
       firstSectionTitle: '关注主题',
@@ -127,7 +127,7 @@ const pageConfig = computed(() => {
       pushMethodLabel: '推送方式',
       saveLabel: '保存订阅',
       viewLabel: '查看今日资讯',
-      infoTitle: '资讯订阅',
+      infoTitle: '标讯订阅',
       infoDesc: '统一追踪行业资讯、产品动态、政策解读、竞品动态与标讯信息。',
       features: [
         '沿用原有关键词与条件配置方式',
@@ -141,7 +141,7 @@ const pageConfig = computed(() => {
     return {
       icon: Bell,
       iconEmoji: '🔔',
-      title: '资讯订阅',
+      title: '标讯订阅',
       subtitle: '每日自动拉取最新标讯，AI智能匹配推送',
     sidebarTitle: '投标工具',
     firstSectionTitle: '关键词配置',
@@ -155,7 +155,7 @@ const pageConfig = computed(() => {
     pushMethodLabel: '推送方式',
     saveLabel: '保存订阅',
     viewLabel: '查看今日标讯',
-      infoTitle: '资讯订阅',
+      infoTitle: '标讯订阅',
       infoDesc: '智能监控招标信息，每日自动推送商机',
     features: [
       '关键词智能监控',
@@ -243,7 +243,7 @@ const handleSave = () => {
       };
 
   console.log('Saving subscription:', config);
-  window.alert(isNewsMode.value ? '资讯订阅配置已保存' : '订阅配置已保存');
+  window.alert(isNewsMode.value ? '标讯订阅配置已保存' : '订阅配置已保存');
 };
 
 const viewDaily = () => {

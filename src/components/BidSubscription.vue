@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Plus, X, Edit3, Trash2, Check, ChevronDown, ChevronUp, Search, Sparkles } from 'lucide-vue-next';
-
-// Active sub-tab within subscription editor
-const activeSubTab = ref('push-config');
+import { Plus, X, Edit3, Trash2, Check } from 'lucide-vue-next';
+import { RegionSelector } from './shared';
 
 interface Policy {
   id: string;
@@ -31,13 +29,11 @@ const teamMembers = ref([
   { id: '6', name: '子龙', avatar: '子', email: '' },
 ]);
 
-const allRegions = ['全国', '北京', '上海', '天津', '重庆', '江苏', '浙江', '广东', '山东', '四川', '湖北', '湖南', '河南', '河北', '福建', '安徽', '江西', '陕西', '山西', '辽宁', '吉林', '黑龙江', '云南', '贵州', '甘肃', '海南', '青海', '内蒙古', '广西', '西藏', '宁夏', '新疆'];
 const typeOptions = ['货物类', '服务类', '工程类'];
 const PAGE_SIZE = 5;
 
 const showEditor = ref(false);
 const editingPolicy = ref<Policy | null>(null);
-const regionExpanded = ref(false);
 const memberPage = ref(1);
 
 // Form state
@@ -98,7 +94,6 @@ const handleSave = () => {
 
 const addKeyword = () => { const k = policyNewKeyword.value.trim(); if (k && !policyKeywords.value.includes(k)) { policyKeywords.value.push(k); policyNewKeyword.value = ''; } };
 const removeKeyword = (k: string) => { policyKeywords.value = policyKeywords.value.filter(x => x !== k); };
-const toggleRegion = (r: string) => { policyRegions.value.includes(r) ? policyRegions.value = policyRegions.value.filter(x => x !== r) : policyRegions.value.push(r); };
 const toggleType = (t: string) => { policyTypes.value.includes(t) ? policyTypes.value = policyTypes.value.filter(x => x !== t) : policyTypes.value.push(t); };
 const toggleMember = (id: string) => { selectedMembers.value.includes(id) ? selectedMembers.value = selectedMembers.value.filter(x => x !== id) : selectedMembers.value.push(id); };
 
@@ -108,12 +103,6 @@ const mustWatchUnitInput = ref('');
 
 const mustWatchCompetitors = ref<string[]>(['华安信息技术有限公司', '中科安全科技股份']);
 const mustWatchCompetitorInput = ref('');
-
-const keyProjects = ref<string[]>([]);
-const keyProjectInput = ref('');
-
-const excludeRules = ref<string[]>(['预算低于20万', '截止日期少于3天']);
-const excludeRuleInput = ref('');
 
 const addMustWatchUnit = () => {
   const value = mustWatchUnitInput.value.trim();
@@ -132,31 +121,13 @@ const addMustWatchCompetitor = () => {
 const removeMustWatchCompetitor = (value: string) => {
   mustWatchCompetitors.value = mustWatchCompetitors.value.filter(item => item !== value);
 };
-
-const addKeyProject = () => {
-  const value = keyProjectInput.value.trim();
-  if (value && !keyProjects.value.includes(value)) keyProjects.value.push(value);
-  keyProjectInput.value = '';
-};
-const removeKeyProject = (value: string) => {
-  keyProjects.value = keyProjects.value.filter(item => item !== value);
-};
-
-const addExcludeRule = () => {
-  const value = excludeRuleInput.value.trim();
-  if (value && !excludeRules.value.includes(value)) excludeRules.value.push(value);
-  excludeRuleInput.value = '';
-};
-const removeExcludeRule = (value: string) => {
-  excludeRules.value = excludeRules.value.filter(item => item !== value);
-};
 </script>
 
 <template>
   <div class="bid-subscription">
     <div class="content-header">
-      <h1 class="page-title">资讯订阅</h1>
-      <p class="page-subtitle">每个策略组可独立配置关键词/地区等条件，统一推送对应资讯内容</p>
+      <h1 class="page-title">标讯订阅</h1>
+      <p class="page-subtitle">每个策略组可独立配置关键词/地区，AI智能匹配推送给对应成员</p>
     </div>
 
     <!-- List View -->
@@ -165,7 +136,7 @@ const removeExcludeRule = (value: string) => {
         <div class="card-header">
           <div class="card-title-group">
             <h3 class="card-title">策略组</h3>
-            <span class="card-subtitle">每个策略组可独立配置关注条件和推送成员</span>
+            <span class="card-subtitle">每个策略组可独立配置监控条件和推送成员</span>
           </div>
           <button class="create-btn" @click="handleCreate"><Plus :size="14" />新建</button>
         </div>
@@ -193,20 +164,7 @@ const removeExcludeRule = (value: string) => {
     <div v-else class="policy-editor">
       <div class="editor-header"><h2>{{ editingPolicy ? '编辑策略组' : '新建策略组' }}</h2></div>
 
-      <!-- Sub tabs -->
-      <div class="sub-tabs">
-        <button :class="['sub-tab', { active: activeSubTab === 'push-config' }]" @click="activeSubTab = 'push-config'">
-          <Search :size="14" />
-          <span>推送配置</span>
-        </button>
-        <button :class="['sub-tab', { active: activeSubTab === 'sales-strategy' }]" @click="activeSubTab = 'sales-strategy'">
-          <Sparkles :size="14" />
-          <span>行业分析维度</span>
-        </button>
-      </div>
-
-      <!-- Tab: 推送配置 (监控配置 + 推送成员) -->
-      <div v-if="activeSubTab === 'push-config'" class="config-card">
+      <div class="config-card">
         <div class="form-row">
           <label>策略名称</label>
           <div class="input-wrap"><input v-model="policyName" maxlength="15" placeholder="输入策略名称" /><span class="count">{{ policyName.length }}/15</span></div>
@@ -214,27 +172,39 @@ const removeExcludeRule = (value: string) => {
 
         <div class="section-title">监控配置</div>
         <div class="config-row">
-          <label>监控关键词</label>
-          <div class="config-content">
-            <div class="keyword-inline">
-              <span v-for="k in policyKeywords" :key="k" class="keyword-tag">{{ k }}<X :size="12" @click="removeKeyword(k)" /></span>
-              <div class="keyword-add"><input v-model="policyNewKeyword" placeholder="添加" @keyup.enter="addKeyword" /><button @click="addKeyword"><Plus :size="14" /></button></div>
+          <label>标讯关键词</label>
+          <div class="config-content keyword-config">
+            <div class="declare-add top">
+              <input
+                v-model="policyNewKeyword"
+                placeholder="添加标讯关键词"
+                @keyup.enter="addKeyword"
+              />
+              <button @click="addKeyword">
+                <Plus :size="14" />
+              </button>
+            </div>
+            <div class="declare-subtitle">已添加</div>
+            <div class="declare-tag-list">
+              <span v-if="policyKeywords.length === 0" class="declare-empty">暂未添加</span>
+              <span v-for="item in policyKeywords" :key="item" class="declare-tag">
+                {{ item }}
+                <X :size="12" @click="removeKeyword(item)" />
+              </span>
             </div>
           </div>
         </div>
         <div class="config-row">
           <label>监控地区</label>
           <div class="config-content">
-            <div class="option-btns">
-              <template v-if="!regionExpanded">
-                <button v-for="r in (policyRegions.length > 0 ? policyRegions : ['全国'])" :key="r" class="active" @click="toggleRegion(r)">{{ r }}</button>
-                <button class="expand" @click="regionExpanded = true"><ChevronDown :size="14" /></button>
-              </template>
-              <template v-else>
-                <button v-for="r in allRegions" :key="r" :class="{ active: policyRegions.includes(r) }" @click="toggleRegion(r)">{{ r }}</button>
-                <button class="expand" @click="regionExpanded = false"><ChevronUp :size="14" /></button>
-              </template>
-            </div>
+            <RegionSelector
+              v-model="policyRegions"
+              national-label="全国范围"
+              national-desc="监控全国各地区招投标动态"
+              regional-label="指定地区"
+              regional-desc="选择特定省市进行重点监控"
+              selector-label="选择监控地区"
+            />
           </div>
         </div>
         <div class="config-row">
@@ -251,31 +221,8 @@ const removeExcludeRule = (value: string) => {
             <div class="budget-row"><input v-model="policyBudgetMin" placeholder="最低" /><span>-</span><input v-model="policyBudgetMax" placeholder="最高" /><span>万元</span></div>
           </div>
         </div>
-
-        <!-- 推送成员 -->
-        <div class="members-section">
-          <div class="members-header"><span>推送成员</span><span class="hint">至少选择1人</span></div>
-          <div class="members-table">
-            <div class="table-header"><span class="col-name">成员姓名</span><span class="col-email">邮箱</span><span class="col-check">选择</span></div>
-            <div v-for="m in pagedMembers" :key="m.id" class="member-row" @click="toggleMember(m.id)">
-              <div class="col-name"><div class="avatar">{{ m.avatar }}</div><span>{{ m.name }}</span></div>
-              <span class="col-email">{{ m.email || '未填写' }}</span>
-              <div class="col-check"><div class="checkbox" :class="{ checked: selectedMembers.includes(m.id) }"><Check v-if="selectedMembers.includes(m.id)" :size="12" /></div></div>
-            </div>
-          </div>
-          <div class="members-footer">
-            <span>已选 {{ selectedMemberCount }} 人</span>
-            <div v-if="totalPages > 1" class="pagination">
-              <button :disabled="memberPage <= 1" @click="memberPage--">&lt;</button>
-              <span>{{ memberPage }} / {{ totalPages }}</span>
-              <button :disabled="memberPage >= totalPages" @click="memberPage++">&gt;</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: 行业分析维度（声明式配置） -->
-      <div v-else-if="activeSubTab === 'sales-strategy'" class="config-card">
+        
+        <div class="section-title">招投标市场分析维度</div>
         <div class="declare-section">
           <div class="declare-row full">
             <label>必盯招标单位</label>
@@ -298,7 +245,6 @@ const removeExcludeRule = (value: string) => {
                   <X :size="12" @click="removeMustWatchUnit(item)" />
                 </span>
               </div>
-              <span class="declare-hint">支持逐条添加，避免文本堆叠难维护</span>
             </div>
           </div>
 
@@ -323,61 +269,30 @@ const removeExcludeRule = (value: string) => {
                   <X :size="12" @click="removeMustWatchCompetitor(item)" />
                 </span>
               </div>
-              <span class="declare-hint">可录入重点对手，便于后续定向分析</span>
-            </div>
-          </div>
-
-          <div class="declare-row full">
-            <label>重点项目（可选）</label>
-            <div class="declare-content">
-              <div class="declare-add top">
-                <input
-                  v-model="keyProjectInput"
-                  placeholder="输入项目名称/关键词后按回车"
-                  @keyup.enter="addKeyProject"
-                />
-                <button @click="addKeyProject">
-                  <Plus :size="14" />
-                </button>
-              </div>
-              <div class="declare-subtitle">已添加</div>
-              <div class="declare-tag-list">
-                <span v-if="keyProjects.length === 0" class="declare-empty">暂未添加</span>
-                <span v-for="item in keyProjects" :key="item" class="declare-tag">
-                  {{ item }}
-                  <X :size="12" @click="removeKeyProject(item)" />
-                </span>
-              </div>
-              <span class="declare-hint">可填客户内部代号或重点跟进项目名</span>
-            </div>
-          </div>
-
-          <div class="declare-row full">
-            <label>排除条件</label>
-            <div class="declare-content">
-              <div class="declare-add top danger">
-                <input
-                  v-model="excludeRuleInput"
-                  placeholder="输入排除规则后按回车"
-                  @keyup.enter="addExcludeRule"
-                />
-                <button @click="addExcludeRule">
-                  <Plus :size="14" />
-                </button>
-              </div>
-              <div class="declare-subtitle">已添加</div>
-              <div class="declare-tag-list danger">
-                <span v-if="excludeRules.length === 0" class="declare-empty">暂未添加</span>
-                <span v-for="item in excludeRules" :key="item" class="declare-tag danger">
-                  {{ item }}
-                  <X :size="12" @click="removeExcludeRule(item)" />
-                </span>
-              </div>
-              <span class="declare-hint">例如：预算低于20万、截止时间过近、非目标区域等</span>
             </div>
           </div>
         </div>
 
+        <!-- 推送成员 -->
+        <div class="members-section">
+          <div class="members-header"><span>推送成员</span><span class="hint">至少选择1人</span></div>
+          <div class="members-table">
+            <div class="table-header"><span class="col-name">成员姓名</span><span class="col-email">邮箱</span><span class="col-check">选择</span></div>
+            <div v-for="m in pagedMembers" :key="m.id" class="member-row" @click="toggleMember(m.id)">
+              <div class="col-name"><div class="avatar">{{ m.avatar }}</div><span>{{ m.name }}</span></div>
+              <span class="col-email">{{ m.email || '未填写' }}</span>
+              <div class="col-check"><div class="checkbox" :class="{ checked: selectedMembers.includes(m.id) }"><Check v-if="selectedMembers.includes(m.id)" :size="12" /></div></div>
+            </div>
+          </div>
+          <div class="members-footer">
+            <span>已选 {{ selectedMemberCount }} 人</span>
+            <div v-if="totalPages > 1" class="pagination">
+              <button :disabled="memberPage <= 1" @click="memberPage--">&lt;</button>
+              <span>{{ memberPage }} / {{ totalPages }}</span>
+              <button :disabled="memberPage >= totalPages" @click="memberPage++">&gt;</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="form-actions"><button class="cancel" @click="showEditor = false">取消</button><button class="save" @click="handleSave">保存策略</button></div>
@@ -418,16 +333,11 @@ const removeExcludeRule = (value: string) => {
 .input-wrap { position: relative; }
 .input-wrap input { width: 100%; padding: 12px 60px 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
 .input-wrap .count { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; }
-.section-title { font-size: 14px; font-weight: 600; color: #1e293b; margin: 20px 0 16px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+.section-title { font-size: 14px; font-weight: 600; color: #1e293b; margin: 20px 0 16px; padding-top: 0; border-top: none; }
 .config-row { display: flex; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
 .config-row label { width: 90px; font-size: 13px; font-weight: 500; color: #64748b; padding-top: 6px; }
 .config-content { flex: 1; }
-.keyword-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.keyword-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #dbeafe; color: #3b82f6; border-radius: 4px; font-size: 12px; }
-.keyword-tag svg { cursor: pointer; opacity: 0.7; }
-.keyword-add { display: flex; gap: 6px; }
-.keyword-add input { width: 100px; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; }
-.keyword-add button { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; }
+.keyword-config { display: flex; flex-direction: column; gap: 8px; }
 .option-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .option-btns button { padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #475569; font-size: 13px; cursor: pointer; }
 .option-btns button.active { border-color: #3b82f6; background: #3b82f6; color: white; }
@@ -473,8 +383,7 @@ const removeExcludeRule = (value: string) => {
 .declare-content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .declare-subtitle { font-size: 12px; color: #475569; font-weight: 600; }
 .declare-empty { font-size: 12px; color: #94a3b8; }
-.declare-tag-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border: 1px solid #dbe5f2; border-radius: 10px; background: linear-gradient(180deg, #fbfdff 0%, #f8fbff 100%); min-height: 48px; }
-.declare-tag-list:focus-within { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15); }
+.declare-tag-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; border: none; background: transparent; min-height: auto; }
 .declare-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: #e8f0ff; color: #1e40af; font-size: 12px; font-weight: 500; border: 1px solid #bfdbfe; }
 .declare-tag svg { cursor: pointer; opacity: 0.75; }
 .declare-tag svg:hover { opacity: 1; }
@@ -484,20 +393,6 @@ const removeExcludeRule = (value: string) => {
 .declare-add input:focus { border-color: #60a5fa; }
 .declare-add button { width: 34px; height: 34px; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #3b82f6; color: white; cursor: pointer; flex-shrink: 0; }
 .declare-add button:hover { background: #2563eb; }
-.declare-hint { display: inline-block; font-size: 11px; color: #94a3b8; }
-.declare-add.top.danger input { border-color: #fecaca; background: #fffdfd; }
-.declare-add.top.danger input:focus { border-color: #f43f5e; }
-.declare-tag-list.danger { background: linear-gradient(180deg, #fffafa 0%, #fff6f6 100%); border-color: #fecaca; }
-.declare-tag.danger { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
-
-/* Sub tabs */
-.sub-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
-.sub-tab { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.sub-tab:hover { color: #334155; background: #f8fafc; }
-.sub-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
-.sub-tab svg { flex-shrink: 0; }
-.sub-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: #dbeafe; color: #3b82f6; font-size: 11px; font-weight: 600; border-radius: 9px; }
-.sub-tab.active .sub-tab-count { background: #3b82f6; color: white; }
 
 /* Standalone sections (no top border) */
 .track-section-standalone { }

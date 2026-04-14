@@ -52,7 +52,7 @@ const technicalMaxLength = 1000;
 const recentTools = [
   { icon: FileText, label: 'AI标书生成（表单版）', active: true, route: 'bid-doc-form' },
   { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
-  { icon: Bell, label: '资讯订阅', active: false, route: 'bid-subscription' },
+  { icon: Bell, label: '标讯订阅', active: false, route: 'bid-subscription' },
 ];
 
 // Material selections

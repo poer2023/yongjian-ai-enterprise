@@ -3,19 +3,12 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Target,
-  ChevronDown,
-  Building2,
-  Users,
   Plus,
   X,
-  Factory,
   MapPin,
-  FileText,
-  MessageSquare,
 } from 'lucide-vue-next';
 import { TemplateSidebar, InfoSidebar, FormPageLayout, RegionSelector } from '../shared';
 import {
-  industryOptions,
   configuredCompetitors,
   competitorSearchResults,
   configuredBiddingUnits,
@@ -27,10 +20,10 @@ import {
 } from './mockData';
 
 const router = useRouter();
+const companyName = ref('金盾检测技术股份有限公司');
 
 // Form state
 const selectedIndustry = ref('cyber-security');
-const showIndustryDropdown = ref(false);
 const selectedTimeRange = ref('本季度');
 const timeRanges = ['本月', '本季度', '本年度', '近两年'];
 
@@ -177,20 +170,10 @@ const additionalInfo = ref('');
 const maxLength = 2000;
 
 // Computed
-const currentIndustry = computed(() => {
-  return industryOptions.find(i => i.id === selectedIndustry.value);
-});
-
 const canSubmit = computed(() => {
   return selectedIndustry.value && selectedTimeRange.value &&
     (selectedBiddingUnitIds.value.length > 0 || selectedCompetitorIds.value.length > 0 || selectedBidNoticeIds.value.length > 0);
 });
-
-// Industry selection
-const selectIndustry = (id: string) => {
-  selectedIndustry.value = id;
-  showIndustryDropdown.value = false;
-};
 
 // Submit
 const handleSubmit = () => {
@@ -214,35 +197,11 @@ const handleSubmit = () => {
     </template>
 
     <!-- Section 1: Analysis Config -->
-    <div class="section-card">
-      <div class="card-header">
-        <div class="header-left">
-          <Factory :size="18" class="header-icon" />
-          <span class="header-title">分析范围</span>
-          <span class="required-tag">必填</span>
-        </div>
-      </div>
+    <div class="section-plain">
       <div class="card-body">
-        <!-- Industry Selection -->
         <div class="form-group">
-          <label class="form-label"><span class="required">*</span> 关注行业</label>
-          <div class="industry-dropdown-wrapper">
-            <button class="industry-dropdown-trigger" @click="showIndustryDropdown = !showIndustryDropdown">
-              <span class="industry-name">{{ currentIndustry?.name }}</span>
-              <ChevronDown :size="14" :class="{ 'rotate': showIndustryDropdown }" />
-            </button>
-            <div v-if="showIndustryDropdown" class="industry-dropdown-menu">
-              <div
-                v-for="opt in industryOptions"
-                :key="opt.id"
-                :class="['industry-dropdown-item', { active: selectedIndustry === opt.id }]"
-                @click="selectIndustry(opt.id)"
-              >
-                <span class="ind-name">{{ opt.name }}</span>
-                <span class="ind-desc">{{ opt.description }}</span>
-              </div>
-            </div>
-          </div>
+          <label class="form-label">企业名称</label>
+          <input v-model="companyName" class="form-input" type="text" />
         </div>
 
         <!-- Time Range -->
@@ -276,17 +235,34 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Section 2: Bidding Units -->
+    <!-- Section 2: Bid Notice Keywords -->
     <div class="section-card">
-      <div class="card-header">
-        <div class="header-left">
-          <Building2 :size="18" class="header-icon" />
-          <span class="header-title">关注的招标单位</span>
-          <span class="optional-tag">选填</span>
-          <span v-if="selectedBiddingUnitIds.length" class="selected-count">{{ selectedBiddingUnitIds.length }}</span>
+      <div class="card-body">
+        <label class="form-label plain-block-title">标讯关键词</label>
+        <div class="declare-content compact">
+          <div class="declare-add top">
+            <input
+              type="text"
+              v-model="bnSearch"
+              placeholder="输入标讯关键词后按回车"
+              @keyup.enter="addBidNoticeFromInput"
+            />
+            <button @click="addBidNoticeFromInput"><Plus :size="14" /></button>
+          </div>
+          <div v-if="selectedBidNotices.length > 0" class="declare-tag-list">
+            <span v-for="item in selectedBidNotices" :key="item.id" class="declare-tag">
+              {{ item.name }}
+              <X :size="12" @click="removeBidNotice(item.id)" />
+            </span>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Section 3: Bidding Units -->
+    <div class="section-card">
       <div class="card-body">
+        <label class="form-label plain-block-title">关注的招标单位</label>
         <div class="declare-content compact">
           <div class="declare-add top">
             <input
@@ -297,9 +273,7 @@ const handleSubmit = () => {
             />
             <button @click="addBiddingUnitFromInput"><Plus :size="14" /></button>
           </div>
-          <div class="declare-subtitle">已添加</div>
-          <div class="declare-tag-list">
-            <span v-if="selectedBiddingUnits.length === 0" class="declare-empty">暂未添加</span>
+          <div v-if="selectedBiddingUnits.length > 0" class="declare-tag-list">
             <span v-for="item in selectedBiddingUnits" :key="item.id" class="declare-tag">
               {{ item.name }}
               <X :size="12" @click="removeBiddingUnit(item.id)" />
@@ -309,17 +283,10 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Section 3: Competitors -->
+    <!-- Section 4: Competitors -->
     <div class="section-card">
-      <div class="card-header">
-        <div class="header-left">
-          <Users :size="18" class="header-icon" />
-          <span class="header-title">竞品企业</span>
-          <span class="optional-tag">选填</span>
-          <span v-if="selectedCompetitorIds.length" class="selected-count">{{ selectedCompetitorIds.length }}</span>
-        </div>
-      </div>
       <div class="card-body">
+        <label class="form-label plain-block-title">竞品企业</label>
         <div class="declare-content compact">
           <div class="declare-add top">
             <input
@@ -330,9 +297,7 @@ const handleSubmit = () => {
             />
             <button @click="addCompetitorFromInput"><Plus :size="14" /></button>
           </div>
-          <div class="declare-subtitle">已添加</div>
-          <div class="declare-tag-list">
-            <span v-if="selectedCompetitors.length === 0" class="declare-empty">暂未添加</span>
+          <div v-if="selectedCompetitors.length > 0" class="declare-tag-list">
             <span v-for="item in selectedCompetitors" :key="item.id" class="declare-tag">
               {{ item.name }}
               <X :size="12" @click="removeCompetitor(item.id)" />
@@ -342,49 +307,10 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Section 4: Bid Notices -->
-    <div class="section-card">
-      <div class="card-header">
-        <div class="header-left">
-          <FileText :size="18" class="header-icon" />
-          <span class="header-title">关注的标讯</span>
-          <span class="optional-tag">选填</span>
-          <span v-if="selectedBidNoticeIds.length" class="selected-count">{{ selectedBidNoticeIds.length }}</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="declare-content compact">
-          <div class="declare-add top">
-            <input
-              type="text"
-              v-model="bnSearch"
-              placeholder="输入标讯后按回车"
-              @keyup.enter="addBidNoticeFromInput"
-            />
-            <button @click="addBidNoticeFromInput"><Plus :size="14" /></button>
-          </div>
-          <div class="declare-subtitle">已添加</div>
-          <div class="declare-tag-list">
-            <span v-if="selectedBidNotices.length === 0" class="declare-empty">暂未添加</span>
-            <span v-for="item in selectedBidNotices" :key="item.id" class="declare-tag">
-              {{ item.name }}
-              <X :size="12" @click="removeBidNotice(item.id)" />
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Section 5: 补充说明 -->
     <div class="section-card">
-      <div class="card-header">
-        <div class="header-left">
-          <MessageSquare :size="18" class="header-icon" />
-          <span class="header-title">补充说明</span>
-          <span class="optional-tag">选填</span>
-        </div>
-      </div>
       <div class="card-body">
+        <label class="form-label plain-block-title">补充说明</label>
         <div class="form-group" style="margin-bottom: 0;">
           <div class="textarea-wrapper">
             <textarea
@@ -412,6 +338,33 @@ const handleSubmit = () => {
 
 <style scoped>
 @import './styles.css';
+
+.section-plain {
+  margin-bottom: 16px;
+}
+
+/* Remove all card wrappers and section divider lines on this page */
+.section-card,
+.section-plain {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.card-header {
+  padding: 0 0 12px;
+  border-bottom: none;
+}
+
+.card-body {
+  padding: 0;
+}
+
+.plain-block-title {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
 
 /* Selected count badge next to title */
 .selected-count {

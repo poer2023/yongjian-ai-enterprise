@@ -89,14 +89,14 @@ const goToMaterialLibrary = () => {
 
 const templateTypes = [
   { icon: FileSearch, label: '标讯解读', active: true },
-  { icon: Bell, label: '资讯订阅' },
+  { icon: Bell, label: '标讯订阅' },
   { icon: FileText, label: 'AI标书生成' },
 ];
 
 const recentTools = [
   { icon: FileSearch, label: '标讯解读', active: true, route: 'bid-analysis-form' },
   { icon: FileText, label: 'AI标书生成', route: 'bid-doc-oneclick-form' },
-  { icon: Bell, label: '资讯订阅', route: 'bid-subscription' },
+  { icon: Bell, label: '标讯订阅', route: 'bid-subscription' },
 ];
 
 const features = [

@@ -13,6 +13,7 @@ import QualificationDetailPage from './QualificationDetailPage.vue';
 import CaseDetailPage from './CaseDetailPage.vue';
 import ProfileMaterialSectionList from './ProfileMaterialSectionList.vue';
 import ExpiryAlertList from './ExpiryAlertList.vue';
+import AddMaterialModal from './components/AddMaterialModal.vue';
 import type {
   EnterpriseMaterialTab,
   EnterpriseMaterialTabItem,
@@ -22,7 +23,11 @@ import type {
   MaterialCategory,
   MaterialGroup,
   Person,
+  PersonQualification,
+  PersonnelQualificationFormPayload,
   ProfileSection,
+  QualificationFormPayload,
+  RecordEditorMode,
   SourcePreviewEvidence,
   SourceFile
 } from './types';
@@ -52,6 +57,10 @@ const emit = defineEmits<{
     }
   ];
   updateMaterialContent: [payload: { materialId: string; content: string }];
+  saveQualification: [payload: QualificationFormPayload];
+  deleteQualification: [materialId: string];
+  savePersonnelQualification: [payload: PersonnelQualificationFormPayload];
+  deletePersonnelQualification: [payload: { personId: string; qualificationId: string }];
 }>();
 
 const tabs: TabConfig[] = [
@@ -62,6 +71,9 @@ const tabs: TabConfig[] = [
   { key: 'profile', label: '企业简介', icon: Building2 }
 ];
 
+/** Hide only the cases tab button; cases panel/detail branches stay in template. */
+const hideCasesTabInNav = true;
+
 const currentPage = ref(1);
 const pageSize = 10;
 const materialContentRef = ref<HTMLElement | null>(null);
@@ -69,6 +81,11 @@ const materialContentRef = ref<HTMLElement | null>(null);
 const personnelDetailPerson = ref<Person | null>(null);
 const qualificationDetailMaterial = ref<Material | null>(null);
 const caseDetailMaterial = ref<Material | null>(null);
+const editorVisible = ref(false);
+const editorVariant = ref<'qualification' | 'personnel'>('qualification');
+const editorMode = ref<RecordEditorMode>('create');
+const qualificationEditorValue = ref<QualificationFormPayload | null>(null);
+const personnelEditorValue = ref<PersonnelQualificationFormPayload | null>(null);
 
 const getSourceFile = (sourceFileId: number) => props.files.find((file) => file.id === sourceFileId);
 
@@ -114,12 +131,19 @@ const visibleMaterials = computed(() => {
 });
 
 const qualificationMaterials = computed(() =>
-  props.materials.filter((material) => material.category === 'certificate')
+  props.materials.filter(
+    (material) =>
+      material.category === 'certificate' &&
+      (!props.selectedFile || material.sourceFileId === props.selectedFile.id)
+  )
 );
 
 const visiblePersons = computed(() => {
   if (!props.selectedFile) return props.persons;
-  return props.persons.filter((p) => p.sourceFileId === props.selectedFile?.id);
+  return props.persons.filter((person) =>
+    person.sourceFileId === props.selectedFile?.id ||
+    person.qualifications.some((qualification) => qualification.sourceFileId === props.selectedFile?.id)
+  );
 });
 
 const caseMaterials = computed(() =>
@@ -143,6 +167,149 @@ const openQualificationDetail = (material: Material) => {
 
 const openCaseDetail = (material: Material) => {
   caseDetailMaterial.value = material;
+};
+
+const getDefaultCompletedFileId = () =>
+  props.files.find((file) => file.status === 'completed')?.id ?? props.files[0]?.id ?? 0;
+
+const getDefaultPersonId = () =>
+  personnelDetailPerson.value?.id ?? visiblePersons.value[0]?.id ?? props.persons[0]?.id ?? '';
+
+const toQualificationFormPayload = (material: Material): QualificationFormPayload => {
+  const qualification = material.qualification;
+
+  return {
+    materialId: material.id,
+    sourceFileId: material.sourceFileId,
+    pageRange: material.pageRange ?? '',
+    name: qualification?.name || material.name,
+    category: qualification?.category || qualification?.bucket || '',
+    subcategory: qualification?.subcategory || '',
+    level: qualification?.level || '',
+    issuer: qualification?.issuer || '',
+    certificateNo: qualification?.certificateNo || '',
+    issuedAt: qualification?.issuedAt || '',
+    expiresAt: qualification?.expiresAt || material.expiryDate || '',
+    status: qualification?.status ?? 'valid',
+    majorScope: qualification?.majorScope || '',
+    description: qualification?.description || ''
+  };
+};
+
+const toPersonnelQualificationFormPayload = (
+  person: Person,
+  qualification: PersonQualification
+): PersonnelQualificationFormPayload => ({
+  qualificationId: qualification.id,
+  personId: person.id,
+  sourceFileId: qualification.sourceFileId ?? person.sourceFileId ?? getDefaultCompletedFileId(),
+  pageRange: qualification.pageRange ?? '',
+  qualificationType: qualification.qualificationType,
+  qualificationName: qualification.qualificationName,
+  level: qualification.level,
+  majorScope: qualification.majorScope,
+  issuer: qualification.issuer,
+  certificateNo: qualification.certificateNo,
+  issuedAt: qualification.issuedAt,
+  expiresAt: qualification.expiresAt,
+  registrationStatus: qualification.registrationStatus,
+  status: qualification.status
+});
+
+const openQualificationCreate = () => {
+  editorVariant.value = 'qualification';
+  editorMode.value = 'create';
+  qualificationEditorValue.value = {
+    sourceFileId: props.selectedFile?.id ?? getDefaultCompletedFileId(),
+    pageRange: '',
+    name: '',
+    category: '',
+    subcategory: '',
+    level: '',
+    issuer: '',
+    certificateNo: '',
+    issuedAt: '',
+    expiresAt: '',
+    status: 'valid',
+    majorScope: '',
+    description: ''
+  };
+  personnelEditorValue.value = null;
+  editorVisible.value = true;
+};
+
+const openPersonnelQualificationCreate = () => {
+  editorVariant.value = 'personnel';
+  editorMode.value = 'create';
+  personnelEditorValue.value = {
+    personId: getDefaultPersonId(),
+    sourceFileId: props.selectedFile?.id ?? getDefaultCompletedFileId(),
+    pageRange: '',
+    qualificationType: '认证',
+    qualificationName: '',
+    level: '',
+    majorScope: '',
+    issuer: '',
+    certificateNo: '',
+    issuedAt: '',
+    expiresAt: '',
+    registrationStatus: '',
+    status: 'valid'
+  };
+  qualificationEditorValue.value = null;
+  editorVisible.value = true;
+};
+
+const openQualificationEdit = (material: Material) => {
+  editorVariant.value = 'qualification';
+  editorMode.value = 'edit';
+  qualificationEditorValue.value = toQualificationFormPayload(material);
+  personnelEditorValue.value = null;
+  editorVisible.value = true;
+};
+
+const openPersonnelQualificationEdit = (payload: {
+  person: Person;
+  qualification: PersonQualification;
+}) => {
+  editorVariant.value = 'personnel';
+  editorMode.value = 'edit';
+  personnelEditorValue.value = toPersonnelQualificationFormPayload(payload.person, payload.qualification);
+  qualificationEditorValue.value = null;
+  editorVisible.value = true;
+};
+
+const closeEditor = () => {
+  editorVisible.value = false;
+};
+
+const submitQualificationEditor = (payload: QualificationFormPayload) => {
+  emit('saveQualification', payload);
+  editorVisible.value = false;
+};
+
+const submitPersonnelQualificationEditor = (payload: PersonnelQualificationFormPayload) => {
+  emit('savePersonnelQualification', payload);
+  editorVisible.value = false;
+};
+
+const deleteQualificationRecord = (material: Material) => {
+  if (!window.confirm(`确认删除企业资质「${material.name}」吗？`)) return;
+  emit('deleteQualification', material.id);
+};
+
+const deletePersonnelQualificationRecord = (payload: {
+  person: Person;
+  qualification: PersonQualification;
+}) => {
+  if (!window.confirm(`确认删除「${payload.person.name}」的资质「${payload.qualification.qualificationName}」吗？`)) {
+    return;
+  }
+
+  emit('deletePersonnelQualification', {
+    personId: payload.person.id,
+    qualificationId: payload.qualification.id
+  });
 };
 
 const handleLocateQualificationSource = (payload: { materialId: string }) => {
@@ -255,13 +422,70 @@ const emitLocate = (material: Material, tab: EnterpriseMaterialTab) => {
   emit('locateMaterial', { material, tab });
 };
 
+const deleteQualificationFromEditor = (materialId: string) => {
+  const material = props.materials.find((item) => item.id === materialId);
+  if (!material) return;
+
+  if (!window.confirm(`确认删除企业资质「${material.name}」吗？`)) return;
+
+  emit('deleteQualification', material.id);
+  editorVisible.value = false;
+};
+
+const deletePersonnelQualificationFromEditor = (payload: {
+  personId: string;
+  qualificationId: string;
+}) => {
+  const person = props.persons.find((item) => item.id === payload.personId);
+  const qualification = person?.qualifications.find((item) => item.id === payload.qualificationId);
+
+  if (!person || !qualification) return;
+
+  if (!window.confirm(`确认删除「${person.name}」的资质「${qualification.qualificationName}」吗？`)) {
+    return;
+  }
+
+  emit('deletePersonnelQualification', payload);
+  editorVisible.value = false;
+};
+
 watch(
   () => props.activeTab,
   (tab) => {
     if (tab !== 'personnel') personnelDetailPerson.value = null;
     if (tab !== 'qualification') qualificationDetailMaterial.value = null;
     if (tab !== 'cases') caseDetailMaterial.value = null;
+    if (tab !== 'qualification' && tab !== 'personnel') {
+      editorVisible.value = false;
+    }
   }
+);
+
+watch(
+  () => props.materials,
+  () => {
+    if (qualificationDetailMaterial.value) {
+      qualificationDetailMaterial.value =
+        props.materials.find((material) => material.id === qualificationDetailMaterial.value?.id) ?? null;
+    }
+
+    if (caseDetailMaterial.value) {
+      caseDetailMaterial.value =
+        props.materials.find((material) => material.id === caseDetailMaterial.value?.id) ?? null;
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.persons,
+  () => {
+    if (personnelDetailPerson.value) {
+      personnelDetailPerson.value =
+        props.persons.find((person) => person.id === personnelDetailPerson.value?.id) ?? null;
+    }
+  },
+  { deep: true }
 );
 
 watch(
@@ -297,6 +521,7 @@ watch(
     >
       <button
         v-for="tab in tabs"
+        v-show="!hideCasesTabInNav || tab.key !== 'cases'"
         :key="tab.key"
         type="button"
         class="material-tab"
@@ -315,6 +540,8 @@ watch(
         :material="qualificationDetailMaterial"
         :files="files"
         @back="qualificationDetailMaterial = null"
+        @edit="openQualificationEdit"
+        @delete="deleteQualificationRecord"
         @locate-source="handleLocateQualificationSource"
       />
 
@@ -332,26 +559,35 @@ watch(
         :files="files"
         :cases="caseMaterials"
         @back="personnelDetailPerson = null"
+        @edit-qualification="openPersonnelQualificationEdit"
+        @delete-qualification="deletePersonnelQualificationRecord"
         @locate-source="emit('locatePersonnelSource', $event)"
       />
 
       <template v-else>
         <GroupedMaterialList
-          v-if="activeTab === 'qualification' && qualificationGroups.length > 0"
+          v-if="activeTab === 'qualification'"
           variant="qualification"
           :groups="qualificationGroups"
           :active-material-id="activeMaterialId"
+          :selected-file-id="selectedFile?.id ?? null"
+          create-button-label="新增企业资质"
+          @create="openQualificationCreate"
           @locate="emitLocate($event, 'qualification')"
-          @open-detail="openQualificationDetail"
+          @edit-qualification="openQualificationEdit"
         />
 
         <GroupedMaterialList
-          v-else-if="activeTab === 'personnel' && visiblePersons.length > 0"
+          v-else-if="activeTab === 'personnel'"
           variant="personnel"
           :groups="[]"
           :persons="visiblePersons"
           :active-material-id="activeMaterialId"
-          @open-person-detail="openPersonnelDetail"
+          :selected-file-id="selectedFile?.id ?? null"
+          create-button-label="新增人员资质"
+          @create="openPersonnelQualificationCreate"
+          @edit-personnel-qualification="openPersonnelQualificationEdit"
+          @locate-personnel-qualification="emit('locatePersonnelSource', $event)"
         />
 
         <GroupedMaterialList
@@ -390,6 +626,21 @@ watch(
         </div>
       </template>
     </div>
+
+    <AddMaterialModal
+      :visible="editorVisible"
+      :variant="editorVariant"
+      :mode="editorMode"
+      :files="files"
+      :persons="persons"
+      :qualification-value="qualificationEditorValue"
+      :personnel-value="personnelEditorValue"
+      @close="closeEditor"
+      @submit-qualification="submitQualificationEditor"
+      @submit-personnel-qualification="submitPersonnelQualificationEditor"
+      @delete-qualification="deleteQualificationFromEditor"
+      @delete-personnel-qualification="deletePersonnelQualificationFromEditor"
+    />
   </div>
 </template>
 
@@ -456,6 +707,7 @@ watch(
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 14px;
 }
 
 .empty-state {

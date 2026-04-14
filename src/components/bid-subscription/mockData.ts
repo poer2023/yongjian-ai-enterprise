@@ -325,7 +325,7 @@ export const newsDetails: Record<number, NewsDetail> = {
     publishedAt: '今天 11:20',
     category: '标讯',
     author: '招采监测引擎',
-    summary: '该项目聚焦政务云场景下的智能助手建设，适合归入资讯订阅中的“标讯”分类，作为行业机会同步观察。',
+    summary: '该项目聚焦政务云场景下的智能助手建设，适合纳入标讯订阅重点跟踪，作为行业机会同步观察。',
     keyPoints: [
       '需求包含知识问答、权限控制和审计能力。',
       '预算规模适中，适合列为高优先级跟踪项目。',
@@ -344,10 +344,10 @@ export const newsDetails: Record<number, NewsDetail> = {
     publishedAt: '今天 11:20',
     category: '标讯',
     author: '招采监测引擎',
-    summary: '该标讯同时被纳入资讯订阅和标讯监测，适合演示统一订阅入口下的多分类聚合方式。',
+    summary: '该标讯已纳入标讯订阅重点监测，适合演示统一订阅入口下的跟踪方式。',
     keyPoints: [
-      '可从资讯订阅直接进入标讯相关跟踪流程。',
-      '分类维度与当前资讯订阅逻辑保持一致。',
+      '可从标讯订阅直接进入相关跟踪流程。',
+      '筛选维度与当前标讯订阅逻辑保持一致。',
     ],
     recommendations: [
       '进入标讯解读查看原文结构。',

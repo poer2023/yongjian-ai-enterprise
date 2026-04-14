@@ -97,13 +97,13 @@ const routes = [
     path: '/business/daily-news',
     name: 'daily-news',
     redirect: { name: 'bid-info-form' },
-    meta: { title: '每日资讯订阅智能体' }
+    meta: { title: '每日标讯订阅智能体' }
   },
   {
     path: '/business/daily-news/feed',
     name: 'daily-news-feed',
     redirect: { name: 'bid-subscription' },
-    meta: { title: '资讯日报' }
+    meta: { title: '标讯日报' }
   },
   {
     path: '/business/customer-service',
@@ -195,8 +195,8 @@ const routes = [
     path: '/bid/info',
     name: 'bid-info-form',
     component: BidInfoFormView,
-    props: { mode: 'news' },
-    meta: { title: '资讯订阅' }
+    props: { mode: 'bid' },
+    meta: { title: '标讯订阅' }
   },
   {
     path: '/bid/info/daily',
@@ -280,8 +280,8 @@ const routes = [
     path: '/bid/subscription',
     name: 'bid-subscription',
     component: BidSubscriptionView,
-    props: { mode: 'news' },
-    meta: { title: '资讯订阅' }
+    props: { mode: 'bid' },
+    meta: { title: '标讯订阅' }
   },
   {
     path: '/bid/list-detail',
@@ -368,7 +368,7 @@ const routes = [
       { path: 'groups', name: 'team-groups', component: TeamSectionShellView, props: { section: 'groups' }, meta: { title: '小组管理' } },
       { path: 'agents', name: 'team-agents', component: TeamSectionShellView, props: { section: 'agents' }, meta: { title: '智能体管理' } },
       { path: 'benefits', name: 'team-benefits', component: TeamSectionShellView, props: { section: 'benefits' }, meta: { title: '权益明细' } },
-      { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '资讯订阅' } },
+      { path: 'bid-subscription', name: 'team-bid-subscription', component: BidSubscription, meta: { title: '标讯订阅' } },
       { path: 'enterprise-library', name: 'team-enterprise-library', component: EnterpriseLibraryView, meta: { title: '企业总库' } },
     ]
   },

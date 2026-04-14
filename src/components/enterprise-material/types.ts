@@ -277,3 +277,39 @@ export interface Person {
   sourcePreviewEvidence?: SourcePreviewEvidence;
   documentPreviewMap?: Partial<Record<keyof PersonDocuments, SourcePreviewEvidence>>;
 }
+
+export type RecordEditorMode = 'create' | 'edit';
+
+export interface QualificationFormPayload {
+  materialId?: string;
+  sourceFileId: number;
+  pageRange: string;
+  name: string;
+  category: string;
+  subcategory: string;
+  level: string;
+  issuer: string;
+  certificateNo: string;
+  issuedAt: string;
+  expiresAt: string;
+  status: NonNullable<QualificationRecord['status']>;
+  majorScope: string;
+  description: string;
+}
+
+export interface PersonnelQualificationFormPayload {
+  qualificationId?: string;
+  personId: string;
+  sourceFileId: number;
+  pageRange: string;
+  qualificationType: PersonQualification['qualificationType'];
+  qualificationName: string;
+  level: string;
+  majorScope: string;
+  issuer: string;
+  certificateNo: string;
+  issuedAt: string;
+  expiresAt: string;
+  registrationStatus: PersonQualification['registrationStatus'];
+  status: PersonQualification['status'];
+}

@@ -1,0 +1,198 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: 涌见AI
+      - button "切换侧栏展开或收起" [expanded] [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - navigation [ref=e17]:
+      - generic [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: 首页
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: AI提问
+      - generic [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: 标讯搜索
+      - generic [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e36]: 标讯订阅
+      - generic [ref=e37] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]: 智能体
+        - generic [ref=e42]: 🔥
+      - generic [ref=e43]:
+        - generic [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e50]: 知识库
+          - img [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e60]: 团队知识库
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e65]: 企业素材库
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e70]: 个人知识库
+          - generic [ref=e71] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e75]: 隐藏知识库
+          - generic [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e83]: 小组知识库
+            - img [ref=e84]
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e87]
+        - generic [ref=e92]: 团队管理
+      - generic [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+        - generic [ref=e97]: 个人中心
+  - main [ref=e98]:
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - img [ref=e105]
+            - heading "企业素材库" [level=1] [ref=e109]
+          - button "添加文件" [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - generic [ref=e113]: 添加文件
+            - img [ref=e114]
+        - generic [ref=e116]:
+          - img [ref=e117]
+          - textbox "搜索文件名、文件夹名称" [ref=e120]
+          - button "搜索" [ref=e121] [cursor=pointer]
+        - generic [ref=e122]:
+          - generic [ref=e123] [cursor=pointer]:
+            - img [ref=e125]
+            - generic [ref=e128]: 投标文件
+          - generic [ref=e129] [cursor=pointer]:
+            - img [ref=e131]
+            - generic [ref=e134]: 商务技术册
+          - generic [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e140]: 资质认证
+          - generic [ref=e141] [cursor=pointer]:
+            - img [ref=e143]
+            - generic [ref=e146]: 业绩与团队
+        - generic [ref=e147]:
+          - generic [ref=e148] [cursor=pointer]:
+            - generic [ref=e151]: PDF
+            - generic "信息系统安全等级保护测评（等保2.0）项目+金盾检测技术股份有限公司.docx" [ref=e328]
+            - generic [ref=e152]: 约 6.8MB
+            - generic [ref=e153]: 约 17.9 万字符（抽取统计）
+            - generic [ref=e154]: 金盾检测技术股份有限公司
+            - generic [ref=e155]:
+              - button "查看详情" [ref=e156]:
+                - img [ref=e157]
+              - button "更多操作" [ref=e160]:
+                - img [ref=e161]
+          - generic [ref=e165] [cursor=pointer]:
+            - generic [ref=e168]: PDF
+            - generic "南京市智慧城市基础设施建设工程（一期）投标文件+鼎信建设集团有限公司.docx" [ref=e329]
+            - generic [ref=e169]: 约 4.2MB
+            - generic [ref=e170]: 约 8.5 万字符（抽取统计）
+            - generic [ref=e171]: 鼎信建设集团有限公司
+            - generic [ref=e172]:
+              - button "查看详情" [ref=e173]:
+                - img [ref=e174]
+              - button "更多操作" [ref=e177]:
+                - img [ref=e178]
+      - generic [ref=e185]:
+        - tablist "企业素材库结构化标签页" [ref=e186]:
+          - button "企业资质" [ref=e187] [cursor=pointer]:
+            - img [ref=e188]
+            - generic [ref=e191]: 企业资质
+          - button "人员资质" [ref=e192] [cursor=pointer]:
+            - img [ref=e193]
+            - generic [ref=e198]: 人员资质
+          - button "临期资质提醒" [ref=e199] [cursor=pointer]:
+            - img [ref=e200]
+            - generic [ref=e202]: 临期资质提醒
+          - button "企业简介" [ref=e203] [cursor=pointer]:
+            - img [ref=e204]
+            - generic [ref=e208]: 企业简介
+        - generic [ref=e210]:
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - img
+              - textbox "搜索资质名称…" [ref=e213]
+            - combobox [ref=e214] [cursor=pointer]:
+              - option "全部有效期" [selected]
+              - option "有效"
+              - option "临期"
+              - option "已过期"
+              - option "已撤销"
+            - generic [ref=e215]:
+              - generic [ref=e216]: 11 条
+              - button "新增企业资质" [ref=e217] [cursor=pointer]:
+                - img [ref=e218]
+                - generic [ref=e219]: 新增企业资质
+          - grid [ref=e221]:
+            - rowgroup [ref=e222]:
+              - row "# 资质名称 有效期 操作" [ref=e223]:
+                - columnheader "#" [ref=e224]
+                - columnheader "资质名称" [ref=e225]
+                - columnheader "有效期" [ref=e226]
+                - columnheader "操作" [ref=e227]
+            - rowgroup [ref=e228]:
+              - row "1 企业法人营业执照副本 长期有效 编辑 定位原文" [ref=e229]:
+                - gridcell "1" [ref=e230]
+                - gridcell "企业法人营业执照副本" [ref=e231]
+                - gridcell "长期有效" [ref=e232]
+                - gridcell "编辑 定位原文" [ref=e234]
+              - row "2 公司名称及法定代表人变更说明 长期有效 编辑 定位原文" [ref=e238]:
+                - gridcell "2" [ref=e239]
+                - gridcell "公司名称及法定代表人变更说明" [ref=e240]
+                - gridcell "长期有效" [ref=e241]
+                - gridcell "编辑 定位原文" [ref=e243]
+              - row "3 网络安全等级测评与检测评估机构服务认证证书 长期有效 编辑 定位原文" [ref=e247]:
+                - gridcell "3" [ref=e248]
+                - gridcell "网络安全等级测评与检测评估机构服务认证证书" [ref=e249]
+                - gridcell "长期有效" [ref=e250]
+                - gridcell "编辑 定位原文" [ref=e252]
+              - row "4 全国网络安全等级测评与检测评估机构目录截图 长期有效 编辑 定位原文" [ref=e256]:
+                - gridcell "4" [ref=e257]
+                - gridcell "全国网络安全等级测评与检测评估机构目录截图" [ref=e258]
+                - gridcell "长期有效" [ref=e259]
+                - gridcell "编辑 定位原文" [ref=e261]
+              - row "5 质量管理体系认证证书 2027-01-17 编辑 定位原文" [ref=e265]:
+                - gridcell "5" [ref=e266]
+                - gridcell "质量管理体系认证证书" [ref=e267]
+                - gridcell "2027-01-17" [ref=e268]
+                - gridcell "编辑 定位原文" [ref=e270]
+              - row "6 信息安全管理体系认证证书 2027-12-22 编辑 定位原文" [ref=e274]:
+                - gridcell "6" [ref=e275]
+                - gridcell "信息安全管理体系认证证书" [ref=e276]
+                - gridcell "2027-12-22" [ref=e277]
+                - gridcell "编辑 定位原文" [ref=e279]
+              - row "7 信息技术服务管理体系认证证书 2027-07-20 编辑 定位原文" [ref=e283]:
+                - gridcell "7" [ref=e284]
+                - gridcell "信息技术服务管理体系认证证书" [ref=e285]
+                - gridcell "2027-07-20" [ref=e286]
+                - gridcell "编辑 定位原文" [ref=e288]
+              - row "8 检验检测机构资质认定证书 2026-09-20 编辑 定位原文" [ref=e292]:
+                - gridcell "8" [ref=e293]
+                - gridcell "检验检测机构资质认定证书" [ref=e294]
+                - gridcell "2026-09-20" [ref=e295]
+                - gridcell "编辑 定位原文" [ref=e297]
+              - row "9 检验机构认可证书 2026-09-04 编辑 定位原文" [ref=e301]:
+                - gridcell "9" [ref=e302]
+                - gridcell "检验机构认可证书" [ref=e303]
+                - gridcell "2026-09-04" [ref=e304]
+                - gridcell "编辑 定位原文" [ref=e306]
+              - row "10 高新技术企业证书 长期有效 编辑 定位原文" [ref=e310]:
+                - gridcell "10" [ref=e311]
+                - gridcell "高新技术企业证书" [ref=e312]
+                - gridcell "长期有效" [ref=e313]
+                - gridcell "编辑 定位原文" [ref=e315]
+              - row "11 国家标准起草参与证明 长期有效 编辑 定位原文" [ref=e319]:
+                - gridcell "11" [ref=e320]
+                - gridcell "国家标准起草参与证明" [ref=e321]
+                - gridcell "长期有效" [ref=e322]
+                - gridcell "编辑 定位原文" [ref=e324]

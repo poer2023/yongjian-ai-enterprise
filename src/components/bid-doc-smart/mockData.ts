@@ -80,7 +80,7 @@ export const recentTools: RecentTool[] = [
   { icon: Zap, label: 'AI标书插件版', active: true, route: 'bid-doc-smart-form' },
   // { icon: FileText, label: 'AI标书生成（表单版）', active: false, route: 'bid-doc-form' },
   { icon: FileSearch, label: '标讯解读', active: false, route: 'bid-analysis-form' },
-  { icon: Bell, label: '资讯订阅', active: false, route: 'bid-subscription' },
+  { icon: Bell, label: '标讯订阅', active: false, route: 'bid-subscription' },
 ];
 
 export const bidDocTypes: BidDocType[] = [

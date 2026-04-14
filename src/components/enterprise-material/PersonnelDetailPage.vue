@@ -17,6 +17,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   back: [];
+  editQualification: [payload: { person: Person; qualification: PersonQualification }];
+  deleteQualification: [payload: { person: Person; qualification: PersonQualification }];
   locateSource: [
     payload: {
       sourceFileId: number;
@@ -229,14 +231,30 @@ const onArchiveSourceClick = (field: ArchiveField) => {
                   >{{ statusLabel(q) }}</span>
                 </td>
                 <td class="qt-action">
-                  <button
-                    v-if="q.sourceFileId"
-                    type="button"
-                    class="view-original-link"
-                    @click="onQualSourceClick(q)"
-                  >
-                    <span>查看原件</span>
-                  </button>
+                  <div class="qualification-actions">
+                    <button
+                      type="button"
+                      class="view-original-link"
+                      @click="emit('editQualification', { person, qualification: q })"
+                    >
+                      <span>编辑</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="view-original-link danger-link"
+                      @click="emit('deleteQualification', { person, qualification: q })"
+                    >
+                      <span>删除</span>
+                    </button>
+                    <button
+                      v-if="q.sourceFileId"
+                      type="button"
+                      class="view-original-link"
+                      @click="onQualSourceClick(q)"
+                    >
+                      <span>查看原件</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -472,6 +490,24 @@ const onArchiveSourceClick = (field: ArchiveField) => {
 
 .view-original-link:hover {
   background: #f0f7ff;
+}
+
+.qualification-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.danger-link {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.danger-link:hover {
+  background: #fee2e2;
 }
 
 .empty-note {

@@ -4,7 +4,16 @@ import { useRoute } from 'vue-router';
 import SourceFileList from './SourceFileList.vue';
 import FilePreviewPanel from './FilePreviewPanel.vue';
 import EnterpriseMaterialRightPanel from './EnterpriseMaterialRightPanel.vue';
-import type { EnterpriseMaterialTab, Material, SourceFile, SourcePreviewEvidence } from './types';
+import type {
+  EnterpriseMaterialTab,
+  KeyValuePair,
+  Material,
+  PersonQualification,
+  PersonnelQualificationFormPayload,
+  QualificationFormPayload,
+  SourceFile,
+  SourcePreviewEvidence
+} from './types';
 import {
   folders,
   initialFiles,
@@ -38,6 +47,111 @@ const focusedPreview = ref<SourcePreviewEvidence | null>(null);
 const selectedFilePreview = computed(() => {
   if (!selectedFile.value) return null;
   return filePreviewData.find((preview) => preview.fileId === selectedFile.value?.id) ?? null;
+});
+
+const createKeyInfo = (pairs: Array<[string, string]>) =>
+  pairs.reduce<KeyValuePair[]>((items, [key, value]) => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      items.push({ key, value: trimmed });
+    }
+    return items;
+  }, []);
+
+const createRecordId = (prefix: string) =>
+  `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const getNextListOrder = (category: Material['category']) => {
+  const currentMax = materials.value
+    .filter((material) => material.category === category)
+    .reduce((max, material) => Math.max(max, Math.floor(material.listOrder ?? 0)), 0);
+
+  return currentMax + 1;
+};
+
+const buildQualificationMaterial = (
+  payload: QualificationFormPayload,
+  existingMaterial?: Material
+): Material => {
+  const summaryParts = [payload.category, payload.level, payload.issuer || payload.certificateNo]
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const summary = summaryParts.join(' · ') || `${payload.name}（手动维护）`;
+  const fullTextLines = [
+    `资质名称：${payload.name}`,
+    payload.category ? `资质类别：${payload.category}` : '',
+    payload.subcategory ? `资质子类：${payload.subcategory}` : '',
+    payload.level ? `资质等级：${payload.level}` : '',
+    payload.issuer ? `发证机构：${payload.issuer}` : '',
+    payload.certificateNo ? `证书编号：${payload.certificateNo}` : '',
+    payload.issuedAt ? `发证日期：${payload.issuedAt}` : '',
+    payload.expiresAt ? `到期日期：${payload.expiresAt}` : '',
+    payload.majorScope ? `适用范围：${payload.majorScope}` : '',
+    payload.description ? `补充说明：${payload.description}` : ''
+  ].filter(Boolean);
+
+  return {
+    id: existingMaterial?.id ?? createRecordId('manual-qualification'),
+    name: payload.name,
+    category: 'certificate',
+    categoryLabel: '企业资质',
+    summary,
+    keyInfo: createKeyInfo([
+      ['资质认证名称', payload.name],
+      ['资质类别', payload.category],
+      ['资质子类', payload.subcategory],
+      ['资质等级', payload.level],
+      ['发证机构', payload.issuer],
+      ['证书编号', payload.certificateNo],
+      ['到期日期', payload.expiresAt]
+    ]),
+    sourceFileId: payload.sourceFileId,
+    pageRange: payload.pageRange || undefined,
+    contentType: 'text',
+    fullText: fullTextLines.join('\n'),
+    expiryDate: payload.expiresAt || undefined,
+    listOrder: existingMaterial?.listOrder ?? getNextListOrder('certificate'),
+    qualification: {
+      organizationId: 'org-demo-manual',
+      category: payload.category || '手工维护',
+      subcategory: payload.subcategory || undefined,
+      name: payload.name,
+      level: payload.level || undefined,
+      issuer: payload.issuer || undefined,
+      certificateNo: payload.certificateNo || undefined,
+      issuedAt: payload.issuedAt || undefined,
+      expiresAt: payload.expiresAt || undefined,
+      status: payload.status,
+      majorScope: payload.majorScope || undefined,
+      description: payload.description || undefined,
+      isStructured: false,
+      rawText: fullTextLines.join('；')
+    },
+    previewEvidence: existingMaterial?.previewEvidence
+  };
+};
+
+const buildPersonnelQualification = (
+  payload: PersonnelQualificationFormPayload,
+  existingQualification?: PersonQualification
+): PersonQualification => ({
+  id: existingQualification?.id ?? createRecordId('manual-personnel-qualification'),
+  personId: payload.personId,
+  qualificationType: payload.qualificationType,
+  qualificationName: payload.qualificationName,
+  level: payload.level,
+  majorScope: payload.majorScope,
+  issuer: payload.issuer,
+  certificateNo: payload.certificateNo,
+  issuedAt: payload.issuedAt,
+  expiresAt: payload.expiresAt,
+  registrationStatus: payload.registrationStatus,
+  status: payload.status,
+  isPrimary: existingQualification?.isPrimary ?? false,
+  sourceFileId: payload.sourceFileId,
+  pageRange: payload.pageRange || undefined,
+  previewDataUrl: existingQualification?.previewDataUrl,
+  previewEvidence: existingQualification?.previewEvidence
 });
 
 const handleNavigateToPage = (pageRange?: string, preview?: SourcePreviewEvidence | null) => {
@@ -111,6 +225,83 @@ const handleUpdateMaterialContent = ({
         }
       : material
   );
+};
+
+const handleSaveQualification = async (payload: QualificationFormPayload) => {
+  const existingMaterial = payload.materialId
+    ? materials.value.find((material) => material.id === payload.materialId)
+    : undefined;
+  const nextMaterial = buildQualificationMaterial(payload, existingMaterial);
+
+  materials.value = existingMaterial
+    ? materials.value.map((material) => (material.id === existingMaterial.id ? nextMaterial : material))
+    : [nextMaterial, ...materials.value];
+
+  await handleLocateMaterial({
+    material: nextMaterial,
+    tab: 'qualification'
+  });
+};
+
+const handleDeleteQualification = (materialId: string) => {
+  materials.value = materials.value.filter((material) => material.id !== materialId);
+
+  if (activeMaterialId.value === materialId) {
+    activeMaterialId.value = null;
+  }
+};
+
+const handleSavePersonnelQualification = async (payload: PersonnelQualificationFormPayload) => {
+  const existingOwner = payload.qualificationId
+    ? persons.value.find((person) =>
+        person.qualifications.some((qualification) => qualification.id === payload.qualificationId)
+      )
+    : undefined;
+  const existingQualification = payload.qualificationId
+    ? existingOwner?.qualifications.find((qualification) => qualification.id === payload.qualificationId)
+    : undefined;
+  const nextQualification = buildPersonnelQualification(payload, existingQualification);
+
+  persons.value = persons.value.map((person) => {
+    const withoutEdited = payload.qualificationId
+      ? person.qualifications.filter((qualification) => qualification.id !== payload.qualificationId)
+      : person.qualifications;
+
+    if (person.id !== payload.personId) {
+      return {
+        ...person,
+        qualifications: withoutEdited
+      };
+    }
+
+    return {
+      ...person,
+      qualifications: [...withoutEdited, nextQualification]
+    };
+  });
+
+  await handleLocatePersonnelSource({
+    sourceFileId: payload.sourceFileId,
+    pageRange: payload.pageRange || undefined,
+    personId: payload.personId,
+    preview: existingQualification?.previewEvidence
+  });
+};
+
+const handleDeletePersonnelQualification = (payload: {
+  personId: string;
+  qualificationId: string;
+}) => {
+  persons.value = persons.value.map((person) => {
+    if (person.id !== payload.personId) return person;
+
+    return {
+      ...person,
+      qualifications: person.qualifications.filter(
+        (qualification) => qualification.id !== payload.qualificationId
+      )
+    };
+  });
 };
 
 const closeFileDetail = () => {
@@ -233,6 +424,10 @@ onUnmounted(() => {
         @locate-material="handleLocateMaterial"
         @locate-personnel-source="handleLocatePersonnelSource"
         @update-material-content="handleUpdateMaterialContent"
+        @save-qualification="handleSaveQualification"
+        @delete-qualification="handleDeleteQualification"
+        @save-personnel-qualification="handleSavePersonnelQualification"
+        @delete-personnel-qualification="handleDeletePersonnelQualification"
       />
     </div>
   </div>

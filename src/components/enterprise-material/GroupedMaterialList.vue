@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Search, X } from 'lucide-vue-next';
+import { Plus, Search, X } from 'lucide-vue-next';
 import type {
   Material,
   MaterialGroup,
   Person,
   PersonQualification,
-  QualificationBucket,
-  QualificationDomain
+  SourcePreviewEvidence
 } from './types';
 
 const props = defineProps<{
@@ -15,12 +14,27 @@ const props = defineProps<{
   groups: MaterialGroup[];
   persons?: Person[];
   activeMaterialId?: string | null;
+  selectedFileId?: number | null;
+  createButtonLabel?: string;
 }>();
 
 const emit = defineEmits<{
+  create: [];
   locate: [material: Material];
   openDetail: [material: Material];
   openPersonDetail: [person: Person];
+  editQualification: [material: Material];
+  deleteQualification: [material: Material];
+  editPersonnelQualification: [payload: { person: Person; qualification: PersonQualification }];
+  deletePersonnelQualification: [payload: { person: Person; qualification: PersonQualification }];
+  locatePersonnelQualification: [
+    payload: {
+      sourceFileId: number;
+      pageRange?: string;
+      personId: string;
+      preview?: SourcePreviewEvidence;
+    }
+  ];
   updateContent: [payload: { materialId: string; content: string }];
 }>();
 
@@ -29,6 +43,11 @@ const getKeyInfoValue = (material: Material, key: string) =>
 
 const editingProfileId = ref<string | null>(null);
 const profileDraft = ref('');
+
+interface ProfileDocumentParts {
+  title: string;
+  body: string;
+}
 
 const escapeHtml = (value: string) =>
   value
@@ -101,9 +120,51 @@ const renderMarkdown = (value: string | undefined) => {
   return html.join('');
 };
 
+const getProfileDocumentParts = (material: Material): ProfileDocumentParts => {
+  const content = (material.fullText || material.summary || '').replace(/\r\n/g, '\n').trim();
+  const headingMatch = content.match(/^#\s+(.+?)\n+(.*)$/s);
+
+  if (!headingMatch) {
+    return {
+      title: material.name,
+      body: content
+    };
+  }
+
+  return {
+    title: headingMatch[1]?.trim() || material.name,
+    body: headingMatch[2]?.trim() || ''
+  };
+};
+
+const buildProfileDocument = (title: string, body: string) => {
+  const trimmedBody = body.trim();
+  return trimmedBody ? `# ${title}\n\n${trimmedBody}` : `# ${title}`;
+};
+
+const buildAiExtractedProfileBody = (material: Material, draftBody: string) => {
+  const structuredInfo = material.keyInfo
+    .filter((item) => item.value.trim() !== '')
+    .map((item) => `- ${item.key}：${item.value}`)
+    .join('\n');
+
+  const fallbackBody = material.summary.trim() ? `## 企业介绍\n\n${material.summary.trim()}` : '';
+  const normalizedBody = (draftBody.trim() || fallbackBody)
+    .replace(/\n{2,}## AI智能提取要点[\s\S]*$/u, '')
+    .trim();
+
+  if (!structuredInfo) {
+    return normalizedBody;
+  }
+
+  return [normalizedBody, `## AI智能提取要点\n\n${structuredInfo}`]
+    .filter((section) => section.trim() !== '')
+    .join('\n\n');
+};
+
 const startProfileEdit = (material: Material) => {
   editingProfileId.value = material.id;
-  profileDraft.value = material.fullText || material.summary;
+  profileDraft.value = getProfileDocumentParts(material).body;
 };
 
 const cancelProfileEdit = () => {
@@ -112,8 +173,16 @@ const cancelProfileEdit = () => {
 };
 
 const saveProfileEdit = (material: Material) => {
-  emit('updateContent', { materialId: material.id, content: profileDraft.value });
+  const { title } = getProfileDocumentParts(material);
+  emit('updateContent', {
+    materialId: material.id,
+    content: buildProfileDocument(title, profileDraft.value)
+  });
   cancelProfileEdit();
+};
+
+const applyProfileAiExtraction = (material: Material) => {
+  profileDraft.value = buildAiExtractedProfileBody(material, profileDraft.value);
 };
 
 const sortByListOrder = (items: Material[]) =>
@@ -132,8 +201,6 @@ interface QualificationRow {
 }
 
 const filterQualificationName = ref('');
-const filterQualificationType = ref<QualificationBucket | ''>('');
-const filterQualificationDomain = ref<QualificationDomain | ''>('');
 const filterQualificationStatus = ref<QualificationStatusFilter>('');
 
 type PersonnelQualType = PersonQualification['qualificationType'] | '';
@@ -171,34 +238,6 @@ const qualificationRows = computed<QualificationRow[]>(() => {
   );
 });
 
-const qualificationTypeOrder: QualificationBucket[] = [
-  '主体证明',
-  '准入资质',
-  '能力资质',
-  '管理体系认证',
-  '荣誉品牌',
-  '行业参与'
-];
-
-const qualificationDomainOrder: QualificationDomain[] = ['通用', '等保', '密评', '风险评估', '审计', '应急', '数据安全'];
-
-const availableQualificationTypes = computed<QualificationBucket[]>(() => {
-  const present = new Set(
-    qualificationRows.value
-      .map((row) => row.material.qualification?.bucket)
-      .filter((value): value is QualificationBucket => !!value)
-  );
-  return qualificationTypeOrder.filter((item) => present.has(item));
-});
-
-const availableQualificationDomains = computed<QualificationDomain[]>(() => {
-  const present = new Set<QualificationDomain>();
-  qualificationRows.value.forEach((row) => {
-    row.material.qualification?.serviceDomains?.forEach((domain) => present.add(domain));
-  });
-  return qualificationDomainOrder.filter((item) => present.has(item));
-});
-
 const qualificationStatusKey = (material: Material): Exclude<QualificationStatusFilter, ''> => {
   const status = material.qualification?.status;
   if (status === 'expired') return 'expired';
@@ -224,21 +263,9 @@ const filteredQualificationRows = computed<QualificationRow[]>(() => {
 
   return qualificationRows.value.filter((row) => {
     const material = row.material;
-    const qualification = material.qualification;
     const name = qualDisplayName(material);
 
     if (keyword && !name.toLowerCase().includes(keyword)) {
-      return false;
-    }
-
-    if (filterQualificationType.value && qualification?.bucket !== filterQualificationType.value) {
-      return false;
-    }
-
-    if (
-      filterQualificationDomain.value &&
-      !qualification?.serviceDomains?.includes(filterQualificationDomain.value)
-    ) {
       return false;
     }
 
@@ -256,6 +283,8 @@ const personnelRows = computed<PersonnelRow[]>(() => {
   const rows: PersonnelRow[] = [];
   for (const person of props.persons ?? []) {
     for (const qual of person.qualifications) {
+      const qualificationSourceFileId = qual.sourceFileId ?? person.sourceFileId;
+      if (props.selectedFileId && qualificationSourceFileId !== props.selectedFileId) continue;
       rows.push({
         person,
         qual,
@@ -276,7 +305,13 @@ const filteredPersonnelRows = computed<PersonnelRow[]>(() => {
   const keyword = filterPersonnelName.value.trim().toLowerCase();
 
   return personnelRows.value.filter((row) => {
-    if (keyword && !row.person.name.toLowerCase().includes(keyword)) return false;
+    if (
+      keyword &&
+      !row.person.name.toLowerCase().includes(keyword) &&
+      !row.qual.qualificationName.toLowerCase().includes(keyword)
+    ) {
+      return false;
+    }
     if (filterPersonnelQualType.value && row.qual.qualificationType !== filterPersonnelQualType.value) return false;
     if (filterPersonnelStatus.value && row.qual.status !== filterPersonnelStatus.value) return false;
     return true;
@@ -310,8 +345,34 @@ const personnelStatusClass = (q: PersonQualification) => {
 
 const personnelExpiryDisplay = (q: PersonQualification) => q.expiresAt || '长期';
 
+const personnelEffectiveLabel = (q: PersonQualification) => {
+  const expiryText = personnelExpiryDisplay(q);
+  const statusText = personnelStatusLabel(q);
+  if (q.status !== 'valid') return statusText;
+  if (expiryText === '长期') return '长期有效';
+  return expiryText;
+};
+
+const personnelEffectiveClass = (q: PersonQualification) => {
+  if (q.status === 'expired') return 'expiry-expired';
+  if (q.status === 'suspended') return 'expiry-revoked';
+  return 'status-valid';
+};
+
 const personnelQualNameDisplay = (q: PersonQualification) =>
   q.level ? `${q.qualificationName}（${q.level}）` : q.qualificationName;
+
+const locatePersonnelQualification = (person: Person, qualification: PersonQualification) => {
+  const sourceFileId = qualification.sourceFileId ?? person.sourceFileId;
+  if (!sourceFileId) return;
+
+  emit('locatePersonnelQualification', {
+    sourceFileId,
+    pageRange: qualification.pageRange || person.pageRange,
+    personId: person.id,
+    preview: qualification.previewEvidence ?? person.sourcePreviewEvidence
+  });
+};
 
 const caseRows = computed<CaseRow[]>(() => {
   if (props.variant !== 'cases') return [];
@@ -393,15 +454,11 @@ const clearCaseFilters = () => {
 const hasActiveQualificationFilter = computed(
   () =>
     filterQualificationName.value.trim() !== '' ||
-    filterQualificationType.value !== '' ||
-    filterQualificationDomain.value !== '' ||
     filterQualificationStatus.value !== ''
 );
 
 const clearQualificationFilters = () => {
   filterQualificationName.value = '';
-  filterQualificationType.value = '';
-  filterQualificationDomain.value = '';
   filterQualificationStatus.value = '';
 };
 
@@ -409,34 +466,6 @@ const qualDisplayName = (material: Material) =>
   material.qualification?.name ||
   getKeyInfoValue(material, '资质认证名称') ||
   material.name;
-
-const qualCategoryCol = (material: Material) =>
-  material.qualification?.bucket ||
-  [material.qualification?.category, material.qualification?.subcategory].filter(Boolean).join(' / ') ||
-  material.categoryLabel;
-
-const qualDomainsCol = (material: Material) =>
-  material.qualification?.serviceDomains?.join(' / ') || '—';
-
-const qualScopeCol = (material: Material) =>
-  material.qualification?.standardCode ||
-  material.qualification?.majorScope ||
-  getKeyInfoValue(material, '认证依据') ||
-  getKeyInfoValue(material, '适用范围') ||
-  '—';
-
-const qualIssuerCol = (material: Material) =>
-  material.qualification?.issuer ||
-  getKeyInfoValue(material, '颁发机构') ||
-  getKeyInfoValue(material, '认证机构') ||
-  getKeyInfoValue(material, '认定机关') ||
-  '—';
-
-const qualIssuedCol = (material: Material) =>
-  material.qualification?.issuedAt ||
-  getKeyInfoValue(material, '颁发时间') ||
-  getKeyInfoValue(material, '发证日期') ||
-  '—';
 
 const qualExpiresCol = (material: Material) =>
   material.qualification?.expiresAt ||
@@ -556,7 +585,7 @@ const getMaterialExpiryClass = (material: Material) => {
 
 <template>
   <div v-if="variant === 'qualification'" class="qualification-wrap">
-    <div class="filter-bar">
+    <div class="filter-bar qualification-filter-bar">
       <div class="filter-input-wrap">
         <Search class="filter-input-icon" :size="13" />
         <input
@@ -566,16 +595,6 @@ const getMaterialExpiryClass = (material: Material) => {
           placeholder="搜索资质名称…"
         />
       </div>
-
-      <select v-model="filterQualificationType" class="filter-select">
-        <option value="">全部类型</option>
-        <option v-for="item in availableQualificationTypes" :key="item" :value="item">{{ item }}</option>
-      </select>
-
-      <select v-model="filterQualificationDomain" class="filter-select">
-        <option value="">全部专业领域</option>
-        <option v-for="item in availableQualificationDomains" :key="item" :value="item">{{ item }}</option>
-      </select>
 
       <select v-model="filterQualificationStatus" class="filter-select">
         <option value="">全部有效期</option>
@@ -595,19 +614,28 @@ const getMaterialExpiryClass = (material: Material) => {
         <span>清除</span>
       </button>
 
-      <span class="filter-count">{{ filteredQualificationRows.length }} 条</span>
+      <div class="filter-bar-actions">
+        <span class="filter-count qualification-filter-count">{{ filteredQualificationRows.length }} 条</span>
+        <button
+          v-if="createButtonLabel"
+          type="button"
+          class="filter-create-btn"
+          @click="emit('create')"
+        >
+          <Plus :size="14" />
+          <span>{{ createButtonLabel }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="table-wrap">
-      <table class="matter-table" role="grid">
+      <table class="matter-table qualification-table" role="grid">
         <thead>
           <tr>
             <th class="col-idx" scope="col">#</th>
-            <th scope="col">资质名称</th>
-            <th scope="col">类型</th>
-            <th scope="col">专业领域</th>
-            <th scope="col">有效期</th>
-            <th class="col-act" scope="col">操作</th>
+            <th class="col-qualification-name" scope="col">资质名称</th>
+            <th class="col-qualification-expiry" scope="col">有效期</th>
+            <th class="col-act col-qualification-act" scope="col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -619,25 +647,21 @@ const getMaterialExpiryClass = (material: Material) => {
             :data-material-id="row.material.id"
           >
             <td class="cell-num">{{ idx + 1 }}</td>
-            <td class="cell-name">{{ qualDisplayName(row.material) }}</td>
-            <td>
-              <span class="type-tag">{{ qualCategoryCol(row.material) }}</span>
-            </td>
-            <td class="cell-muted">{{ qualDomainsCol(row.material) }}</td>
-            <td class="cell-status">
+            <td class="cell-name qualification-name-cell">{{ qualDisplayName(row.material) }}</td>
+            <td class="cell-status qualification-expiry-cell">
               <span
                 class="status-tag effective-tag"
                 :class="qualEffectiveDisplayClass(row.material)"
               >{{ qualEffectiveLabel(row.material) }}</span>
             </td>
-            <td class="cell-act">
+            <td class="cell-act qualification-action-cell">
               <div class="action-links">
                 <button
                   type="button"
                   class="row-link"
-                  @click="emit('openDetail', row.material)"
+                  @click="emit('editQualification', row.material)"
                 >
-                  详情
+                  编辑
                 </button>
                 <button
                   type="button"
@@ -651,7 +675,7 @@ const getMaterialExpiryClass = (material: Material) => {
           </tr>
 
           <tr v-if="filteredQualificationRows.length === 0">
-            <td colspan="6" class="empty-cell">暂无符合条件的资质记录</td>
+            <td colspan="4" class="empty-cell">暂无符合条件的资质记录</td>
           </tr>
         </tbody>
       </table>
@@ -666,7 +690,7 @@ const getMaterialExpiryClass = (material: Material) => {
           v-model="filterPersonnelName"
           type="text"
           class="filter-input"
-          placeholder="搜索姓名…"
+          placeholder="搜索姓名或资质…"
         />
       </div>
 
@@ -692,20 +716,30 @@ const getMaterialExpiryClass = (material: Material) => {
         <span>清除</span>
       </button>
 
-      <span class="filter-count">{{ filteredPersonnelRows.length }} 条</span>
+      <div class="filter-bar-actions">
+        <span class="filter-count">{{ filteredPersonnelRows.length }} 条</span>
+        <button
+          v-if="createButtonLabel"
+          type="button"
+          class="filter-create-btn"
+          @click="emit('create')"
+        >
+          <Plus :size="14" />
+          <span>{{ createButtonLabel }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="table-wrap">
-      <table class="matter-table" role="grid">
+      <table class="matter-table personnel-table" role="grid">
         <thead>
           <tr>
             <th class="col-idx" scope="col">#</th>
-            <th scope="col">姓名</th>
-            <th scope="col">资质类型</th>
-            <th scope="col">资质名称</th>
-            <th scope="col">有效期至</th>
-            <th class="col-status" scope="col">状态</th>
-            <th class="col-act" scope="col">操作</th>
+            <th class="col-personnel-name" scope="col">姓名</th>
+            <th class="col-personnel-type" scope="col">资质类型</th>
+            <th class="col-personnel-name-title" scope="col">资质名称</th>
+            <th class="col-personnel-effective" scope="col">有效期</th>
+            <th class="col-personnel-act" scope="col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -717,32 +751,41 @@ const getMaterialExpiryClass = (material: Material) => {
             :data-material-id="row.person.id"
           >
             <td class="cell-num">{{ idx + 1 }}</td>
-            <td class="cell-name">{{ row.person.name }}</td>
-            <td>
+            <td class="cell-name personnel-name-cell">{{ row.person.name }}</td>
+            <td class="personnel-type-cell">
               <span class="type-tag">{{ row.qual.qualificationType }}</span>
             </td>
-            <td class="cell-muted" :title="personnelQualNameDisplay(row.qual)">
+            <td class="cell-muted personnel-name-title-cell" :title="personnelQualNameDisplay(row.qual)">
               {{ personnelQualNameDisplay(row.qual) }}
             </td>
-            <td class="cell-muted">{{ personnelExpiryDisplay(row.qual) }}</td>
-            <td class="cell-status">
-              <span class="status-tag" :class="personnelStatusClass(row.qual)">
-                {{ personnelStatusLabel(row.qual) }}
+            <td class="cell-status personnel-effective-cell">
+              <span class="status-tag effective-tag" :class="personnelEffectiveClass(row.qual)">
+                {{ personnelEffectiveLabel(row.qual) }}
               </span>
             </td>
-            <td class="cell-act">
-              <button
-                type="button"
-                class="row-link"
-                @click="emit('openPersonDetail', row.person)"
-              >
-                人员详情
-              </button>
+            <td class="cell-act personnel-action-cell">
+              <div class="action-links">
+                <button
+                  type="button"
+                  class="row-link"
+                  @click="emit('editPersonnelQualification', { person: row.person, qualification: row.qual })"
+                >
+                  编辑
+                </button>
+                <button
+                  v-if="row.qual.sourceFileId || row.person.sourceFileId"
+                  type="button"
+                  class="row-link"
+                  @click="locatePersonnelQualification(row.person, row.qual)"
+                >
+                  {{ getLocateLabel() }}
+                </button>
+              </div>
             </td>
           </tr>
 
           <tr v-if="filteredPersonnelRows.length === 0">
-            <td colspan="7" class="empty-cell">暂无符合条件的资质记录</td>
+            <td colspan="6" class="empty-cell">暂无符合条件的资质记录</td>
           </tr>
         </tbody>
       </table>
@@ -866,13 +909,13 @@ const getMaterialExpiryClass = (material: Material) => {
             v-if="variant === 'profile'"
             class="profile-document"
           >
-            <div class="profile-toolbar">
-              <div class="profile-title">{{ material.name }}</div>
+            <div class="profile-header">
+              <h1 class="profile-title">{{ getProfileDocumentParts(material).title }}</h1>
               <div class="profile-actions">
                 <button
                   v-if="editingProfileId !== material.id"
                   type="button"
-                  class="row-link"
+                  class="profile-action-btn profile-action-btn-edit"
                   @click="startProfileEdit(material)"
                 >
                   编辑
@@ -880,14 +923,21 @@ const getMaterialExpiryClass = (material: Material) => {
                 <template v-else>
                   <button
                     type="button"
-                    class="row-link"
+                    class="profile-action-btn profile-action-btn-ai"
+                    @click="applyProfileAiExtraction(material)"
+                  >
+                    AI智能提取
+                  </button>
+                  <button
+                    type="button"
+                    class="profile-action-btn profile-action-btn-save"
                     @click="saveProfileEdit(material)"
                   >
                     保存
                   </button>
                   <button
                     type="button"
-                    class="row-link row-link-muted"
+                    class="profile-action-btn profile-action-btn-cancel"
                     @click="cancelProfileEdit"
                   >
                     取消
@@ -900,12 +950,13 @@ const getMaterialExpiryClass = (material: Material) => {
               v-if="editingProfileId === material.id"
               v-model="profileDraft"
               class="profile-editor"
+              placeholder="请输入企业简介正文内容..."
               spellcheck="false"
             />
             <div
               v-else
               class="profile-markdown"
-              v-html="renderMarkdown(material.fullText || material.summary)"
+              v-html="renderMarkdown(getProfileDocumentParts(material).body)"
             ></div>
           </div>
 
@@ -1022,10 +1073,60 @@ const getMaterialExpiryClass = (material: Material) => {
 }
 
 .filter-count {
-  margin-left: auto;
   font-size: 12px;
   font-weight: 600;
   color: #64748b;
+}
+
+.filter-bar-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qualification-filter-bar {
+  align-items: stretch;
+}
+
+.qualification-filter-bar .filter-input-wrap {
+  min-width: 220px;
+}
+
+.qualification-filter-bar .filter-input {
+  width: 220px;
+}
+
+.qualification-filter-bar .filter-select {
+  min-width: 112px;
+}
+
+.qualification-filter-count {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.filter-create-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.filter-create-btn:hover {
+  background: #1d4ed8;
 }
 
 .flat-groups {
@@ -1058,6 +1159,14 @@ const getMaterialExpiryClass = (material: Material) => {
   font-size: 12px;
   line-height: 1.45;
   color: #0f172a;
+}
+
+.qualification-table {
+  table-layout: fixed;
+}
+
+.personnel-table {
+  table-layout: fixed;
 }
 
 .matter-table thead th {
@@ -1101,6 +1210,42 @@ const getMaterialExpiryClass = (material: Material) => {
   text-align: right;
 }
 
+.col-qualification-name {
+  width: calc(100% - 44px - 132px - 152px);
+}
+
+.col-qualification-expiry {
+  width: 132px;
+  text-align: left;
+}
+
+.col-personnel-name {
+  width: 88px;
+}
+
+.col-personnel-type {
+  width: 74px;
+}
+
+.col-personnel-name-title {
+  width: calc(100% - 44px - 88px - 74px - 112px - 164px);
+}
+
+.col-qualification-act {
+  width: 152px;
+  text-align: left;
+}
+
+.col-personnel-effective {
+  width: 112px;
+  text-align: left;
+}
+
+.col-personnel-act {
+  width: 164px;
+  text-align: left;
+}
+
 .cell-num {
   font-variant-numeric: tabular-nums;
   color: #64748b;
@@ -1109,6 +1254,26 @@ const getMaterialExpiryClass = (material: Material) => {
 .cell-name {
   font-weight: 500;
   color: #0f172a;
+}
+
+.qualification-name-cell {
+  padding-right: 8px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.personnel-name-cell,
+.personnel-name-title-cell {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.personnel-name-title-cell {
+  line-height: 1.6;
+}
+
+.personnel-type-cell {
+  text-align: left;
 }
 
 .case-project-name,
@@ -1133,10 +1298,37 @@ const getMaterialExpiryClass = (material: Material) => {
   white-space: nowrap;
 }
 
+.qualification-expiry-cell {
+  text-align: left;
+}
+
+.personnel-effective-cell {
+  text-align: left;
+}
+
+.personnel-action-cell {
+  text-align: left;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.qualification-action-cell {
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: left;
+}
+
 .action-links {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.qualification-action-cell .action-links {
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .row-link {
@@ -1153,6 +1345,14 @@ const getMaterialExpiryClass = (material: Material) => {
 
 .row-link:hover {
   color: #1d4ed8;
+}
+
+.row-link-danger {
+  color: #dc2626;
+}
+
+.row-link-danger:hover {
+  color: #b91c1c;
 }
 
 .status-tag {
@@ -1183,6 +1383,11 @@ const getMaterialExpiryClass = (material: Material) => {
 }
 
 .status-revoked {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+.status-suspended {
   color: #9a3412;
   background: #ffedd5;
 }
@@ -1249,20 +1454,20 @@ const getMaterialExpiryClass = (material: Material) => {
 .profile-document {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-.profile-toolbar {
+.profile-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .profile-title {
-  font-size: 14px;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.35;
   font-weight: 700;
   color: #0f172a;
 }
@@ -1270,7 +1475,51 @@ const getMaterialExpiryClass = (material: Material) => {
 .profile-actions {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.profile-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.profile-action-btn:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.profile-action-btn-save {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.profile-action-btn-save:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+}
+
+.profile-action-btn-cancel {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.profile-action-btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
 }
 
 .profile-editor {
@@ -1284,7 +1533,8 @@ const getMaterialExpiryClass = (material: Material) => {
   line-height: 1.75;
   color: #334155;
   background: #ffffff;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .profile-editor:focus {
@@ -1300,7 +1550,6 @@ const getMaterialExpiryClass = (material: Material) => {
   word-break: break-word;
 }
 
-.profile-markdown :deep(h1),
 .profile-markdown :deep(h2),
 .profile-markdown :deep(h3) {
   margin: 0 0 12px;
@@ -1308,12 +1557,8 @@ const getMaterialExpiryClass = (material: Material) => {
   font-weight: 700;
 }
 
-.profile-markdown :deep(h1) {
-  font-size: 22px;
-}
-
 .profile-markdown :deep(h2) {
-  margin-top: 22px;
+  margin-top: 6px;
   font-size: 18px;
 }
 
@@ -1408,13 +1653,34 @@ const getMaterialExpiryClass = (material: Material) => {
 }
 
 @media (max-width: 960px) {
-  .filter-count {
+  .filter-bar-actions {
     margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .qualification-filter-bar .filter-input-wrap,
+  .qualification-filter-bar .filter-input,
+  .qualification-filter-bar .filter-select {
+    min-width: 0;
+    width: auto;
+  }
+
+  .qualification-filter-count {
+    padding-left: 0;
   }
 
   .plain-row-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .profile-header {
+    flex-direction: column;
+  }
+
+  .profile-actions {
+    flex-wrap: wrap;
   }
 }
 </style>

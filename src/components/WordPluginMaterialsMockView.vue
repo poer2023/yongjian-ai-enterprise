@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { ChevronLeft, Package, Plus } from 'lucide-vue-next';
+import { computed, ref, onBeforeUnmount } from 'vue';
+import { ChevronLeft, Package, Plus, Search, X } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -26,21 +26,112 @@ type HistoryBid = {
 const pluginView = ref<'home' | 'materials'>('home');
 const selectedBidId = ref<string | null>(null);
 const materialSearch = ref('');
+const searchedMaterialQuery = ref('');
 const isLoggedIn = ref(true);
 const showAccountMenu = ref(false);
-const materialsMode = ref<'recommended' | 'all' | 'history'>('history');
 const selectedMaterialName = ref('');
 const showImagePicker = ref(false);
 const insertedMaterials = ref<Record<string, number>>({});
 const selectedImageIds = ref<number[]>([]);
 const pickerImages = computed(() => Array.from({ length: 12 }, (_, idx) => idx + 1));
+const docContentRef = ref<HTMLElement | null>(null);
+const isSmartWriting = ref(false);
 
 /** Top-level pane after selecting a bid */
 const primaryShellTab = ref<'writing' | 'materials'>('writing');
 const writingAssistInfo = ref('');
 
+let savedDocRange: Range | null = null;
+let smartWritingTimer: number | null = null;
+
+const stopSmartWriting = () => {
+  if (smartWritingTimer !== null) {
+    window.clearInterval(smartWritingTimer);
+    smartWritingTimer = null;
+  }
+  isSmartWriting.value = false;
+};
+
+const captureDocSelection = () => {
+  const doc = docContentRef.value;
+  const selection = window.getSelection();
+  if (!doc || !selection || selection.rangeCount === 0) return;
+  const range = selection.getRangeAt(0);
+  if (!doc.contains(range.startContainer) || !doc.contains(range.endContainer)) return;
+  savedDocRange = range.cloneRange();
+};
+
+const restoreDocSelection = () => {
+  const doc = docContentRef.value;
+  const selection = window.getSelection();
+  if (!doc || !selection) return null;
+
+  let range: Range;
+  if (savedDocRange && doc.contains(savedDocRange.startContainer)) {
+    range = savedDocRange.cloneRange();
+  } else {
+    range = document.createRange();
+    range.selectNodeContents(doc);
+    range.collapse(false);
+  }
+
+  doc.focus();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  savedDocRange = range.cloneRange();
+  return range;
+};
+
+const buildMockWritingText = () => {
+  const assist = writingAssistInfo.value.trim().replace(/\s+/g, ' ');
+  const assistClause = assist
+    ? `\n\n结合本次补充说明，建议在正文中进一步突出${assist.slice(0, 28)}${assist.length > 28 ? '等重点内容' : ''}。`
+    : '';
+  return `金盾检测技术股份有限公司是一家专注于网络安全服务领域的国家级专精特新“小巨人”高科技企业，具备网络安全服务认证等级保护测评服务认证证书、商用密码检测机构资质证书，并为中国合格评定国家认可委员会检验机构认可单位，可为本项目提供合规、专业、稳定的测评服务支撑。
+
+金盾检测为客户提供信息系统全生命周期中的网络安全服务，包括安全咨询、等级保护测评、商用密码应用安全性评估、风险评估、渗透测试、软件测试、数据安全评估、安全培训、应急演练、安全检查及重要时期安全保障等内容，能够满足用户全方位的网络安全需求。公司业务覆盖全国范围，在北京、上海、广东、江苏、四川、福建、广西、安徽等省份设有直属分支机构，具备雄厚的技术实力、丰富的行业经验和完善的人才梯队。
+
+针对本次信息系统安全等级保护测评项目，我司将严格按照国家标准流程组织实施，围绕测评详细工作流程、团队人员分工、测评工具、服务质量控制措施、保密措施及验收安排展开工作，确保测评范围完整、测评方法完整、项目过程文档完整，并通过及时响应、规范交付和持续沟通保障项目进度与实施质量。${assistClause}`;
+};
+
 const runSmartWriting = () => {
-  // no-op for mock action
+  if (isSmartWriting.value) return;
+
+  const range = restoreDocSelection();
+  if (!range) return;
+
+  stopSmartWriting();
+  isSmartWriting.value = true;
+
+  range.deleteContents();
+  const insertedNode = document.createTextNode('');
+  range.insertNode(insertedNode);
+
+  const streamText = buildMockWritingText();
+  let cursor = 0;
+
+  smartWritingTimer = window.setInterval(() => {
+    const nextChunk = streamText.slice(cursor, cursor + 1);
+    if (!nextChunk) {
+      stopSmartWriting();
+      return;
+    }
+
+    insertedNode.textContent = `${insertedNode.textContent ?? ''}${nextChunk}`;
+    cursor += nextChunk.length;
+
+    const selection = window.getSelection();
+    const liveRange = document.createRange();
+    liveRange.setStart(insertedNode, insertedNode.textContent?.length ?? 0);
+    liveRange.collapse(true);
+    selection?.removeAllRanges();
+    selection?.addRange(liveRange);
+    savedDocRange = liveRange.cloneRange();
+
+    if (cursor >= streamText.length) {
+      stopSmartWriting();
+    }
+  }, 35);
 };
 
 const materialGroups = computed<MaterialGroup[]>(() => [
@@ -92,41 +183,91 @@ const historyBids = computed<HistoryBid[]>(() => [
   { id: 'h3', title: '网络安全服务采购项目投标文件', updatedAt: '昨天 21:05' },
 ]);
 
+const materialQuickSearches = ['企业资质', '项目经理证书', '授权代理人身份证', '银行业绩案例'];
+
 const selectedBid = computed(() => historyBids.value.find((item) => item.id === selectedBidId.value) ?? null);
 
-const historyBidMaterials = computed<MaterialItem[]>(() =>
-  historyBids.value.map((bid) => ({
-    name: bid.title,
-    subtype: `历史标书 · ${bid.updatedAt}`,
-    icon: '🗂️',
-    status: 'recommended' as const,
-  })),
-);
-
 const allMaterials = computed(() => materialGroups.value.flatMap((group) => group.items));
+const writingStatusText = computed(() =>
+  isSmartWriting.value
+    ? '正在从左侧当前光标位置流式写入正文。'
+    : '生成结果会直接写入左侧当前光标所在位置，请先在正文中定位插入点。'
+);
+const writingNoticeItems = [
+  '每次仅生成当前小节所需的正文内容，不会自动扩写整篇标书。',
+  '本功能只生成文字内容，不会自动插入图片、证书扫描件或表格素材。',
+  '如需补充资质、业绩或人员材料，请切换到“插入素材”后手动插入。',
+];
 
-const filteredMaterials = computed(() => {
-  const source = materialsMode.value === 'history'
-    ? historyBidMaterials.value
-    : materialsMode.value === 'recommended'
-      ? allMaterials.value.filter((item) => item.status === 'recommended' || item.status === 'high')
-      : [];
-  const keyword = materialSearch.value.trim().toLowerCase();
-  if (!keyword) return source;
-  return source.filter((item) => `${item.name} ${item.subtype}`.toLowerCase().includes(keyword));
+const buildMockMaterialResults = (query: string) => {
+  const normalized = query.toLowerCase();
+  const matched = new Map<string, MaterialItem>();
+  const addMatches = (predicate: (item: MaterialItem) => boolean) => {
+    allMaterials.value.filter(predicate).forEach((item) => matched.set(item.name, item));
+  };
+
+  if (/(资质|证书|认证|执照|体系)/.test(normalized)) {
+    addMatches((item) => item.subtype.includes('资质') || item.subtype.includes('体系'));
+  }
+  if (/(团队|人员|项目经理|工程师|专家)/.test(normalized)) {
+    addMatches((item) => item.subtype.includes('核心岗位') || item.subtype.includes('团队成员'));
+  }
+  if (/(身份证|法人|授权|签章)/.test(normalized)) {
+    addMatches((item) => item.subtype.includes('签章材料'));
+  }
+  if (/(业绩|案例|银行|保险|政务|项目经验)/.test(normalized)) {
+    addMatches((item) => item.icon === '📁');
+  }
+
+  if (matched.size === 0) {
+    allMaterials.value
+      .filter((item) => item.status === 'recommended' || item.status === 'high')
+      .slice(0, 4)
+      .forEach((item) => matched.set(item.name, item));
+  }
+
+  return Array.from(matched.values()).map((item) => ({
+    ...item,
+    subtype: `${item.subtype} · 根据输入内容智能匹配`,
+  }));
+};
+
+const searchedMaterials = computed(() => {
+  const query = searchedMaterialQuery.value.trim();
+  if (!query) return [];
+  return buildMockMaterialResults(query);
 });
+
+const runMaterialSearch = () => {
+  const query = materialSearch.value.trim();
+  if (!query) return;
+  searchedMaterialQuery.value = query;
+};
+
+const resetMaterialSearch = () => {
+  materialSearch.value = '';
+  searchedMaterialQuery.value = '';
+};
+
+const applyQuickMaterialSearch = (keyword: string) => {
+  materialSearch.value = keyword;
+  searchedMaterialQuery.value = keyword;
+};
 
 const openBidMaterials = (bidId: string) => {
   selectedBidId.value = bidId;
   pluginView.value = 'materials';
   primaryShellTab.value = 'writing';
-  materialsMode.value = 'history';
+  materialSearch.value = '';
+  searchedMaterialQuery.value = '';
 };
 
 const backToPluginHome = () => {
+  stopSmartWriting();
   selectedBidId.value = null;
   pluginView.value = 'home';
   materialSearch.value = '';
+  searchedMaterialQuery.value = '';
   showAccountMenu.value = false;
 };
 
@@ -180,6 +321,7 @@ const toggleAccountMenu = () => {
 };
 
 const handleLogout = () => {
+  stopSmartWriting();
   isLoggedIn.value = false;
   showAccountMenu.value = false;
   pluginView.value = 'home';
@@ -192,8 +334,13 @@ const handleLogin = () => {
 };
 
 const backToResult = () => {
+  stopSmartWriting();
   router.push({ name: 'bid-doc-plugin-result' });
 };
+
+onBeforeUnmount(() => {
+  stopSmartWriting();
+});
 </script>
 
 <template>
@@ -274,7 +421,14 @@ const backToResult = () => {
           <div class="word-editor-body">
             <div class="word-canvas-wrap">
               <div class="word-canvas">
-                <div class="doc-content">
+                <div
+                  ref="docContentRef"
+                  class="doc-content"
+                  contenteditable="true"
+                  spellcheck="false"
+                  @mouseup="captureDocSelection"
+                  @keyup="captureDocSelection"
+                >
                   <p>一、项目概况</p>
                   <p>本文件为 AI 自动生成的标书初稿内容示意，实际内容可在插件中按推荐素材继续完善。</p>
                   <p>二、商务响应</p>
@@ -344,34 +498,80 @@ const backToResult = () => {
                 </div>
 
                 <div v-if="primaryShellTab === 'writing'" class="plugin-writing-panel">
-                  <div class="writing-actions">
-                    <button type="button" class="smart-writing-btn" @click="runSmartWriting">生成文本</button>
-                    <p class="writing-action-note">单次点击仅生成本节内容</p>
-                  </div>
-                  <div class="writing-assist">
-                    <textarea
-                      v-model="writingAssistInfo"
-                      class="writing-assist-input"
-                      rows="5"
-                      placeholder="辅助信息（非必填）：可补充写作重点，如突出金融行业经验、强调进度保障、技术方案偏正式风格。"
-                    ></textarea>
+                  <section class="plugin-helper-card writing-notice-card">
+                    <div class="helper-card-head">
+                      <h3>生成说明</h3>
+                      <span class="helper-card-badge" :class="{ active: isSmartWriting }">
+                        {{ isSmartWriting ? '流式写入中' : '等待生成' }}
+                      </span>
+                    </div>
+                    <p class="helper-card-text">{{ writingStatusText }}</p>
+                    <ul class="helper-bullet-list">
+                      <li v-for="item in writingNoticeItems" :key="item">{{ item }}</li>
+                    </ul>
+                  </section>
+                  <div class="writing-control-stack">
+                    <div class="writing-actions">
+                      <button type="button" class="smart-writing-btn" :disabled="isSmartWriting" @click="runSmartWriting">
+                        {{ isSmartWriting ? '生成中...' : '生成文本' }}
+                      </button>
+                    </div>
+                    <div class="writing-assist">
+                      <textarea
+                        v-model="writingAssistInfo"
+                        class="writing-assist-input"
+                        rows="5"
+                        placeholder="辅助信息（非必填）：可补充写作重点，如突出金融行业经验、强调进度保障、技术方案偏正式风格。"
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
 
                 <div v-else class="plugin-materials-panel">
-                  <div class="materials-tabs">
-                    <button class="material-tab-btn" :class="{ active: materialsMode === 'history' }" @click="materialsMode = 'history'">历史标书素材</button>
-                    <button class="material-tab-btn" :class="{ active: materialsMode === 'recommended' }" @click="materialsMode = 'recommended'">推荐素材</button>
-                    <button class="material-tab-btn" :class="{ active: materialsMode === 'all' }" @click="materialsMode = 'all'">全部素材</button>
-                  </div>
-
                   <div class="materials-toolbar">
-                    <input v-model="materialSearch" class="materials-search" placeholder="搜索素材名称或类型" />
+                    <div class="materials-search-shell">
+                      <input
+                        v-model="materialSearch"
+                        class="materials-search-input"
+                        type="text"
+                        placeholder="搜索素材名称或类型"
+                        @keyup.enter="searchedMaterialQuery ? resetMaterialSearch() : runMaterialSearch()"
+                      />
+                      <button
+                        class="materials-search-btn"
+                        type="button"
+                        :aria-label="searchedMaterialQuery ? '清空搜索' : '搜索素材'"
+                        @click="searchedMaterialQuery ? resetMaterialSearch() : runMaterialSearch()"
+                      >
+                        <X v-if="searchedMaterialQuery" :size="14" />
+                        <Search v-else :size="14" />
+                      </button>
+                    </div>
                   </div>
 
-                  <div class="plugin-mock-list">
+                  <div v-if="!searchedMaterialQuery" class="plugin-mock-list materials-empty-state">
+                    <section class="plugin-helper-card">
+                      <div class="helper-card-head">
+                        <h3>快捷搜索</h3>
+                        <span class="helper-card-meta">点击即搜</span>
+                      </div>
+                      <div class="helper-chip-row">
+                        <button
+                          v-for="keyword in materialQuickSearches"
+                          :key="keyword"
+                          type="button"
+                          class="helper-chip helper-chip-button"
+                          @click="applyQuickMaterialSearch(keyword)"
+                        >
+                          {{ keyword }}
+                        </button>
+                      </div>
+                    </section>
+                  </div>
+
+                  <div v-else class="plugin-mock-list">
                     <article
-                      v-for="item in filteredMaterials"
+                      v-for="item in searchedMaterials"
                       :key="item.name"
                       class="material-row clickable"
                       @click="openImagePicker(item.name)"
@@ -388,7 +588,7 @@ const backToResult = () => {
                         {{ getInsertLabel(item.name) }}
                       </button>
                     </article>
-                    <div v-if="filteredMaterials.length === 0 && materialsMode !== 'all'" class="empty-tip">未搜索到匹配素材</div>
+                    <div v-if="searchedMaterialQuery && searchedMaterials.length === 0" class="empty-tip">未搜索到匹配素材</div>
                   </div>
                 </div>
               </div>
@@ -677,10 +877,19 @@ const backToResult = () => {
   font-size: 14px;
   line-height: 1.9;
   color: #111827;
+  min-height: 100%;
+  cursor: text;
+  caret-color: #2563eb;
+  outline: none;
 }
 
 .doc-content p {
   margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.doc-content:focus {
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.18);
 }
 
 .word-ruler {
@@ -779,8 +988,15 @@ const backToResult = () => {
   padding: 14px 12px 12px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.writing-control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
 }
 
 .writing-actions {
@@ -788,7 +1004,6 @@ const backToResult = () => {
   flex-direction: column;
   gap: 6px;
   width: 100%;
-  max-width: 295px;
 }
 
 .smart-writing-btn {
@@ -808,19 +1023,17 @@ const backToResult = () => {
   border-color: #1d4ed8;
 }
 
-.writing-action-note {
-  margin: 0;
-  font-size: 11px;
-  color: #64748b;
+.smart-writing-btn:disabled {
+  cursor: not-allowed;
+  background: #93c5fd;
+  border-color: #93c5fd;
 }
 
 .writing-assist {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
   width: 100%;
-  max-width: 295px;
 }
 
 .writing-assist-label {
@@ -1225,47 +1438,55 @@ const backToResult = () => {
   flex-shrink: 0;
 }
 
-.materials-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 10px 12px 0;
-}
-
-.material-tab-btn {
-  border: 1px solid #dbeafe;
-  background: #f8fbff;
-  color: #2563eb;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.material-tab-btn.active {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
-}
-
 .materials-toolbar {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px 0;
+  padding: 12px 12px 0;
 }
 
-.materials-search {
-  flex: 1;
-  height: 30px;
+.materials-empty-state {
+  justify-content: flex-start;
+}
+
+.materials-search-shell {
+  position: relative;
+}
+
+.materials-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 34px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 12px;
   color: #334155;
-  padding: 0 10px;
+  padding: 0 40px 0 10px;
+  font-family: inherit;
 }
 
-.materials-search:focus {
+.materials-search-input:focus {
   outline: none;
   border-color: #bfdbfe;
+}
+
+.materials-search-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.materials-search-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
 }
 
 .plugin-mock-list {
@@ -1275,6 +1496,100 @@ const backToResult = () => {
   gap: 8px;
   overflow-y: auto;
   min-height: 0;
+}
+
+.plugin-helper-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 12px;
+}
+
+.helper-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.helper-card-head h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.helper-card-meta {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.helper-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.helper-card-badge.active {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.helper-card-text {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.helper-bullet-list {
+  margin: 10px 0 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.helper-bullet-list li {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.helper-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.helper-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+}
+
+.helper-chip-button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.writing-notice-card {
+  width: 100%;
 }
 
 .material-row {

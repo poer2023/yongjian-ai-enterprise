@@ -16,8 +16,8 @@ const agents = [
   },
   {
     id: 102,
-    name: '资讯订阅',
-    description: '统一聚合多类资讯，包含标讯分类',
+    name: '标讯订阅',
+    description: '关键词智能监控，每日推送招标信息',
     icon: Newspaper,
     color: '#0f766e',
     bgColor: '#f0fdfa',
