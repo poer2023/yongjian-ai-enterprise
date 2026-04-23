@@ -5,11 +5,6 @@ export interface PolicyGroup {
   name: string;
   color: string;
   newCount?: number;
-  salesStrategy?: {
-    biddingUnits: number;
-    competitors: number;
-    bidNotices: number;
-  };
 }
 
 export interface DateOption {

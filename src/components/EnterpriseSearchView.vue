@@ -1,32 +1,36 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import {
-  Search,
-  Bell,
-  FileSearch,
-  FileText,
-  ChevronRight,
-  Zap,
-  Sparkles,
-  ScrollText,
-  Calendar,
-  MapPin
-} from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { PencilLine, Plus, Search, X } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
-const searchQuery = ref('');
+type FilterOption = {
+  value: string;
+  label: string;
+};
 
-// Filter states
+const router = useRouter();
+
+const searchQuery = ref('');
+const isRegionCollapsed = ref(false);
+const isSubscriptionEditMode = ref(false);
+const isSubscriptionModalOpen = ref(false);
+const subscriptionDraft = ref('');
+
 const activeInfoType = ref('all');
 const activeRegion = ref('all');
 const activeTimeRange = ref('all');
-const activeBudget = ref('all');
-const activeIndustry = ref('all');
-const activeSearchMode = ref('smart');
+const activeSearchMode = ref('exact');
 
-// Filter options
-const infoTypes = [
+const subscriptionWords = ref([
+  '等保测评',
+  '信息安全服务',
+  '网络安全运维',
+  '渗透测试',
+  '数据安全评估'
+]);
+const selectedSubscriptionWords = ref<string[]>(['等保测评', '信息安全服务']);
+
+const infoTypes: FilterOption[] = [
   { value: 'all', label: '全部' },
   { value: 'tender', label: '招标公告' },
   { value: 'pretender', label: '招标预告' },
@@ -36,21 +40,42 @@ const infoTypes = [
   { value: 'cancel', label: '废标公告' }
 ];
 
-const regions = [
+const regions: FilterOption[] = [
   { value: 'all', label: '全国' },
   { value: 'beijing', label: '北京' },
+  { value: 'tianjin', label: '天津' },
   { value: 'shanghai', label: '上海' },
-  { value: 'guangdong', label: '广东' },
-  { value: 'zhejiang', label: '浙江' },
+  { value: 'chongqing', label: '重庆' },
+  { value: 'hebei', label: '河北' },
+  { value: 'shanxi', label: '山西' },
+  { value: 'liaoning', label: '辽宁' },
+  { value: 'jilin', label: '吉林' },
+  { value: 'heilongjiang', label: '黑龙江' },
   { value: 'jiangsu', label: '江苏' },
-  { value: 'sichuan', label: '四川' },
-  { value: 'hubei', label: '湖北' },
-  { value: 'shandong', label: '山东' },
+  { value: 'zhejiang', label: '浙江' },
+  { value: 'anhui', label: '安徽' },
   { value: 'fujian', label: '福建' },
-  { value: 'hunan', label: '湖南' }
+  { value: 'jiangxi', label: '江西' },
+  { value: 'shandong', label: '山东' },
+  { value: 'henan', label: '河南' },
+  { value: 'hubei', label: '湖北' },
+  { value: 'hunan', label: '湖南' },
+  { value: 'guangdong', label: '广东' },
+  { value: 'hainan', label: '海南' },
+  { value: 'sichuan', label: '四川' },
+  { value: 'guizhou', label: '贵州' },
+  { value: 'yunnan', label: '云南' },
+  { value: 'shaanxi', label: '陕西' },
+  { value: 'gansu', label: '甘肃' },
+  { value: 'qinghai', label: '青海' },
+  { value: 'guangxi', label: '广西' },
+  { value: 'xizang', label: '西藏' },
+  { value: 'ningxia', label: '宁夏' },
+  { value: 'xinjiang', label: '新疆' },
+  { value: 'inner-mongolia', label: '内蒙古' }
 ];
 
-const timeRanges = [
+const timeRanges: FilterOption[] = [
   { value: 'all', label: '不限' },
   { value: '3d', label: '近3天' },
   { value: '1w', label: '近一周' },
@@ -59,254 +84,266 @@ const timeRanges = [
   { value: '6m', label: '近半年' }
 ];
 
-const budgets = [
-  { value: 'all', label: '不限' },
-  { value: '0-50', label: '50万以下' },
-  { value: '50-100', label: '50-100万' },
-  { value: '100-500', label: '100-500万' },
-  { value: '500-1000', label: '500-1000万' },
-  { value: '1000+', label: '1000万以上' }
-];
-
-const industries = [
-  { value: 'all', label: '全部行业' },
-  { value: 'it', label: '信息技术' },
-  { value: 'security', label: '网络安全' },
-  { value: 'construction', label: '工程建设' },
-  { value: 'medical', label: '医疗卫生' },
-  { value: 'education', label: '教育文化' },
-  { value: 'finance', label: '金融服务' },
-  { value: 'energy', label: '能源化工' },
-  { value: 'transport', label: '交通运输' },
-  { value: 'environmental', label: '环保绿化' }
-];
-
 const searchModes = [
-  { value: 'smart', label: '智能检索', desc: '匹配同义词和近义词' },
+  { value: 'exact', label: '精确检索', desc: '完全匹配关键词' },
   { value: 'fuzzy', label: '模糊检索', desc: '智能分词匹配' },
-  { value: 'exact', label: '精确检索', desc: '完全匹配关键词' }
 ];
 
-
-// 策略组数据接口
-interface PolicyGroup {
-  id: string;
-  name: string;
-  stats: {
-    newCount: number;
-  };
-}
-
-// AI分析洞察接口
-interface AIInsight {
-  id: number;
-  text: string;
-  type: 'trend' | 'match' | 'suggestion' | 'alert';
-}
-
-// 当前选中的策略组
-const activePolicy = ref('all');
-
-// 用户所属的策略组列表
-const policyGroups = ref<PolicyGroup[]>([
-  {
-    id: '1',
-    name: '安全业务组',
-    stats: { newCount: 12 }
-  },
-  {
-    id: '2',
-    name: '等保测评组',
-    stats: { newCount: 8 }
+const visibleRegions = computed(() => {
+  if (!isRegionCollapsed.value) {
+    return regions;
   }
-]);
-
-// AI分析洞察数据 - 按策略组分类
-const insightsByPolicy: Record<string, AIInsight[]> = {
-  all: [
-    { id: 1, text: '网络安全领域标讯活跃度较昨日上升30%', type: 'trend' },
-    { id: 2, text: '发现2个高匹配项目，预算合计128万', type: 'match' },
-    { id: 3, text: '本周等保测评类项目呈上升趋势', type: 'trend' },
-    { id: 4, text: '建议重点关注XX市政府安全项目', type: 'suggestion' }
-  ],
-  '1': [
-    { id: 1, text: '安全业务组今日新增12条标讯', type: 'trend' },
-    { id: 2, text: '发现1个高匹配安全集成项目，预算68万', type: 'match' },
-    { id: 3, text: '网络安全服务类招标较上周增长15%', type: 'trend' },
-    { id: 4, text: '建议关注某银行网络安全改造项目', type: 'suggestion' }
-  ],
-  '2': [
-    { id: 1, text: '等保测评组今日新增8条标讯', type: 'trend' },
-    { id: 2, text: '发现1个等保三级测评项目，预算60万', type: 'match' },
-    { id: 3, text: '等保2.0相关项目本月持续增长', type: 'trend' },
-    { id: 4, text: '建议重点跟进某医院等保测评项目', type: 'suggestion' }
-  ]
-};
-
-// 计算当前显示的洞察数据
-const currentInsights = computed(() => {
-  return insightsByPolicy[activePolicy.value] || insightsByPolicy.all;
+  return regions.slice(0, 10);
 });
 
-// 计算属性：当前展示的统计数据
-const currentStats = computed(() => {
-  if (activePolicy.value === 'all') {
-    return policyGroups.value.reduce(
-      (acc, group) => ({
-        newCount: acc.newCount + group.stats.newCount
-      }),
-      { newCount: 0 }
-    );
-  }
-  const group = policyGroups.value.find(g => g.id === activePolicy.value);
-  return group?.stats || { newCount: 0 };
+const toggleRegionCollapse = () => {
+  isRegionCollapsed.value = !isRegionCollapsed.value;
+};
+
+const isSelected = (currentValue: string, optionValue: string) => currentValue === optionValue;
+
+const getChipStyle = (isActive: boolean) => ({
+  padding: isActive ? '4px 12px' : '4px 10px',
+  backgroundColor: isActive ? '#dcebff' : 'transparent',
+  color: isActive ? '#3f70f6' : '#6c84a8',
+  fontWeight: isActive ? '600' : '500'
 });
 
-// 智能体卡片 - 使用AgentsView样式
-const agentCards = [
-  {
-    icon: FileSearch,
-    name: 'AI解读',
-    description: 'AI智能分析招标文件关键信息',
-    color: '#10b981',
-    bgColor: '#ecfdf5',
-    routeName: 'bid-analysis-form'
-  },
-  {
-    icon: FileText,
-    name: 'AI标书生成',
-    description: '一键生成专业标书',
-    color: '#10b981',
-    bgColor: '#ecfdf5',
-    routeName: 'bid-doc-oneclick-form'
-  },
-  {
-    icon: Bell,
-    name: '订阅配置',
-    description: '配置关键词和地区监控',
-    color: '#3b82f6',
-    bgColor: '#eff6ff',
-    routeName: 'team',
-    query: { menu: 'bid-subscription' }
-  }
-];
-
-const navigateTo = (routeName: string) => {
-  router.push({ name: routeName });
+const syncSearchQueryFromSubscriptions = () => {
+  searchQuery.value = selectedSubscriptionWords.value.join(' ');
 };
+
+const toggleSubscriptionWord = (word: string) => {
+  if (selectedSubscriptionWords.value.includes(word)) {
+    selectedSubscriptionWords.value = selectedSubscriptionWords.value.filter(item => item !== word);
+  } else {
+    selectedSubscriptionWords.value = [...selectedSubscriptionWords.value, word];
+  }
+  syncSearchQueryFromSubscriptions();
+};
+
+const normalizeWords = (value: string) =>
+  value
+    .split(/[，,]+/)
+    .map(item => item.trim())
+    .filter(Boolean);
+
+const appendSubscriptionWords = () => {
+  const nextWords = normalizeWords(subscriptionDraft.value);
+  if (!nextWords.length) {
+    return;
+  }
+
+  nextWords.forEach(word => {
+    if (!subscriptionWords.value.includes(word)) {
+      subscriptionWords.value.push(word);
+    }
+    if (!selectedSubscriptionWords.value.includes(word)) {
+      selectedSubscriptionWords.value.push(word);
+    }
+  });
+
+  subscriptionDraft.value = '';
+  syncSearchQueryFromSubscriptions();
+};
+
+const removeSubscriptionWord = (word: string) => {
+  subscriptionWords.value = subscriptionWords.value.filter(item => item !== word);
+  selectedSubscriptionWords.value = selectedSubscriptionWords.value.filter(item => item !== word);
+  syncSearchQueryFromSubscriptions();
+};
+
+const openAddSubscription = () => {
+  isSubscriptionModalOpen.value = true;
+};
+
+const toggleSubscriptionEditor = () => {
+  isSubscriptionEditMode.value = !isSubscriptionEditMode.value;
+};
+
+const closeSubscriptionModal = () => {
+  isSubscriptionModalOpen.value = false;
+  subscriptionDraft.value = '';
+};
+
+const confirmAddSubscriptionWords = () => {
+  appendSubscriptionWords();
+  if (!subscriptionDraft.value.trim()) {
+    return;
+  }
+};
+
+const submitSubscriptionModal = () => {
+  const hasDraft = normalizeWords(subscriptionDraft.value).length > 0;
+  appendSubscriptionWords();
+  if (hasDraft) {
+    closeSubscriptionModal();
+  }
+};
+
+syncSearchQueryFromSubscriptions();
 
 const handleSearch = () => {
-  // Demo: always navigate to bid-info-daily page
   router.push({ name: 'bid-info-daily' });
 };
-
 </script>
 
 <template>
   <div class="bid-search-page">
     <div class="page-container">
-      <!-- Hero 搜索区 -->
       <section class="hero-section">
-      <h1 class="hero-title">标讯搜索</h1>
-      <div class="search-wrapper">
-        <div class="search-box">
-          <Search :size="20" class="search-icon" />
+        <h1 class="hero-title">标讯搜索</h1>
+
+        <div class="search-wrapper">
+          <div class="search-box">
+            <Search :size="22" class="search-icon" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="search-input"
+              placeholder="输入项目名称、招标单位、关键词..."
+              @keyup.enter="handleSearch"
+            />
+            <button class="search-btn" @click="handleSearch">搜索</button>
+          </div>
+
+          <div class="advanced-filters">
+            <div class="filter-row subscription-row">
+              <span class="filter-label">订阅词</span>
+              <div class="subscription-content">
+                <div class="subscription-main">
+                  <div class="filter-options subscription-options">
+                    <button
+                      v-for="word in subscriptionWords"
+                      :key="word"
+                      type="button"
+                      :class="[
+                        'filter-chip',
+                        'subscription-chip',
+                        { 'subscription-chip-editing': isSubscriptionEditMode }
+                      ]"
+                      :style="getChipStyle(selectedSubscriptionWords.includes(word))"
+                      @click="!isSubscriptionEditMode && toggleSubscriptionWord(word)"
+                    >
+                      {{ word }}
+                      <span
+                        v-if="isSubscriptionEditMode"
+                        class="subscription-chip-delete"
+                        @click.stop="removeSubscriptionWord(word)"
+                      >
+                        <X :size="12" />
+                      </span>
+                    </button>
+                  </div>
+                  <div class="subscription-actions">
+                    <button type="button" class="action-btn" @click="openAddSubscription">
+                      <Plus :size="14" />
+                      <span>新增</span>
+                    </button>
+                    <button type="button" class="action-btn" @click="toggleSubscriptionEditor">
+                      <PencilLine :size="14" />
+                      <span>{{ isSubscriptionEditMode ? '完成' : '编辑' }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <span class="filter-label">类型</span>
+              <div class="filter-options">
+                <button
+                  v-for="item in infoTypes"
+                  :key="item.value"
+                  type="button"
+                  :class="['filter-chip', { active: isSelected(activeInfoType, item.value) }]"
+                  :style="getChipStyle(isSelected(activeInfoType, item.value))"
+                  @click="activeInfoType = item.value"
+                >
+                  {{ item.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-row region-row">
+              <span class="filter-label">地区</span>
+              <div class="filter-region-content">
+                <div class="filter-options filter-options-region">
+                  <button
+                    v-for="item in visibleRegions"
+                    :key="item.value"
+                    type="button"
+                    :class="['filter-chip', { active: isSelected(activeRegion, item.value) }]"
+                    :style="getChipStyle(isSelected(activeRegion, item.value))"
+                    @click="activeRegion = item.value"
+                  >
+                    {{ item.label }}
+                  </button>
+                </div>
+                <button type="button" class="region-toggle" @click="toggleRegionCollapse">
+                  {{ isRegionCollapsed ? '展开 ▼' : '收起 ▲' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <span class="filter-label">时间</span>
+              <div class="filter-options">
+                <button
+                  v-for="item in timeRanges"
+                  :key="item.value"
+                  type="button"
+                  :class="['filter-chip', { active: isSelected(activeTimeRange, item.value) }]"
+                  :style="getChipStyle(isSelected(activeTimeRange, item.value))"
+                  @click="activeTimeRange = item.value"
+                >
+                  {{ item.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <span class="filter-label">搜索模式</span>
+              <div class="filter-options">
+                <button
+                  v-for="item in searchModes"
+                  :key="item.value"
+                  type="button"
+                  :class="['filter-chip', 'mode-chip', { active: isSelected(activeSearchMode, item.value) }]"
+                  :style="getChipStyle(isSelected(activeSearchMode, item.value))"
+                  @click="activeSearchMode = item.value"
+                >
+                  <span>{{ item.label }}</span>
+                  <span class="mode-desc">{{ item.desc }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div v-if="isSubscriptionModalOpen" class="subscription-modal-mask" @click.self="closeSubscriptionModal">
+        <div class="subscription-modal">
+          <div class="subscription-modal-header">
+            <h3>新增订阅词</h3>
+            <button type="button" class="subscription-modal-close" @click="closeSubscriptionModal">
+              <X :size="16" />
+            </button>
+          </div>
+          <p class="subscription-modal-tip">支持输入多个词，使用中文或英文逗号自动分词。</p>
           <input
-            v-model="searchQuery"
+            v-model="subscriptionDraft"
             type="text"
-            placeholder="输入项目名称、招标单位、关键词..."
-            class="search-input"
-            @keyup.enter="handleSearch"
+            class="subscription-modal-input"
+            placeholder="例如：等保测评，渗透测试，数据安全评估"
+            @keyup.enter="submitSubscriptionModal"
           />
-          <button class="search-btn" @click="handleSearch">搜索</button>
-        </div>
-
-        <!-- Filters panel -->
-        <div class="advanced-filters">
-          <div class="filter-row">
-            <span class="filter-label"><ScrollText :size="14" /> 类型</span>
-            <div class="filter-options">
-              <span
-                v-for="item in infoTypes"
-                :key="item.value"
-                :class="['filter-option', { active: activeInfoType === item.value }]"
-                @click="activeInfoType = item.value"
-              >
-                {{ item.label }}
-              </span>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label"><MapPin :size="14" /> 地区</span>
-            <div class="filter-options">
-              <span
-                v-for="item in regions"
-                :key="item.value"
-                :class="['filter-option', { active: activeRegion === item.value }]"
-                @click="activeRegion = item.value"
-              >
-                {{ item.label }}
-              </span>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label"><Calendar :size="14" /> 时间</span>
-            <div class="filter-options">
-              <span
-                v-for="item in timeRanges"
-                :key="item.value"
-                :class="['filter-option', { active: activeTimeRange === item.value }]"
-                @click="activeTimeRange = item.value"
-              >
-                {{ item.label }}
-              </span>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label">预算</span>
-            <div class="filter-options">
-              <span
-                v-for="item in budgets"
-                :key="item.value"
-                :class="['filter-option', { active: activeBudget === item.value }]"
-                @click="activeBudget = item.value"
-              >
-                {{ item.label }}
-              </span>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label">行业</span>
-            <div class="filter-options">
-              <span
-                v-for="item in industries"
-                :key="item.value"
-                :class="['filter-option', { active: activeIndustry === item.value }]"
-                @click="activeIndustry = item.value"
-              >
-                {{ item.label }}
-              </span>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label"><Search :size="14" /> 搜索模式</span>
-            <div class="filter-options">
-              <span
-                v-for="item in searchModes"
-                :key="item.value"
-                :class="['filter-option mode-option', { active: activeSearchMode === item.value }]"
-                @click="activeSearchMode = item.value"
-                :title="item.desc"
-              >
-                {{ item.label }}
-                <span class="mode-desc">{{ item.desc }}</span>
-              </span>
-            </div>
+          <div class="subscription-modal-actions">
+            <button type="button" class="subscription-modal-cancel" @click="closeSubscriptionModal">取消</button>
+            <button type="button" class="subscription-modal-confirm" @click="submitSubscriptionModal">确定新增</button>
           </div>
         </div>
-
       </div>
-    </section>
     </div>
   </div>
 </template>
@@ -314,583 +351,382 @@ const handleSearch = () => {
 <style scoped>
 .bid-search-page {
   min-height: 100%;
-  height: 100%;
-  background: #f8fafc;
-  padding: 0 24px 40px;
+  background: #f3f6fb;
+  padding: 0 24px 48px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
-/* 内容容器 - 限制最大宽度并居中 */
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding-top: calc(23.6vh - 60px);
+  min-height: 100%;
 }
 
-/* Hero 搜索区 */
 .hero-section {
-  text-align: center;
-  padding: 48px 0 40px;
-  background: #f8fafc;
-  margin-bottom: 32px;
+  padding: 72px 0 40px;
 }
 
 .hero-title {
-  font-size: 28px;
+  margin: 0 0 26px;
+  text-align: center;
+  font-size: 36px;
+  line-height: 1.2;
   font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 8px 0;
-}
-
-.hero-subtitle {
-  font-size: 15px;
-  color: #64748b;
-  margin: 0 0 32px 0;
+  color: #243b5d;
+  letter-spacing: 1px;
 }
 
 .search-wrapper {
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 8px 12px 8px 20px;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  gap: 12px;
+  padding: 10px 12px 10px 18px;
+  background: #ffffff;
+  border: 1px solid #cfdcf1;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.06);
 }
 
 .search-box:focus-within {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: #4a7cff;
+  box-shadow: 0 0 0 4px rgba(74, 124, 255, 0.08);
 }
 
 .search-icon {
-  color: #94a3b8;
+  color: #6b7280;
   flex-shrink: 0;
 }
 
 .search-input {
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
-  padding: 14px 16px;
-  font-size: 16px;
-  color: #334155;
   background: transparent;
+  padding: 14px 0;
+  font-size: 16px;
+  color: #324968;
 }
 
 .search-input::placeholder {
-  color: #94a3b8;
+  color: #a0b4d2;
 }
 
 .search-btn {
-  padding: 12px 28px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
+  flex-shrink: 0;
+  min-width: 94px;
+  padding: 14px 24px;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #4b7dff 0%, #3267f6 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.search-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-/* Filters panel */
 .advanced-filters {
-  margin-top: 16px;
-  padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid #e8ecf1;
-  border-radius: 12px;
-  text-align: left;
+  margin-top: 18px;
+  background: #ffffff;
+  border: 1px solid #cfdcf1;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.04);
 }
 
 .filter-row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 24px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e7eef9;
 }
 
-.filter-row:last-of-type {
+.filter-row:last-child {
   border-bottom: none;
 }
 
 .filter-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 80px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  padding-top: 4px;
+  width: 64px;
   flex-shrink: 0;
+  padding-top: 4px;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #4f6789;
 }
 
 .filter-options {
   display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.subscription-row {
+  align-items: flex-start;
+}
+
+.subscription-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.subscription-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.subscription-options {
+  gap: 10px 14px;
+}
+
+.subscription-chip {
+  gap: 6px;
+}
+
+.subscription-chip-editing {
+  cursor: default;
+}
+
+.subscription-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.filter-option {
-  padding: 4px 12px;
-  font-size: 13px;
-  color: #64748b;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.filter-option:hover {
-  color: #3b82f6;
-  background: #eff6ff;
-}
-
-.filter-option.active {
-  color: #3b82f6;
-  background: #dbeafe;
+  padding: 7px 12px;
+  background: #f6f9ff;
+  border: 1px solid #d6e3fb;
+  border-radius: 10px;
+  color: #4b78ff;
+  font-size: 14px;
   font-weight: 600;
 }
 
-.mode-option {
+.subscription-chip-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+}
+
+.filter-region-content {
   display: flex;
+  flex: 1;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.filter-options-region {
+  gap: 12px 18px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  color: #6c84a8;
+  font-size: 15px;
+  line-height: 1.6;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  color: #3f70f6;
+}
+
+.filter-chip.active {
+  padding: 4px 12px;
+  background: #dcebff;
+  color: #3f70f6;
+  font-weight: 600;
+}
+
+.mode-chip {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .mode-desc {
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: 400;
+  font-size: 13px;
+  color: #9bb0d0;
 }
 
-.mode-option.active .mode-desc {
-  color: #60a5fa;
+.mode-chip.active .mode-desc {
+  color: #7d9df7;
 }
 
-
-.clear-filters-btn:hover {
-  color: #ef4444;
-}
-
-/* 双栏卡片区 */
-.content-grid {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.subscription-card,
-.agents-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-}
-
-.subscription-card {
+.subscription-modal-mask {
+  position: fixed;
+  inset: 0;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.26);
+  z-index: 30;
 }
 
-.card-header {
+.subscription-modal {
+  width: 100%;
+  max-width: 520px;
+  padding: 22px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.subscription-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
-/* 策略组 Tab 切换 */
-.policy-tabs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+.subscription-modal-header h3 {
+  font-size: 20px;
+  color: #243b5d;
 }
 
-.policy-tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.policy-tab:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.policy-tab.active {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  color: #3b82f6;
-}
-
-.tab-badge {
+.subscription-modal-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  background: #3b82f6;
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 9px;
-}
-
-.policy-tab.active .tab-badge {
-  background: #3b82f6;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #dbeafe;
-  color: #3b82f6;
-}
-
-.agents-icon {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.config-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.config-btn:hover {
-  background: #f1f5f9;
-  color: #475569;
-  border-color: #cbd5e1;
-}
-
-/* 统计数据行 */
-.stats-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-}
-
-.stat-icon-small {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #dbeafe;
-  color: #3b82f6;
-  margin-bottom: 4px;
+  border-radius: 999px;
+  background: #f3f6fb;
+  color: #6c84a8;
 }
 
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: #e2e8f0;
-}
-
-/* 订阅关键词标签 */
-.subscription-tags {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tags-title {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.keyword-tag {
-  font-size: 13px;
-  color: #3b82f6;
-  padding: 4px 12px;
-  background: #dbeafe;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-/* 智能体网格 - AgentsView样式 */
-.agents-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.agent-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.agent-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-color: #dbeafe;
-}
-
-.agent-icon-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.agent-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.agent-name {
+.subscription-modal-tip {
+  margin-top: 10px;
   font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
+  color: #7a8daa;
+  line-height: 1.6;
 }
 
-.agent-desc {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* AI分析汇总区块 */
-.ai-summary-section {
-  /* No top margin or border */
-}
-
-.ai-summary-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.ai-summary-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.subscription-modal-input {
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px 16px;
+  border: 1px solid #d6e3fb;
+  border-radius: 14px;
+  background: #fbfdff;
   font-size: 14px;
-  font-weight: 600;
-  color: #475569;
+  color: #324968;
 }
 
-.sparkles-icon {
-  color: #3b82f6;
-}
-
-.header-actions {
+.subscription-modal-actions {
   display: flex;
-  align-items: center;
+  justify-content: flex-end;
   gap: 12px;
+  margin-top: 18px;
 }
 
-.daily-report-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.daily-report-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.view-all-link {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #64748b;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.view-all-link:hover {
-  color: #3b82f6;
-}
-
-.insights-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.insight-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+.subscription-modal-cancel,
+.subscription-modal-confirm {
+  padding: 10px 18px;
   border-radius: 10px;
-  border: 1px solid #93c5fd;
-}
-
-.insight-bullet {
-  color: #3b82f6;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 1.4;
-}
-
-.insight-text {
   font-size: 14px;
-  color: #1e293b;
-  line-height: 1.5;
+  font-weight: 600;
 }
 
-/* 响应式 */
-@media (max-width: 1024px) {
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
+.subscription-modal-cancel {
+  background: #f3f6fb;
+  color: #5f7395;
+}
+
+.subscription-modal-confirm {
+  background: #4b78ff;
+  color: #ffffff;
+}
+
+.region-toggle {
+  flex-shrink: 0;
+  padding: 2px 0 0;
+  border: none;
+  background: transparent;
+  color: #4b78ff;
+  font-size: 14px;
+  line-height: 1.6;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
   .bid-search-page {
-    padding: 0 20px 20px;
+    padding: 0 16px 32px;
   }
 
   .hero-section {
-    margin: 0 -20px 24px;
-    padding: 32px 20px;
+    padding: 40px 0 24px;
   }
 
   .hero-title {
-    font-size: 24px;
+    margin-bottom: 20px;
+    font-size: 30px;
   }
 
-  .stats-row {
+  .search-box {
     flex-wrap: wrap;
-    gap: 16px;
+    padding: 14px 14px 16px;
   }
 
-  .stat-divider {
-    display: none;
+  .search-input {
+    width: calc(100% - 34px);
+    padding: 8px 0;
   }
 
-  .stat-item {
-    flex: 0 0 calc(50% - 8px);
+  .search-btn {
+    width: 100%;
   }
 
-  .bid-card {
-    min-width: 240px;
-    max-width: 240px;
+  .filter-row {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .filter-label {
+    width: auto;
+    padding-top: 0;
+  }
+
+  .filter-region-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .subscription-main {
+    flex-direction: column;
+  }
+
+  .subscription-actions {
+    flex-wrap: wrap;
   }
 }
 </style>

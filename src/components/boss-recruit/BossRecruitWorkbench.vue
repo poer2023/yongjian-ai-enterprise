@@ -266,6 +266,7 @@ const getSortIcon = (field: string) => {
   if (sortField.value !== field) return ArrowUpDown;
   return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
 };
+
 </script>
 
 <template>
@@ -553,6 +554,7 @@ const getSortIcon = (field: string) => {
               <p>从左侧选择已关注的岗位查看招聘数据，或关注新岗位开始智能招聘</p>
             </div>
           </template>
+
         </div>
       </main>
     </div>
@@ -1677,6 +1679,7 @@ const getSortIcon = (field: string) => {
   .strategy-form-grid {
     grid-template-columns: 1fr;
   }
+
 }
 
 @media (max-width: 900px) {

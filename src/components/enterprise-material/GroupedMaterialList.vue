@@ -736,7 +736,6 @@ const getMaterialExpiryClass = (material: Material) => {
           <tr>
             <th class="col-idx" scope="col">#</th>
             <th class="col-personnel-name" scope="col">姓名</th>
-            <th class="col-personnel-type" scope="col">资质类型</th>
             <th class="col-personnel-name-title" scope="col">资质名称</th>
             <th class="col-personnel-effective" scope="col">有效期</th>
             <th class="col-personnel-act" scope="col">操作</th>
@@ -752,9 +751,6 @@ const getMaterialExpiryClass = (material: Material) => {
           >
             <td class="cell-num">{{ idx + 1 }}</td>
             <td class="cell-name personnel-name-cell">{{ row.person.name }}</td>
-            <td class="personnel-type-cell">
-              <span class="type-tag">{{ row.qual.qualificationType }}</span>
-            </td>
             <td class="cell-muted personnel-name-title-cell" :title="personnelQualNameDisplay(row.qual)">
               {{ personnelQualNameDisplay(row.qual) }}
             </td>
@@ -785,7 +781,7 @@ const getMaterialExpiryClass = (material: Material) => {
           </tr>
 
           <tr v-if="filteredPersonnelRows.length === 0">
-            <td colspan="6" class="empty-cell">暂无符合条件的资质记录</td>
+            <td colspan="5" class="empty-cell">暂无符合条件的资质记录</td>
           </tr>
         </tbody>
       </table>
@@ -1223,12 +1219,8 @@ const getMaterialExpiryClass = (material: Material) => {
   width: 88px;
 }
 
-.col-personnel-type {
-  width: 74px;
-}
-
 .col-personnel-name-title {
-  width: calc(100% - 44px - 88px - 74px - 112px - 164px);
+  width: calc(100% - 44px - 88px - 112px - 164px);
 }
 
 .col-qualification-act {
@@ -1270,10 +1262,6 @@ const getMaterialExpiryClass = (material: Material) => {
 
 .personnel-name-title-cell {
   line-height: 1.6;
-}
-
-.personnel-type-cell {
-  text-align: left;
 }
 
 .case-project-name,
@@ -1400,19 +1388,6 @@ const getMaterialExpiryClass = (material: Material) => {
 .status-pending {
   color: #1d4ed8;
   background: #dbeafe;
-}
-
-.type-tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 .empty-cell {

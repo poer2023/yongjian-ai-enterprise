@@ -15,8 +15,8 @@ import type {
 } from './types';
 
 export const policyGroups: PolicyGroup[] = [
-  { id: 'security', name: '网络安全组', color: '#10b981', newCount: 8, salesStrategy: { biddingUnits: 4, competitors: 5, bidNotices: 1 } },
-  { id: 'dengbao', name: '等保测评组', color: '#f59e0b', newCount: 4, salesStrategy: { biddingUnits: 3, competitors: 2, bidNotices: 2 } }
+  { id: 'security', name: '网络安全组', color: '#10b981', newCount: 8 },
+  { id: 'dengbao', name: '等保测评组', color: '#f59e0b', newCount: 4 }
 ];
 
 export const newsPolicyGroups: NewsPolicyGroup[] = [

@@ -262,7 +262,7 @@ const handleSubmit = () => {
     <!-- Section 3: Bidding Units -->
     <div class="section-card">
       <div class="card-body">
-        <label class="form-label plain-block-title">关注的招标单位</label>
+        <label class="form-label plain-block-title">招标单位</label>
         <div class="declare-content compact">
           <div class="declare-add top">
             <input
@@ -327,7 +327,7 @@ const handleSubmit = () => {
 
     <!-- Submit -->
     <div class="submit-container">
-      <button class="submit-btn" :disabled="!canSubmit" @click="handleSubmit">生成招投标市场分析</button>
+      <button class="submit-btn" :disabled="!canSubmit" @click="handleSubmit">写作</button>
     </div>
 
     <template #info-sidebar>

@@ -220,7 +220,7 @@ const openQualificationCreate = () => {
   editorVariant.value = 'qualification';
   editorMode.value = 'create';
   qualificationEditorValue.value = {
-    sourceFileId: props.selectedFile?.id ?? getDefaultCompletedFileId(),
+    sourceFileId: 0,
     pageRange: '',
     name: '',
     category: '',
@@ -242,8 +242,8 @@ const openPersonnelQualificationCreate = () => {
   editorVariant.value = 'personnel';
   editorMode.value = 'create';
   personnelEditorValue.value = {
-    personId: getDefaultPersonId(),
-    sourceFileId: props.selectedFile?.id ?? getDefaultCompletedFileId(),
+    personId: '',
+    sourceFileId: 0,
     pageRange: '',
     qualificationType: '认证',
     qualificationName: '',

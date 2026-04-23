@@ -35,20 +35,48 @@ const emit = defineEmits<{
 }>();
 
 const personnelTypeOptions = ['职称', '注册证', '执业资格', '认证', '其他'] as const;
+const LONG_TERM_VALUE = '长期';
+type ExpiryMode = 'none' | 'date' | 'long-term';
 
 const availableFiles = computed(() => props.files.filter((file) => file.status === 'completed'));
 
 /** File picker: type to filter; popover only when query matches at least one file. */
-const materialFileSearch = ref('');
+const qualificationFileSearch = ref('');
+const personnelFileSearch = ref('');
+const personSearch = ref('');
+const qualificationExpiryMode = ref<ExpiryMode>('none');
+const personnelExpiryMode = ref<ExpiryMode>('none');
 
-const matchingMaterialFiles = computed(() => {
-  const q = materialFileSearch.value.trim().toLowerCase();
+const normalizeQuery = (value: string) => value.trim().toLowerCase();
+const isLongTermExpiry = (value: string) => ['长期', '长期有效'].includes(value.trim());
+const normalizeExpiryValue = (value: string) =>
+  isLongTermExpiry(value) ? LONG_TERM_VALUE : value.trim();
+const resolveExpiryMode = (value: string, mode: RecordEditorMode): ExpiryMode => {
+  const normalized = normalizeExpiryValue(value);
+  if (!normalized) return mode === 'edit' ? 'long-term' : 'none';
+  return isLongTermExpiry(normalized) ? 'long-term' : 'date';
+};
+
+const matchingQualificationFiles = computed(() => {
+  const q = normalizeQuery(qualificationFileSearch.value);
   if (!q) return [];
+  if (q === normalizeQuery(selectedQualificationFileLabel.value)) return [];
   return availableFiles.value.filter((f) => f.name.toLowerCase().includes(q));
 });
 
-const showMaterialFilePopover = computed(
-  () => materialFileSearch.value.trim().length > 0 && matchingMaterialFiles.value.length > 0
+const matchingPersonnelFiles = computed(() => {
+  const q = normalizeQuery(personnelFileSearch.value);
+  if (!q) return [];
+  if (q === normalizeQuery(selectedPersonnelFileLabel.value)) return [];
+  return availableFiles.value.filter((f) => f.name.toLowerCase().includes(q));
+});
+
+const showQualificationFilePopover = computed(
+  () => qualificationFileSearch.value.trim().length > 0 && matchingQualificationFiles.value.length > 0
+);
+
+const showPersonnelFilePopover = computed(
+  () => personnelFileSearch.value.trim().length > 0 && matchingPersonnelFiles.value.length > 0
 );
 
 const selectedQualificationFileLabel = computed(
@@ -59,9 +87,12 @@ const selectedPersonnelFileLabel = computed(
   () => availableFiles.value.find((f) => f.id === personnelDraft.sourceFileId)?.name ?? ''
 );
 
-const materialFileInputRef = ref<HTMLInputElement | null>(null);
+const qualificationFileInputRef = ref<HTMLInputElement | null>(null);
+const personnelFileInputRef = ref<HTMLInputElement | null>(null);
 const personInputRef = ref<HTMLInputElement | null>(null);
-const personSearch = ref('');
+const hasQualificationFileSearch = computed(() => qualificationFileSearch.value.trim().length > 0);
+const hasPersonnelFileSearch = computed(() => personnelFileSearch.value.trim().length > 0);
+const hasPersonSearch = computed(() => personSearch.value.trim().length > 0);
 
 const getPersonDisplayLabel = (person: Person) => `${person.name} · ${person.organizationName}`;
 
@@ -71,8 +102,9 @@ const selectedPersonnelPersonLabel = computed(() => {
 });
 
 const matchingPersons = computed(() => {
-  const q = personSearch.value.trim().toLowerCase();
+  const q = normalizeQuery(personSearch.value);
   if (!q) return [];
+  if (q === normalizeQuery(selectedPersonnelPersonLabel.value)) return [];
   return personOptions.value.filter((person) => {
     const name = person.name.toLowerCase();
     const org = person.organizationName.toLowerCase();
@@ -83,47 +115,77 @@ const matchingPersons = computed(() => {
 const showPersonPopover = computed(
   () => personSearch.value.trim().length > 0 && matchingPersons.value.length > 0
 );
+const showQualificationNoMatch = computed(
+  () =>
+    qualificationFileSearch.value.trim().length > 0 &&
+    normalizeQuery(qualificationFileSearch.value) !== normalizeQuery(selectedQualificationFileLabel.value) &&
+    matchingQualificationFiles.value.length === 0
+);
+const showPersonnelFileNoMatch = computed(
+  () =>
+    personnelFileSearch.value.trim().length > 0 &&
+    normalizeQuery(personnelFileSearch.value) !== normalizeQuery(selectedPersonnelFileLabel.value) &&
+    matchingPersonnelFiles.value.length === 0
+);
+const showPersonNoMatch = computed(
+  () =>
+    personSearch.value.trim().length > 0 &&
+    normalizeQuery(personSearch.value) !== normalizeQuery(selectedPersonnelPersonLabel.value) &&
+    matchingPersons.value.length === 0
+);
 
-const focusMaterialFileInput = () => {
-  materialFileInputRef.value?.focus();
+const focusQualificationFileInput = () => {
+  qualificationFileInputRef.value?.focus();
+};
+
+const focusPersonnelFileInput = () => {
+  personnelFileInputRef.value?.focus();
 };
 
 const focusPersonInput = () => {
   personInputRef.value?.focus();
 };
 
-const handlePersonSearchInput = () => {
-  if (personSearch.value.trim() !== selectedPersonnelPersonLabel.value.trim()) {
-    personnelDraft.personId = '';
-  }
+const clearQualificationFileSelection = () => {
+  qualificationDraft.sourceFileId = 0;
+  qualificationFileSearch.value = '';
+  focusQualificationFileInput();
+};
+
+const clearPersonnelFileSelection = () => {
+  personnelDraft.sourceFileId = 0;
+  personnelFileSearch.value = '';
+  focusPersonnelFileInput();
+};
+
+const clearPersonnelPersonSelection = () => {
+  personnelDraft.personId = '';
+  personSearch.value = '';
+  focusPersonInput();
 };
 
 const selectPersonnelPerson = (personId: string) => {
-  const person = personOptions.value.find((item) => item.id === personId);
   personnelDraft.personId = personId;
-  personSearch.value = person ? getPersonDisplayLabel(person) : '';
+  const selectedPerson = personOptions.value.find((person) => person.id === personId);
+  personSearch.value = selectedPerson ? getPersonDisplayLabel(selectedPerson) : '';
 };
 
 const selectQualificationSourceFile = (id: number) => {
   qualificationDraft.sourceFileId = id;
-  materialFileSearch.value = '';
+  qualificationFileSearch.value = availableFiles.value.find((file) => file.id === id)?.name ?? '';
 };
 
 const selectPersonnelSourceFile = (id: number) => {
   personnelDraft.sourceFileId = id;
-  materialFileSearch.value = '';
+  personnelFileSearch.value = availableFiles.value.find((file) => file.id === id)?.name ?? '';
 };
 
 const personOptions = computed(() =>
   [...props.persons].sort((left, right) => left.name.localeCompare(right.name, 'zh-CN'))
 );
 
-const getDefaultFileId = () => availableFiles.value[0]?.id ?? props.files[0]?.id ?? 0;
-
-const getDefaultPersonId = () => personOptions.value[0]?.id ?? '';
-
 const createQualificationDraft = (): QualificationFormPayload => ({
-  sourceFileId: getDefaultFileId(),
+  sourceFileId: 0,
   pageRange: '',
   name: '',
   category: '',
@@ -139,8 +201,8 @@ const createQualificationDraft = (): QualificationFormPayload => ({
 });
 
 const createPersonnelDraft = (): PersonnelQualificationFormPayload => ({
-  personId: getDefaultPersonId(),
-  sourceFileId: getDefaultFileId(),
+  personId: '',
+  sourceFileId: 0,
   pageRange: '',
   qualificationType: '认证',
   qualificationName: '',
@@ -159,10 +221,48 @@ const personnelDraft = reactive<PersonnelQualificationFormPayload>(createPersonn
 
 const syncQualificationDraft = (value?: QualificationFormPayload | null) => {
   Object.assign(qualificationDraft, createQualificationDraft(), value ?? {});
+  qualificationDraft.expiresAt = normalizeExpiryValue(qualificationDraft.expiresAt);
 };
 
 const syncPersonnelDraft = (value?: PersonnelQualificationFormPayload | null) => {
   Object.assign(personnelDraft, createPersonnelDraft(), value ?? {});
+  personnelDraft.expiresAt = normalizeExpiryValue(personnelDraft.expiresAt);
+};
+
+const updateQualificationExpiryMode = (mode: ExpiryMode) => {
+  qualificationExpiryMode.value = mode;
+
+  if (mode === 'long-term') {
+    qualificationDraft.expiresAt = LONG_TERM_VALUE;
+    return;
+  }
+
+  if (mode === 'none') {
+    qualificationDraft.expiresAt = '';
+    return;
+  }
+
+  if (isLongTermExpiry(qualificationDraft.expiresAt)) {
+    qualificationDraft.expiresAt = '';
+  }
+};
+
+const updatePersonnelExpiryMode = (mode: ExpiryMode) => {
+  personnelExpiryMode.value = mode;
+
+  if (mode === 'long-term') {
+    personnelDraft.expiresAt = LONG_TERM_VALUE;
+    return;
+  }
+
+  if (mode === 'none') {
+    personnelDraft.expiresAt = '';
+    return;
+  }
+
+  if (isLongTermExpiry(personnelDraft.expiresAt)) {
+    personnelDraft.expiresAt = '';
+  }
 };
 
 watch(
@@ -178,15 +278,20 @@ watch(
   () => {
     if (!props.visible) return;
 
-    materialFileSearch.value = '';
-
     if (props.variant === 'qualification') {
       syncQualificationDraft(props.qualificationValue);
+      qualificationExpiryMode.value = resolveExpiryMode(qualificationDraft.expiresAt, props.mode);
+      qualificationFileSearch.value = selectedQualificationFileLabel.value;
+      personnelFileSearch.value = '';
+      personSearch.value = '';
       return;
     }
 
     syncPersonnelDraft(props.personnelValue);
+    personnelExpiryMode.value = resolveExpiryMode(personnelDraft.expiresAt, props.mode);
     personSearch.value = selectedPersonnelPersonLabel.value;
+    personnelFileSearch.value = selectedPersonnelFileLabel.value;
+    qualificationFileSearch.value = '';
   },
   { immediate: true, deep: true }
 );
@@ -200,14 +305,20 @@ const submitLabel = computed(() => (props.mode === 'create' ? '保存条目' : '
 
 const submitDisabled = computed(() => {
   if (props.variant === 'qualification') {
-    return !qualificationDraft.name.trim() || !qualificationDraft.sourceFileId || !qualificationDraft.expiresAt.trim();
+    return (
+      !qualificationDraft.name.trim() ||
+      !qualificationDraft.sourceFileId ||
+      qualificationExpiryMode.value === 'none' ||
+      (qualificationExpiryMode.value === 'date' && !qualificationDraft.expiresAt.trim())
+    );
   }
 
   return (
     !personnelDraft.personId ||
     !personnelDraft.qualificationName.trim() ||
     !personnelDraft.sourceFileId ||
-    !personnelDraft.expiresAt.trim()
+    personnelExpiryMode.value === 'none' ||
+    (personnelExpiryMode.value === 'date' && !personnelDraft.expiresAt.trim())
   );
 });
 
@@ -228,7 +339,10 @@ const handleSubmit = () => {
       issuer: qualificationDraft.issuer.trim(),
       certificateNo: qualificationDraft.certificateNo.trim(),
       issuedAt: qualificationDraft.issuedAt.trim(),
-      expiresAt: qualificationDraft.expiresAt.trim(),
+      expiresAt:
+        qualificationExpiryMode.value === 'long-term'
+          ? LONG_TERM_VALUE
+          : qualificationDraft.expiresAt.trim(),
       pageRange: qualificationDraft.pageRange.trim(),
       majorScope: qualificationDraft.majorScope.trim(),
       description: qualificationDraft.description.trim()
@@ -243,7 +357,10 @@ const handleSubmit = () => {
     issuer: personnelDraft.issuer.trim(),
     certificateNo: personnelDraft.certificateNo.trim(),
     issuedAt: personnelDraft.issuedAt.trim(),
-    expiresAt: personnelDraft.expiresAt.trim(),
+    expiresAt:
+      personnelExpiryMode.value === 'long-term'
+        ? LONG_TERM_VALUE
+        : personnelDraft.expiresAt.trim(),
     pageRange: personnelDraft.pageRange.trim(),
     majorScope: personnelDraft.majorScope.trim()
   });
@@ -262,7 +379,7 @@ const handleSubmit = () => {
           </div>
           <div>
             <h3>{{ modalTitle }}</h3>
-            <p>条目必须关联企业素材库中已有原件文件，当前弹窗不支持上传新文件。</p>
+            <p>资质必须关联企业素材库中已有的原文件。</p>
           </div>
         </div>
 
@@ -279,8 +396,8 @@ const handleSubmit = () => {
               <div class="material-file-picker">
                 <div class="search-bar">
                   <input
-                    ref="materialFileInputRef"
-                    v-model="materialFileSearch"
+                    ref="qualificationFileInputRef"
+                    v-model="qualificationFileSearch"
                     type="text"
                     placeholder="搜索文件名、文件夹名称"
                     class="search-input"
@@ -289,23 +406,19 @@ const handleSubmit = () => {
                   <button
                     type="button"
                     class="search-icon-btn"
-                    aria-label="聚焦搜索"
-                    @click="focusMaterialFileInput"
+                    :aria-label="hasQualificationFileSearch ? '清空已选文件' : '聚焦搜索'"
+                    @click="
+                      hasQualificationFileSearch
+                        ? clearQualificationFileSelection()
+                        : focusQualificationFileInput()
+                    "
                   >
-                    <Search :size="18" />
+                    <X v-if="hasQualificationFileSearch" :size="18" />
+                    <Search v-else :size="18" />
                   </button>
                 </div>
-                <p v-if="selectedQualificationFileLabel" class="file-pick-selected-hint">
-                  已选：{{ selectedQualificationFileLabel }}
-                </p>
-                <p
-                  v-if="materialFileSearch.trim() && matchingMaterialFiles.length === 0"
-                  class="file-pick-no-match"
-                >
-                  无匹配文件
-                </p>
                 <div
-                  v-if="showMaterialFilePopover"
+                  v-if="showQualificationFilePopover"
                   class="file-pick-popover"
                   role="listbox"
                   aria-label="素材文件"
@@ -313,7 +426,7 @@ const handleSubmit = () => {
                 >
                   <div class="file-pick-list">
                     <button
-                      v-for="file in matchingMaterialFiles"
+                      v-for="file in matchingQualificationFiles"
                       :key="file.id"
                       type="button"
                       class="file-pick-row"
@@ -326,6 +439,9 @@ const handleSubmit = () => {
                     </button>
                   </div>
                 </div>
+                <p v-if="showQualificationNoMatch" class="file-pick-no-match">
+                  无匹配文件
+                </p>
               </div>
             </div>
 
@@ -339,15 +455,37 @@ const handleSubmit = () => {
               />
             </label>
 
-            <label class="form-field">
-              <span class="form-label">到期日期 <span class="required">*</span></span>
-              <input
-                v-model="qualificationDraft.expiresAt"
-                type="date"
-                class="form-input"
-                required
-              />
-            </label>
+            <div class="form-field">
+              <span class="form-label">有效期 <span class="required">*</span></span>
+              <div class="validity-field">
+                <div class="validity-mode-group">
+                  <button
+                    type="button"
+                    class="validity-mode-btn"
+                    :class="{ active: qualificationExpiryMode === 'date' }"
+                    @click="updateQualificationExpiryMode('date')"
+                  >
+                    指定日期
+                  </button>
+                  <button
+                    type="button"
+                    class="validity-mode-btn"
+                    :class="{ active: qualificationExpiryMode === 'long-term' }"
+                    @click="updateQualificationExpiryMode('long-term')"
+                  >
+                    长期有效
+                  </button>
+                </div>
+
+                <input
+                  v-if="qualificationExpiryMode === 'date'"
+                  v-model="qualificationDraft.expiresAt"
+                  type="date"
+                  class="form-input"
+                  required
+                />
+              </div>
+            </div>
           </div>
         </template>
 
@@ -364,18 +502,18 @@ const handleSubmit = () => {
                     placeholder="搜索姓名、所属单位"
                     class="search-input"
                     autocomplete="off"
-                    @input="handlePersonSearchInput"
                   />
                   <button
                     type="button"
                     class="search-icon-btn"
-                    aria-label="聚焦人员搜索"
-                    @click="focusPersonInput"
+                    :aria-label="hasPersonSearch ? '清空已选人员' : '聚焦人员搜索'"
+                    @click="hasPersonSearch ? clearPersonnelPersonSelection() : focusPersonInput()"
                   >
-                    <Search :size="18" />
+                    <X v-if="hasPersonSearch" :size="18" />
+                    <Search v-else :size="18" />
                   </button>
                 </div>
-                <p v-if="personSearch.trim() && matchingPersons.length === 0" class="file-pick-no-match">
+                <p v-if="showPersonNoMatch" class="file-pick-no-match">
                   无匹配人员
                 </p>
                 <div
@@ -408,8 +546,8 @@ const handleSubmit = () => {
               <div class="material-file-picker">
                 <div class="search-bar">
                   <input
-                    ref="materialFileInputRef"
-                    v-model="materialFileSearch"
+                    ref="personnelFileInputRef"
+                    v-model="personnelFileSearch"
                     type="text"
                     placeholder="搜索文件名、文件夹名称"
                     class="search-input"
@@ -418,23 +556,15 @@ const handleSubmit = () => {
                   <button
                     type="button"
                     class="search-icon-btn"
-                    aria-label="聚焦搜索"
-                    @click="focusMaterialFileInput"
+                    :aria-label="hasPersonnelFileSearch ? '清空已选文件' : '聚焦搜索'"
+                    @click="hasPersonnelFileSearch ? clearPersonnelFileSelection() : focusPersonnelFileInput()"
                   >
-                    <Search :size="18" />
+                    <X v-if="hasPersonnelFileSearch" :size="18" />
+                    <Search v-else :size="18" />
                   </button>
                 </div>
-                <p v-if="selectedPersonnelFileLabel" class="file-pick-selected-hint">
-                  已选：{{ selectedPersonnelFileLabel }}
-                </p>
-                <p
-                  v-if="materialFileSearch.trim() && matchingMaterialFiles.length === 0"
-                  class="file-pick-no-match"
-                >
-                  无匹配文件
-                </p>
                 <div
-                  v-if="showMaterialFilePopover"
+                  v-if="showPersonnelFilePopover"
                   class="file-pick-popover"
                   role="listbox"
                   aria-label="素材文件"
@@ -442,7 +572,7 @@ const handleSubmit = () => {
                 >
                   <div class="file-pick-list">
                     <button
-                      v-for="file in matchingMaterialFiles"
+                      v-for="file in matchingPersonnelFiles"
                       :key="file.id"
                       type="button"
                       class="file-pick-row"
@@ -455,21 +585,11 @@ const handleSubmit = () => {
                     </button>
                   </div>
                 </div>
+                <p v-if="showPersonnelFileNoMatch" class="file-pick-no-match">
+                  无匹配文件
+                </p>
               </div>
             </div>
-
-            <label class="form-field">
-              <span class="form-label">资质类型 <span class="required">*</span></span>
-              <select v-model="personnelDraft.qualificationType" class="form-select">
-                <option
-                  v-for="option in personnelTypeOptions"
-                  :key="option"
-                  :value="option"
-                >
-                  {{ option }}
-                </option>
-              </select>
-            </label>
 
             <label class="form-field">
               <span class="form-label">资质名称 <span class="required">*</span></span>
@@ -481,15 +601,37 @@ const handleSubmit = () => {
               />
             </label>
 
-            <label class="form-field">
+            <div class="form-field">
               <span class="form-label">有效期 <span class="required">*</span></span>
-              <input
-                v-model="personnelDraft.expiresAt"
-                type="date"
-                class="form-input"
-                required
-              />
-            </label>
+              <div class="validity-field">
+                <div class="validity-mode-group">
+                  <button
+                    type="button"
+                    class="validity-mode-btn"
+                    :class="{ active: personnelExpiryMode === 'date' }"
+                    @click="updatePersonnelExpiryMode('date')"
+                  >
+                    指定日期
+                  </button>
+                  <button
+                    type="button"
+                    class="validity-mode-btn"
+                    :class="{ active: personnelExpiryMode === 'long-term' }"
+                    @click="updatePersonnelExpiryMode('long-term')"
+                  >
+                    长期有效
+                  </button>
+                </div>
+
+                <input
+                  v-if="personnelExpiryMode === 'date'"
+                  v-model="personnelDraft.expiresAt"
+                  type="date"
+                  class="form-input"
+                  required
+                />
+              </div>
+            </div>
           </div>
         </template>
 
@@ -602,7 +744,7 @@ const handleSubmit = () => {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .material-file-picker .search-bar {
@@ -651,16 +793,8 @@ const handleSubmit = () => {
   color: #1d4ed8;
 }
 
-.file-pick-selected-hint {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #64748b;
-  word-break: break-word;
-}
-
 .file-pick-no-match {
-  margin: 0;
+  margin: 8px 0 0;
   font-size: 12px;
   color: #94a3b8;
 }
@@ -669,7 +803,7 @@ const handleSubmit = () => {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(100% + 4px);
+  top: 48px;
   z-index: 10;
   border-radius: 10px;
   border: 1px solid #3b82f6;
@@ -723,6 +857,54 @@ const handleSubmit = () => {
 .form-grid {
   display: grid;
   gap: 14px 16px;
+}
+
+.validity-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.validity-mode-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.validity-mode-btn {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.validity-mode-btn:hover {
+  border-color: #93c5fd;
+  color: #2563eb;
+}
+
+.validity-mode-btn.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.validity-long-term {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
 }
 
 .two-columns {
@@ -792,8 +974,7 @@ const handleSubmit = () => {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
 }
 
 .modal-footer-actions {

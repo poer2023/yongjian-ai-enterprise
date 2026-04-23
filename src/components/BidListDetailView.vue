@@ -1,161 +1,273 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import {
-  ChevronLeft,
-  FileText,
-  FileSearch,
-  Building2,
-  Calendar,
-  MapPin,
-  DollarSign,
-  Award,
-  Users,
-  Briefcase,
-  TrendingUp
-} from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ChevronLeft, FileText } from 'lucide-vue-next';
 
-const router = useRouter();
-const route = useRoute();
+interface MatchAnalysisItem {
+  label: string;
+  matched: boolean;
+  description: string;
+}
 
-// Get source from query params
-const source = computed(() => route.query.source as string || 'subscription');
-
-// Mock bid list data
 interface BidItem {
   id: number;
   title: string;
   budget: string;
   matchScore: number;
-  deadline: string;
   location: string;
   publishDate: string;
   purchaser: string;
-  contact: string;
-  requirements: string[];
-  scope: string;
-  evaluation: string;
+  noticeType: string;
+  summary: string;
+  recommendation: string;
+  analysis: MatchAnalysisItem[];
   tags: string[];
 }
+
+const router = useRouter();
+const route = useRoute();
 
 const bidList = ref<BidItem[]>([
   {
     id: 1,
-    title: '上海市第一人民医院信息安全等级保护测评服务采购项目',
-    budget: '85万',
-    matchScore: 98,
-    deadline: '2026-02-10',
-    location: '上海市',
-    publishDate: '2026-02-01',
-    purchaser: '上海市第一人民医院',
-    contact: '张先生 021-88888888',
-    requirements: ['具有等保测评机构资质（三级及以上）', '近3年完成类似项目金额不低于50万', '项目团队不少于5人'],
-    scope: '对医院核心信息系统进行等保三级测评，出具测评报告并协助完成整改。服务期限为1年。',
-    evaluation: '综合评分法，技术标占60%，商务标占40%',
-    tags: ['等保测评', '医疗卫生']
+    title: '国家税务总局天津市税务局2026年5月政府采购意向公告-天津税务2026年税务专网系统等保测评服务',
+    budget: '27.40万元',
+    matchScore: 95,
+    location: '天津市 天津市',
+    publishDate: '2026-04-20',
+    purchaser: '国家税务总局天津市税务局',
+    noticeType: '其他',
+    summary:
+      '国家税务总局天津市税务局计划采购2026年税务专网系统等保测评服务，项目预算27.4万元。采购内容为对4个等保三级税务专网系统提供等级保护测评和风险评估服务，服务期限为合同签订后12个月。',
+    recommendation:
+      '立即关注并准备相关资质及材料，待正式采购公告发布后第一时间响应，重点突出公司在等保测评领域的专业资质和项目经验。',
+    analysis: [
+      {
+        label: '等级保护测评',
+        matched: true,
+        description: '采购需求明确为“等级保护测评服务”，与企业核心产品关键词完全匹配，是企业的主营业务。'
+      },
+      {
+        label: '软件测试',
+        matched: false,
+        description: '公告未提及软件测试相关内容。'
+      },
+      {
+        label: '商用密码安全',
+        matched: false,
+        description: '公告未提及商用密码相关测评要求。'
+      }
+    ],
+    tags: ['等保测评', '税务系统']
   },
   {
     id: 2,
-    title: '浦东新区政务云安全运维服务采购',
-    budget: '156万',
+    title: '2026年重庆市渝北区卫生信息中心网络安全等级保护测评网上询价公告',
+    budget: '7.50万元',
     matchScore: 95,
-    deadline: '2026-02-12',
-    location: '上海市浦东新区',
-    publishDate: '2026-02-02',
-    purchaser: '浦东新区政务服务中心',
-    contact: '李经理 021-66666666',
-    requirements: ['具有网络安全服务相关资质', '具备政务云运维经验', '能够提供7×24小时响应'],
-    scope: '为浦东新区政务云平台提供安全运维服务，包括安全监控、应急响应、漏洞修复等。',
-    evaluation: '综合评分法',
-    tags: ['安全运维', '政务云']
+    location: '重庆市 渝北区',
+    publishDate: '2026-04-18',
+    purchaser: '重庆市渝北区卫生信息中心',
+    noticeType: '网上询价',
+    summary:
+      '项目围绕区域卫生信息平台开展网络安全等级保护测评，聚焦关键信息系统合规整改及测评报告交付，预算规模较小，但对实施效率和交付规范要求较高。',
+    recommendation:
+      '优先以轻量化实施方案切入，强调医疗行业经验和标准化交付流程，提升中小项目快速成交概率。',
+    analysis: [
+      {
+        label: '等级保护测评',
+        matched: true,
+        description: '采购名称直接指向网络安全等级保护测评，与现有服务目录高度一致。'
+      },
+      {
+        label: '医疗信息化',
+        matched: true,
+        description: '招标单位属于卫生信息中心，医疗行业案例将明显提升竞争力。'
+      },
+      {
+        label: '软件测试',
+        matched: false,
+        description: '当前项目不包含独立的软件质量测试交付范围。'
+      }
+    ],
+    tags: ['等保测评', '医疗信息']
   },
   {
     id: 3,
-    title: '某国有银行上海分行网络安全渗透测试服务',
-    budget: '68万',
-    matchScore: 92,
-    deadline: '2026-02-08',
-    location: '上海市',
-    publishDate: '2026-02-01',
-    purchaser: '某国有银行上海分行',
-    contact: '王经理 021-55555555',
-    requirements: ['具有CISP/CISSP认证人员', '具备金融行业渗透测试经验', '签署保密协议'],
-    scope: '对银行核心系统、网银系统进行渗透测试，发现安全漏洞并提供修复建议。',
-    evaluation: '最低评标价法',
-    tags: ['渗透测试', '金融']
+    title: '宁夏回族自治区卫生健康委员会信息中心2026年网络安全等级保护测评服务采购项目招标公告',
+    budget: '100.54万元',
+    matchScore: 85,
+    location: '宁夏回族自治区 银川市',
+    publishDate: '2026-04-16',
+    purchaser: '宁夏回族自治区卫生健康委员会信息中心',
+    noticeType: '公开招标',
+    summary:
+      '该项目面向卫健委信息中心开展年度等级保护测评服务采购，预算超过100万元，覆盖范围预计包含核心业务系统、边界安全和整改复测，属于较完整的区域医疗政务安全服务项目。',
+    recommendation:
+      '建议突出跨区域实施能力、医疗政务项目经验以及整改辅导服务能力，准备完整的案例证明和项目经理履历。',
+    analysis: [
+      {
+        label: '等级保护测评',
+        matched: true,
+        description: '项目目标与企业主要服务能力一致，具备较高的直接命中度。'
+      },
+      {
+        label: '区域医疗政务',
+        matched: true,
+        description: '卫健委场景对行业案例和合规流程要求较高，若已有同类经验则可形成优势。'
+      },
+      {
+        label: '商用密码安全',
+        matched: false,
+        description: '公告标题未体现密码测评或密码应用安全评估要求。'
+      }
+    ],
+    tags: ['等保测评', '医疗政务']
   },
   {
     id: 4,
-    title: '徐汇区教育局校园网络安全防护系统建设',
-    budget: '45万',
-    matchScore: 88,
-    deadline: '2026-02-15',
-    location: '上海市徐汇区',
-    publishDate: '2026-02-03',
-    purchaser: '徐汇区教育局',
-    contact: '陈老师 021-44444444',
-    requirements: ['具有网络安全服务相关资质', '具备教育行业服务经验'],
-    scope: '为区内中小学校园网络提供安全防护系统建设，包括防火墙、入侵检测等。',
-    evaluation: '综合评分法',
-    tags: ['网络安全', '教育']
+    title: '珠海市公安局一体化指挥调度平台网络安全等级保护测评服务采购项目',
+    budget: '1177.73万元',
+    matchScore: 85,
+    location: '广东省 珠海市',
+    publishDate: '2026-04-15',
+    purchaser: '珠海市公安局',
+    noticeType: '公开招标',
+    summary:
+      '项目面向公安一体化指挥调度平台，预算规模较大，预计覆盖平台测评、风险排查、整改支撑和复测等多个阶段，属于高金额、高门槛的政务安全项目。',
+    recommendation:
+      '建议联合展示大型政务项目履约能力、核心专家团队和跨部门协同经验，提前准备针对公安行业的安全保密承诺与实施计划。',
+    analysis: [
+      {
+        label: '等级保护测评',
+        matched: true,
+        description: '项目核心交付内容与企业主力服务吻合，但对履约能力要求明显更高。'
+      },
+      {
+        label: '公安行业经验',
+        matched: true,
+        description: '若具备公安或大型政务平台案例，将显著提高中标竞争力。'
+      },
+      {
+        label: '软件测试',
+        matched: false,
+        description: '当前公告以安全测评为主，不属于功能测试或性能测试项目。'
+      }
+    ],
+    tags: ['等保测评', '公安平台']
   },
   {
     id: 5,
-    title: '松江区政府数据中心安全加固项目',
-    budget: '72万',
-    matchScore: 85,
-    deadline: '2026-02-18',
-    location: '上海市松江区',
-    publishDate: '2026-02-02',
-    purchaser: '松江区政府办公室',
-    contact: '刘主任 021-33333333',
-    requirements: ['具有等保测评机构资质', '熟悉政务系统架构'],
-    scope: '对区政府数据中心进行安全加固，满足等保三级要求。',
-    evaluation: '综合评分法',
-    tags: ['安全加固', '政务']
+    title: '混合现实练习系统软件测试服务招标公告（2026-JLJYDH-FW4001001）',
+    budget: '18.50万元',
+    matchScore: 70,
+    location: '北京市',
+    publishDate: '2026-04-14',
+    purchaser: '某训练系统建设单位',
+    noticeType: '招标公告',
+    summary:
+      '项目聚焦混合现实练习系统的软件测试服务，更偏向测试验证而非网络安全测评，预算中等偏小，对测试方法论和测试交付物完整性要求更高。',
+    recommendation:
+      '若继续跟进，应以软件测试能力和复杂系统验证经验为主线；若企业主营为安全测评，可将其列为次优机会。',
+    analysis: [
+      {
+        label: '软件测试',
+        matched: true,
+        description: '采购内容直接指向软件测试服务，与安全测评类能力的关联度有限。'
+      },
+      {
+        label: '等级保护测评',
+        matched: false,
+        description: '公告未体现等级保护测评或风险评估相关需求。'
+      },
+      {
+        label: '商用密码安全',
+        matched: false,
+        description: '当前项目未体现密码安全建设或测评要求。'
+      }
+    ],
+    tags: ['软件测试', '混合现实']
   },
   {
     id: 6,
-    title: '嘉定区卫健委医疗信息系统等保测评',
-    budget: '38万',
-    matchScore: 82,
-    deadline: '2026-02-20',
-    location: '上海市嘉定区',
-    publishDate: '2026-02-03',
-    purchaser: '嘉定区卫生健康委员会',
-    contact: '赵科长 021-22222222',
-    requirements: ['具有等保测评机构资质', '熟悉医疗信息系统'],
-    scope: '对区卫健委及下属医疗机构信息系统进行等保测评。',
-    evaluation: '综合评分法',
-    tags: ['等保测评', '医疗']
+    title: '富滇银行新一代信用风险管理系统群专业软件测试服务项目招标公告',
+    budget: '715万元',
+    matchScore: 60,
+    location: '云南省 昆明市',
+    publishDate: '2026-04-12',
+    purchaser: '富滇银行股份有限公司',
+    noticeType: '公开招标',
+    summary:
+      '该项目以银行风险管理系统群的软件测试服务为核心，强调金融系统稳定性、性能验证与专业测试交付，预算较大，但与安全测评主航道存在一定偏离。',
+    recommendation:
+      '从企业主营匹配度看不建议优先投入，可根据测试资源储备情况决定是否参与，避免稀释核心业务精力。',
+    analysis: [
+      {
+        label: '金融软件测试',
+        matched: true,
+        description: '项目重点在金融行业专业软件测试，需要成熟的测试体系和金融项目经验。'
+      },
+      {
+        label: '等级保护测评',
+        matched: false,
+        description: '当前招标信息未披露等保测评服务范围。'
+      },
+      {
+        label: '主营业务契合度',
+        matched: false,
+        description: '若企业主力能力集中在安全测评，则该项目的直接匹配度偏低。'
+      }
+    ],
+    tags: ['软件测试', '银行系统']
   }
 ]);
 
-const selectedBidId = ref<number>(1);
-
-onMounted(() => {
-  const bidId = route.query.bidId;
-  if (bidId) {
-    const parsedId = parseInt(bidId as string);
-    // Check if the bidId exists in mock data, if not fallback to first item
-    const exists = bidList.value.some(b => b.id === parsedId);
-    if (exists) {
-      selectedBidId.value = parsedId;
-    } else if (bidList.value.length > 0 && bidList.value[0]) {
-      // Fallback to first item if bidId doesn't exist in mock data
-      selectedBidId.value = bidList.value[0].id;
-    }
-  } else if (bidList.value.length > 0 && bidList.value[0]) {
-    selectedBidId.value = bidList.value[0].id;
-  }
-});
+const selectedBidId = ref<number>(bidList.value[0]?.id ?? 0);
 
 const selectedBid = computed(() => {
-  return bidList.value.find(b => b.id === selectedBidId.value) || null;
+  return bidList.value.find((bid) => bid.id === selectedBidId.value) ?? null;
 });
+
+const source = computed(() => {
+  const rawSource = route.query.source;
+  return Array.isArray(rawSource) ? rawSource[0] ?? 'subscription' : rawSource ?? 'subscription';
+});
+
+const detailHeading = computed(() => {
+  return selectedBid.value ? `${selectedBid.value.title} 详情情况` : '';
+});
+
+const syncSelectedBid = (rawBidId: string | null | (string | null)[] | undefined) => {
+  const bidId = Array.isArray(rawBidId) ? rawBidId[0] : rawBidId;
+  const fallbackId = bidList.value[0]?.id ?? 0;
+
+  if (!bidId) {
+    selectedBidId.value = fallbackId;
+    return;
+  }
+
+  const parsedId = Number.parseInt(bidId, 10);
+  const targetBid = bidList.value.find((bid) => bid.id === parsedId);
+  selectedBidId.value = targetBid?.id ?? fallbackId;
+};
+
+watch(
+  () => route.query.bidId as string | null | (string | null)[] | undefined,
+  (bidId) => {
+    syncSelectedBid(bidId);
+  },
+  { immediate: true }
+);
 
 const selectBid = (id: number) => {
   selectedBidId.value = id;
+  router.replace({
+    name: 'bid-list-detail',
+    query: {
+      ...route.query,
+      bidId: String(id)
+    }
+  });
 };
 
 const getMatchScoreClass = (score: number) => {
@@ -165,775 +277,464 @@ const getMatchScoreClass = (score: number) => {
 };
 
 const goBack = () => {
+  if (source.value === 'daily') {
+    router.push({ name: 'bid-daily-report' });
+    return;
+  }
+
   router.push({ name: 'bid-subscription' });
 };
-
-const goToAnalysis = () => {
-  if (selectedBidId.value) {
-    router.push({ name: 'bid-analysis-form', query: { bidId: selectedBidId.value } });
-  }
-};
-
-const goToDocGenerate = () => {
-  if (selectedBidId.value) {
-    router.push({ name: 'bid-doc-oneclick-form', query: { bidId: selectedBidId.value } });
-  }
-};
-
 </script>
 
 <template>
   <div class="bid-list-detail-page">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-left">
-        <button class="back-btn" @click="goBack">
-          <ChevronLeft :size="18" />
+    <aside class="list-sidebar">
+      <div class="sidebar-header">
+        <button type="button" class="back-btn sidebar-back-btn" @click="goBack">
+          <ChevronLeft :size="16" />
           <span>返回</span>
         </button>
-        <h1 class="header-title">标讯列表</h1>
-        <span class="header-count">共 {{ bidList.length }} 条</span>
+        <div class="sidebar-title">标讯列表</div>
       </div>
-      <div class="header-right">
-        <button class="header-action-btn" @click="goToAnalysis">
-          <FileSearch :size="16" />
-          AI智能解读
-        </button>
-        <button class="header-action-btn primary" @click="goToDocGenerate">
-          <FileText :size="16" />
-          生成标书
+      <div class="sidebar-list">
+        <button
+          v-for="bid in bidList"
+          :key="bid.id"
+          type="button"
+          class="sidebar-item"
+          :class="{ active: selectedBidId === bid.id }"
+          @click="selectBid(bid.id)"
+        >
+          <div class="sidebar-item-icon">
+            <FileText :size="16" />
+          </div>
+          <div class="sidebar-item-content">
+            <div class="sidebar-item-title">{{ bid.title }}</div>
+            <div class="sidebar-item-meta">
+              <span class="match-chip" :class="getMatchScoreClass(bid.matchScore)">{{ bid.matchScore }}%</span>
+              <span class="sidebar-item-budget">{{ bid.budget }}</span>
+            </div>
+          </div>
         </button>
       </div>
-    </header>
+    </aside>
 
-    <!-- Body -->
-    <div class="page-body">
-      <!-- Left Sidebar - File List -->
-      <aside class="file-sidebar">
-        <div class="sidebar-header">
-          <FileText :size="16" />
-          <span>标讯列表</span>
-        </div>
-        <div class="file-list">
-          <div
-            v-for="bid in bidList"
-            :key="bid.id"
-            class="file-item"
-            :class="{ active: selectedBidId === bid.id }"
-            @click="selectBid(bid.id)"
-          >
-            <div class="file-icon">
-              <FileText :size="16" />
+    <main class="detail-panel" v-if="selectedBid">
+      <div class="detail-shell">
+        <section class="hero-card">
+          <div class="hero-badge">匹配度 {{ selectedBid.matchScore }}%</div>
+          <h1 class="hero-title">{{ detailHeading }}</h1>
+        </section>
+
+        <section class="detail-card">
+          <h2 class="section-title">基本信息</h2>
+          <div class="basic-grid">
+            <div class="basic-item">
+              <span class="basic-label">招标单位</span>
+              <span class="basic-value">{{ selectedBid.purchaser }}</span>
             </div>
-            <div class="file-info">
-              <span class="file-title">{{ bid.title }}</span>
-              <span class="file-meta">
-                <span class="file-score" :class="getMatchScoreClass(bid.matchScore)">{{ bid.matchScore }}%</span>
-                <span class="file-budget">{{ bid.budget }}</span>
-              </span>
+            <div class="basic-item">
+              <span class="basic-label">所在地区</span>
+              <span class="basic-value">{{ selectedBid.location }}</span>
+            </div>
+            <div class="basic-item">
+              <span class="basic-label">预算金额</span>
+              <span class="basic-value basic-value-highlight">{{ selectedBid.budget }}</span>
+            </div>
+            <div class="basic-item">
+              <span class="basic-label">发布时间</span>
+              <span class="basic-value">{{ selectedBid.publishDate }}</span>
+            </div>
+            <div class="basic-item">
+              <span class="basic-label">公告类型</span>
+              <span class="basic-value">{{ selectedBid.noticeType }}</span>
             </div>
           </div>
-        </div>
-      </aside>
+        </section>
 
-      <!-- Main Content -->
-      <main class="detail-main" v-if="selectedBid">
-        <!-- Left: Detail Content -->
-        <div class="main-content">
-          <!-- Document Container - Word style -->
-          <div class="document-container">
-            <!-- Title Section -->
-            <div class="title-section">
-            <div class="title-tags">
-              <span v-for="tag in selectedBid.tags" :key="tag" class="bid-tag">{{ tag }}</span>
-            </div>
-            <h2 class="detail-title">{{ selectedBid.title }}</h2>
-          </div>
-
-          <!-- Info Card -->
-          <div class="info-card">
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">预算金额</div>
-                <div class="info-value highlight">{{ selectedBid.budget }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">截止日期</div>
-                <div class="info-value">{{ selectedBid.deadline }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">发布日期</div>
-                <div class="info-value">{{ selectedBid.publishDate }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">所在地区</div>
-                <div class="info-value">{{ selectedBid.location }}</div>
-              </div>
+        <section class="detail-card">
+          <h2 class="section-title">匹配分析</h2>
+          <div class="analysis-list">
+            <div
+              v-for="item in selectedBid.analysis"
+              :key="item.label"
+              class="analysis-item"
+              :class="{ matched: item.matched }"
+            >
+              <span class="analysis-icon" :class="{ checked: item.matched }">{{ item.matched ? '✓' : '' }}</span>
+              <p class="analysis-text">
+                <strong>{{ item.label }}</strong>
+                {{ item.description }}
+              </p>
             </div>
           </div>
+        </section>
 
-          <!-- Purchaser -->
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">采购单位</h3>
-            </div>
-            <div class="card-body">
-              <p class="body-text">{{ selectedBid.purchaser }}</p>
-              <p class="body-text sub">联系方式：{{ selectedBid.contact }}</p>
-            </div>
-          </div>
+        <section class="detail-card">
+          <h2 class="section-title">智能建议</h2>
+          <div class="advice-box">{{ selectedBid.recommendation }}</div>
+        </section>
 
-          <!-- Requirements -->
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">资质要求</h3>
-            </div>
-            <div class="card-body">
-              <ul class="requirements-list">
-                <li v-for="(req, index) in selectedBid.requirements" :key="index">{{ req }}</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Scope -->
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">项目范围</h3>
-            </div>
-            <div class="card-body">
-              <p class="body-text">{{ selectedBid.scope }}</p>
-            </div>
-          </div>
-
-          <!-- Evaluation -->
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">评标方法</h3>
-            </div>
-            <div class="card-body">
-              <p class="body-text">{{ selectedBid.evaluation }}</p>
-            </div>
-          </div>
-          </div><!-- End of document-container -->
-        </div>
-
-        <!-- Right: Score Panel -->
-        <div class="side-panel">
-          <!-- Match Analysis Card -->
-          <div class="match-analysis-card">
-            <div class="card-header">
-              <h3 class="card-title">匹配度分析</h3>
-            </div>
-            <div class="match-score-display">
-              <div class="score-circle" :class="getMatchScoreClass(selectedBid.matchScore)">
-                <span class="score-value">{{ selectedBid.matchScore }}</span>
-                <span class="score-label">分</span>
-              </div>
-            </div>
-            <div class="match-details">
-              <div class="match-item">
-                <span class="match-label">资质匹配</span>
-                <div class="match-bar">
-                  <div class="match-fill high" style="width: 95%"></div>
-                </div>
-                <span class="match-percent">95%</span>
-              </div>
-              <div class="match-item">
-                <span class="match-label">业绩匹配</span>
-                <div class="match-bar">
-                  <div class="match-fill high" style="width: 88%"></div>
-                </div>
-                <span class="match-percent">88%</span>
-              </div>
-              <div class="match-item">
-                <span class="match-label">团队匹配</span>
-                <div class="match-bar">
-                  <div class="match-fill medium" style="width: 75%"></div>
-                </div>
-                <span class="match-percent">75%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Actions -->
-          <div class="quick-actions-card">
-            <button class="quick-action-btn primary" @click="goToAnalysis">
-              <FileSearch :size="18" />
-              <span>AI智能解读</span>
-            </button>
-            <button class="quick-action-btn" @click="goToDocGenerate">
-              <FileText :size="18" />
-              <span>生成标书</span>
-            </button>
-          </div>
-        </div>
-      </main>
-    </div>
+        <section class="detail-card">
+          <h2 class="section-title">项目摘要</h2>
+          <p class="summary-text">{{ selectedBid.summary }}</p>
+        </section>
+      </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
 .bid-list-detail-page {
   display: flex;
-  flex-direction: column;
   height: 100%;
-  background: #f8fafc;
-}
-
-/* Header */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #475569;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-btn:hover {
-  background: #f1f5f9;
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.header-count {
-  padding: 4px 10px;
-  background: #dbeafe;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #3b82f6;
-  font-weight: 500;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.header-action-btn:hover {
-  background: #f8fafc;
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-.header-action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  color: white;
-}
-
-.header-action-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-/* Body */
-.page-body {
-  flex: 1;
-  display: flex;
+  background: #eef3ff;
+  color: #1f2a44;
   overflow: hidden;
 }
 
-/* File Sidebar */
-.file-sidebar {
+.list-sidebar {
   width: 320px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-right: 1px solid #e6ebf5;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 12px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid #eef2f8;
 }
 
-.file-list {
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #18243d;
+  min-width: 0;
+}
+
+.sidebar-list {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: 14px 12px 18px;
 }
 
-.file-item {
+.sidebar-item {
+  width: 100%;
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 4px;
+  text-align: left;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.file-item:hover {
-  background: #f8fafc;
+.sidebar-item + .sidebar-item {
+  margin-top: 10px;
 }
 
-.file-item.active {
-  background: #eff6ff;
+.sidebar-item:hover {
+  background: #f7f9ff;
+  border-color: #dfe7fa;
 }
 
-.file-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+.sidebar-item.active {
+  background: #edf3ff;
+  border-color: #d7e3ff;
+  box-shadow: 0 10px 28px rgba(103, 126, 181, 0.12);
+}
+
+.sidebar-item-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f3f6fb;
+  color: #98a3b6;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: #f1f5f9;
-  color: #64748b;
 }
 
-.file-item.active .file-icon {
-  background: #3b82f6;
-  color: white;
-}
-
-.file-info {
-  flex: 1;
+.sidebar-item-content {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex: 1;
 }
 
-.file-title {
+.sidebar-item-title {
   font-size: 13px;
-  font-weight: 500;
-  color: #1e293b;
-  line-height: 1.4;
+  line-height: 1.55;
+  font-weight: 700;
+  color: #1f2a44;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   overflow: hidden;
 }
 
-.file-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.file-score {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.file-score.score-high {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.file-score.score-medium {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.file-score.score-low {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.file-budget {
-  color: #16a34a;
-  font-weight: 500;
-}
-
-/* Main Content */
-.detail-main {
-  flex: 1;
-  display: flex;
-  gap: 24px;
-  padding: 24px;
-  overflow-y: auto;
-  background: #f1f5f9;
-}
-
-.main-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  justify-content: center;
-}
-
-/* Document Container - Word style with left border */
-.document-container {
-  width: 100%;
-  max-width: 800px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1);
-  padding: 40px 48px;
-  min-height: fit-content;
-  border-left: 4px solid #3b82f6;
-}
-
-.side-panel {
-  width: 280px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Title Section */
-.title-section {
-  margin-bottom: 20px;
-}
-
-.title-tags {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.bid-tag {
-  padding: 4px 10px;
-  background: #eff6ff;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #3b82f6;
-}
-
-.detail-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* Info Card */
-.info-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.info-item {
-  text-align: center;
-}
-
-.info-label {
-  font-size: 12px;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.info-value {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.info-value.highlight {
-  color: #3b82f6;
-  font-size: 18px;
-}
-
-/* Content Card */
-.content-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-}
-
-.content-card .card-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.content-card .card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.content-card .card-body {
-  padding: 16px 20px;
-}
-
-.body-text {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1.7;
-  margin: 0;
-}
-
-.body-text.sub {
-  margin-top: 8px;
-  color: #64748b;
-}
-
-.requirements-list {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.requirements-list li {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1.8;
-  margin-bottom: 6px;
-}
-
-/* Match Analysis Card */
-.match-analysis-card {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 20px;
-}
-
-.match-analysis-card .card-header {
-  padding: 0;
-  border: none;
-  margin-bottom: 16px;
-}
-
-.match-analysis-card .card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.match-score-display {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.score-circle {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #f0fdf4;
-  border: 4px solid #22c55e;
-}
-
-.score-circle.score-high {
-  background: #f0fdf4;
-  border-color: #22c55e;
-}
-
-.score-circle.score-medium {
-  background: #fffbeb;
-  border-color: #f59e0b;
-}
-
-.score-circle.score-low {
-  background: #f8fafc;
-  border-color: #94a3b8;
-}
-
-.score-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1;
-}
-
-.score-label {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-/* Match Details */
-.match-details {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.match-item {
+.sidebar-item-meta {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
 
-.match-label {
-  width: 60px;
+.match-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  padding: 3px 7px;
+  border-radius: 7px;
   font-size: 12px;
-  color: #64748b;
+  font-weight: 700;
+}
+
+.match-chip.score-high {
+  background: #dcf7e5;
+  color: #149655;
+}
+
+.match-chip.score-medium {
+  background: #ffedc9;
+  color: #c47a0b;
+}
+
+.match-chip.score-low {
+  background: #e9eef7;
+  color: #6f7b90;
+}
+
+.sidebar-item-budget {
+  font-size: 12px;
+  font-weight: 700;
+  color: #15a05c;
+}
+
+.detail-panel {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 26px 34px 32px;
+}
+
+.detail-shell {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #7c8698;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-back-btn {
   flex-shrink: 0;
 }
 
-.match-bar {
-  flex: 1;
-  height: 6px;
-  background: #f1f5f9;
-  border-radius: 3px;
-  overflow: hidden;
+.back-btn:hover {
+  background: #edf3ff;
+  color: #456bb5;
 }
 
-.match-fill {
-  height: 100%;
-  border-radius: 3px;
+.hero-card,
+.detail-card {
+  background: #ffffff;
+  border: 1px solid rgba(225, 231, 242, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 14px 36px rgba(109, 127, 171, 0.08);
 }
 
-.match-fill.high {
-  background: linear-gradient(90deg, #22c55e, #16a34a);
+.hero-card {
+  padding: 22px 26px 24px;
+  margin-bottom: 16px;
 }
 
-.match-fill.medium {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #e9f7ec;
+  color: #1d9d5c;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.match-percent {
-  width: 36px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  text-align: right;
+.hero-title {
+  margin: 16px 0 0;
+  font-size: 20px;
+  line-height: 1.45;
+  font-weight: 800;
+  color: #1a2238;
 }
 
-/* Quick Actions Card */
-.quick-actions-card {
+.detail-card {
+  padding: 22px 24px;
+}
+
+.detail-card + .detail-card {
+  margin-top: 16px;
+}
+
+.section-title {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1d2a44;
+}
+
+.basic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 36px;
+}
+
+.basic-item {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 12px;
+}
+
+.basic-label {
+  font-size: 14px;
+  color: #98a2b3;
+}
+
+.basic-value {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #344054;
+}
+
+.basic-value-highlight {
+  color: #4a91ff;
+  font-weight: 700;
+}
+
+.analysis-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.quick-action-btn {
+.analysis-item {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  background: #f7f9fc;
+}
+
+.analysis-item.matched {
+  background: #edf8ef;
+}
+
+.analysis-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: #dfe5ec;
+  color: transparent;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px 20px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.analysis-icon.checked {
+  background: #12b351;
+  color: #ffffff;
+}
+
+.analysis-text {
+  margin: 0;
   font-size: 14px;
-  font-weight: 500;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s;
+  line-height: 1.8;
+  color: #556070;
 }
 
-.quick-action-btn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: #eff6ff;
+.analysis-text strong {
+  margin-right: 8px;
+  color: #2e4d3f;
 }
 
-.quick-action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  color: white;
+.advice-box {
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: #fff5df;
+  color: #cb7a12;
+  font-size: 14px;
+  line-height: 1.8;
 }
 
-.quick-action-btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+.summary-text {
+  margin: 0;
+  color: #4b5565;
+  font-size: 14px;
+  line-height: 1.9;
 }
 
-/* Scrollbar */
-.file-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.file-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.file-list::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 3px;
-}
-
-.file-list::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-  .info-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 1080px) {
+  .basic-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
-@media (max-width: 1024px) {
-  .detail-main {
+@media (max-width: 900px) {
+  .bid-list-detail-page {
     flex-direction: column;
+    height: auto;
+    min-height: 100%;
   }
 
-  .side-panel {
+  .list-sidebar {
     width: 100%;
-    flex-direction: row;
-    gap: 16px;
+    border-right: none;
+    border-bottom: 1px solid #e6ebf5;
   }
 
-  .match-analysis-card,
-  .quick-actions-card {
-    flex: 1;
+  .sidebar-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 16px;
+  }
+
+  .sidebar-item,
+  .sidebar-item + .sidebar-item {
+    min-width: 268px;
+    margin-top: 0;
+  }
+
+  .detail-panel {
+    padding: 20px 16px 28px;
   }
 }
 </style>

@@ -19,7 +19,6 @@ import {
   FileText,
   Maximize2,
   Target,
-  Zap,
   Newspaper,
   Globe,
   Tag,
@@ -152,8 +151,8 @@ const pageConfig = computed(() => {
     listUnit: '标讯',
     summaryActionLabel: '查看完整报告',
     topCardTitle: '招投标市场分析',
-    topCardDesc: '基于竞争数据，智能生成针对性销售策略',
-    topCardActionLabel: '一键生成策略报告',
+    topCardDesc: '沿用当前订阅关键词，进入市场分析页继续查看和配置',
+    topCardActionLabel: '进入市场分析',
     detailListTitle: '标讯列表',
     fullscreenTitle: '全部标讯列表',
     primaryActionLabel: 'AI智能解读',
@@ -335,12 +334,7 @@ const topCardStats = computed(() => {
     ];
   }
 
-  const stats = activeBidPolicy.value?.salesStrategy ?? { biddingUnits: 0, competitors: 0, bidNotices: 0 };
-  return [
-    { label: '招标单位', value: stats.biddingUnits },
-    { label: '竞品企业', value: stats.competitors },
-    { label: '关注标讯', value: stats.bidNotices },
-  ];
+  return [];
 });
 
 const getMatchScoreClass = (score: number) => {
@@ -554,7 +548,7 @@ const getSectionList = (section: DisplayDetailSection) => {
                 <span class="strategy-trigger-desc">{{ pageConfig.topCardDesc }}</span>
               </div>
             </div>
-            <div class="strategy-trigger-stats">
+            <div v-if="topCardStats.length > 0" class="strategy-trigger-stats">
               <template v-for="(stat, index) in topCardStats" :key="stat.label">
                 <div class="trigger-stat">
                   <span class="trigger-stat-value">{{ stat.value }}</span>
@@ -564,7 +558,7 @@ const getSectionList = (section: DisplayDetailSection) => {
               </template>
             </div>
             <button class="strategy-cta-btn" @click="goToTopCardAction">
-              <component :is="isNewsMode ? Database : Zap" :size="15" />
+              <component :is="isNewsMode ? Database : Target" :size="15" />
               {{ pageConfig.topCardActionLabel }}
               <ChevronRight :size="14" class="cta-arrow" />
             </button>
