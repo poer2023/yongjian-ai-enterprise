@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Component } from 'vue';
 import { useRouter } from 'vue-router';
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Bell,
   Sparkles,
   Star,
@@ -37,6 +40,10 @@ import type { BidDetail, NewsDetail } from './types';
 import ScoreDisplay from '../shared/ScoreDisplay.vue';
 
 type SubscriptionMode = 'bid' | 'news';
+type ListSortField = 'publishDate' | 'deadline' | 'budgetAmount';
+type SortDirection = 'asc' | 'desc';
+
+const LIST_PAGE_SIZE = 20;
 
 interface DisplayMeta {
   text: string;
@@ -56,6 +63,12 @@ interface DisplayListItem {
   title: string;
   extra: string;
   matchScore: number;
+  publisher: string;
+  publishDate: string;
+  deadline: string;
+  budget: string;
+  budgetAmount: number;
+  region: string;
 }
 
 interface DisplayDetailField {
@@ -92,6 +105,65 @@ const showPolicyDropdown = ref(false);
 const selectedDate = ref('2026-02-04');
 const isFullscreen = ref(false);
 const selectedItemId = ref<number | null>(null);
+const activeListRegion = ref('all');
+const activeListSortField = ref<ListSortField>('publishDate');
+const activeListSortDirection = ref<SortDirection>('desc');
+const currentListPage = ref(1);
+const listJumpPage = ref('1');
+const showListRegionDropdown = ref(false);
+
+const bidListMetaById: Record<number, { publisher: string; publishDate: string; deadline: string; region: string }> = {
+  301: { publisher: '某国有银行上海分行', publishDate: '2026-02-04', deadline: '2026-02-08', region: '上海市' },
+  302: { publisher: '上海市浦东新区政务云管理中心', publishDate: '2026-02-04', deadline: '2026-02-12', region: '上海市浦东新区' },
+  303: { publisher: '上海市徐汇区教育局', publishDate: '2026-02-04', deadline: '2026-02-09', region: '上海市徐汇区' },
+  304: { publisher: '上海市青浦区公安局', publishDate: '2026-02-03', deadline: '2026-02-14', region: '上海市青浦区' },
+  305: { publisher: '上海市松江区政务服务中心', publishDate: '2026-02-03', deadline: '2026-02-15', region: '上海市松江区' },
+  306: { publisher: '上海市闵行区街道办事处', publishDate: '2026-02-03', deadline: '2026-02-11', region: '上海市闵行区' },
+  307: { publisher: '上海市静安区商务委员会', publishDate: '2026-02-02', deadline: '2026-02-16', region: '上海市静安区' },
+  308: { publisher: '上海市奉贤区工业园区管理委员会', publishDate: '2026-02-02', deadline: '2026-02-18', region: '上海市奉贤区' },
+  309: { publisher: '上海城投集团有限公司', publishDate: '2026-02-01', deadline: '2026-02-20', region: '上海市' },
+  310: { publisher: '上海市长宁区数据局', publishDate: '2026-02-01', deadline: '2026-02-13', region: '上海市长宁区' },
+  311: { publisher: '上海市杨浦区科创园区管理中心', publishDate: '2026-01-31', deadline: '2026-02-17', region: '上海市杨浦区' },
+  312: { publisher: '上海市宝山区人民医院', publishDate: '2026-01-31', deadline: '2026-02-19', region: '上海市宝山区' },
+  313: { publisher: '上海市嘉定区政务服务办公室', publishDate: '2026-01-30', deadline: '2026-02-18', region: '上海市嘉定区' },
+  314: { publisher: '上海市黄浦区教育信息中心', publishDate: '2026-01-30', deadline: '2026-02-10', region: '上海市黄浦区' },
+  315: { publisher: '上海市崇明区卫生健康委员会', publishDate: '2026-01-29', deadline: '2026-02-21', region: '上海市崇明区' },
+  316: { publisher: '上海市金山区工业互联网中心', publishDate: '2026-01-29', deadline: '2026-02-22', region: '上海市金山区' },
+  317: { publisher: '上海市普陀区城市运行中心', publishDate: '2026-01-28', deadline: '2026-02-14', region: '上海市普陀区' },
+  318: { publisher: '上海市虹口区文化和旅游局', publishDate: '2026-01-28', deadline: '2026-02-12', region: '上海市虹口区' },
+  319: { publisher: '上海市徐汇区中心医院', publishDate: '2026-01-27', deadline: '2026-02-24', region: '上海市徐汇区' },
+  320: { publisher: '上海市浦东新区教育信息中心', publishDate: '2026-01-27', deadline: '2026-02-26', region: '上海市浦东新区' },
+  321: { publisher: '上海市静安区大数据中心', publishDate: '2026-01-26', deadline: '2026-02-23', region: '上海市静安区' },
+  322: { publisher: '上海市闵行区卫健委信息中心', publishDate: '2026-01-26', deadline: '2026-02-25', region: '上海市闵行区' },
+  323: { publisher: '上海市松江区教育局', publishDate: '2026-01-25', deadline: '2026-02-27', region: '上海市松江区' },
+  324: { publisher: '上海市青浦区政务云中心', publishDate: '2026-01-25', deadline: '2026-02-28', region: '上海市青浦区' },
+  325: { publisher: '上海市奉贤区应急管理局', publishDate: '2026-01-24', deadline: '2026-03-02', region: '上海市奉贤区' },
+};
+
+const supplementalBidListItems = [
+  { id: 309, title: '上海城投集团网络边界安全评估项目', budget: '92万', matchScore: 87 },
+  { id: 310, title: '长宁区数据局政务数据安全风险排查服务', budget: '64万', matchScore: 84 },
+  { id: 311, title: '杨浦区科创园区企业网络安全服务采购', budget: '42万', matchScore: 82 },
+  { id: 312, title: '宝山区人民医院信息系统安全评估服务', budget: '38万', matchScore: 81 },
+  { id: 313, title: '嘉定区政务服务平台等级保护测评项目', budget: '58万', matchScore: 80 },
+  { id: 314, title: '黄浦区教育城域网安全防护升级咨询', budget: '35万', matchScore: 79 },
+  { id: 315, title: '崇明区卫健委医疗专网安全检测服务', budget: '49万', matchScore: 77 },
+  { id: 316, title: '金山区工业互联网安全监测服务项目', budget: '88万', matchScore: 76 },
+  { id: 317, title: '普陀区城市运行中心安全加固服务', budget: '66万', matchScore: 74 },
+  { id: 318, title: '虹口区文化场馆网络安全巡检服务', budget: '24万', matchScore: 73 },
+  { id: 319, title: '徐汇区中心医院数据安全评估项目', budget: '71万', matchScore: 86 },
+  { id: 320, title: '浦东新区教育信息中心终端安全加固项目', budget: '53万', matchScore: 83 },
+  { id: 321, title: '静安区大数据中心安全运维驻场服务', budget: '115万', matchScore: 78 },
+  { id: 322, title: '闵行区卫健委网络安全应急演练服务', budget: '32万', matchScore: 72 },
+  { id: 323, title: '松江区教育局校园安全监测平台维护', budget: '46万', matchScore: 71 },
+  { id: 324, title: '青浦区政务云日志审计平台采购', budget: '97万', matchScore: 70 },
+  { id: 325, title: '奉贤区应急管理局网络安全咨询服务', budget: '29万', matchScore: 69 },
+];
+
+const parseBudgetAmount = (value: string) => {
+  const amount = Number(value.replace(/[^\d.]/g, ''));
+  return Number.isFinite(amount) ? amount : 0;
+};
 
 const formattedDate = computed(() => {
   const date = new Date(selectedDate.value);
@@ -147,7 +219,7 @@ const pageConfig = computed(() => {
     subtitle: '基于您的订阅配置，智能推送匹配标讯',
     summaryTitle: '标讯总结',
     highlightTitle: '重点标讯',
-    listTitle: '全部标讯',
+    listTitle: '当日标讯',
     listUnit: '标讯',
     summaryActionLabel: '查看完整报告',
     topCardTitle: '招投标市场分析',
@@ -207,16 +279,150 @@ const displayListItems = computed<DisplayListItem[]>(() => {
       title: item.title,
       extra: item.source,
       matchScore: item.matchScore,
+      publisher: item.source,
+      publishDate: selectedDate.value,
+      deadline: '-',
+      budget: '-',
+      budgetAmount: 0,
+      region: '资讯',
     }));
   }
 
-  return (currentBidData.value?.allBids ?? []).map((item) => ({
-    id: item.id,
-    title: item.title,
+  const baseItems = currentBidData.value?.allBids ?? [];
+  const listItems =
+    activePolicyId.value === 'security' && selectedDate.value === '2026-02-04'
+      ? [...baseItems, ...supplementalBidListItems]
+      : baseItems;
+
+  return listItems.map((item) => ({
+    ...item,
     extra: item.budget,
-    matchScore: item.matchScore,
+    budget: item.budget,
+    budgetAmount: parseBudgetAmount(item.budget),
+    publisher: bidListMetaById[item.id]?.publisher ?? '采购单位',
+    publishDate: bidListMetaById[item.id]?.publishDate ?? selectedDate.value,
+    deadline: bidListMetaById[item.id]?.deadline ?? '2026-02-15',
+    region: bidListMetaById[item.id]?.region ?? '上海市',
   }));
 });
+
+const listRegionOptions = computed(() => {
+  const regions = Array.from(new Set(displayListItems.value.map((item) => item.region))).filter(Boolean);
+  return [
+    { value: 'all', label: '全部地区' },
+    ...regions.map((region) => ({ value: region, label: region.replace('上海市', '') || region })),
+  ];
+});
+
+const activeListRegionLabel = computed(() => {
+  return listRegionOptions.value.find((item) => item.value === activeListRegion.value)?.label ?? '全部地区';
+});
+
+const getListSortValue = (item: DisplayListItem) => {
+  if (activeListSortField.value === 'budgetAmount') return item.budgetAmount;
+  if (activeListSortField.value === 'deadline') return new Date(item.deadline).getTime();
+  return new Date(item.publishDate).getTime();
+};
+
+const filteredDisplayListItems = computed(() => {
+  if (isNewsMode.value) return displayListItems.value;
+
+  return displayListItems.value
+    .filter((item) => activeListRegion.value === 'all' || item.region === activeListRegion.value)
+    .sort((a, b) => {
+      const result = getListSortValue(a) - getListSortValue(b);
+      return activeListSortDirection.value === 'asc' ? result : -result;
+    });
+});
+
+const totalListPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredDisplayListItems.value.length / LIST_PAGE_SIZE));
+});
+
+const pagedDisplayListItems = computed(() => {
+  const start = (currentListPage.value - 1) * LIST_PAGE_SIZE;
+  return filteredDisplayListItems.value.slice(start, start + LIST_PAGE_SIZE);
+});
+
+const listPageStart = computed(() => {
+  if (filteredDisplayListItems.value.length === 0) return 0;
+  return (currentListPage.value - 1) * LIST_PAGE_SIZE + 1;
+});
+
+const listPageEnd = computed(() => {
+  return Math.min(currentListPage.value * LIST_PAGE_SIZE, filteredDisplayListItems.value.length);
+});
+
+watch(
+  [activePolicyId, selectedDate, activeListRegion, activeListSortField, activeListSortDirection],
+  () => {
+    currentListPage.value = 1;
+  }
+);
+
+watch(currentListPage, (page) => {
+  listJumpPage.value = String(page);
+});
+
+watch(totalListPages, (pageCount) => {
+  if (currentListPage.value > pageCount) {
+    currentListPage.value = pageCount;
+  }
+});
+
+const resetListFilters = () => {
+  activeListSortField.value = 'publishDate';
+  activeListSortDirection.value = 'desc';
+  activeListRegion.value = 'all';
+  currentListPage.value = 1;
+  showListRegionDropdown.value = false;
+};
+
+const selectListRegion = (region: string) => {
+  activeListRegion.value = region;
+  showListRegionDropdown.value = false;
+};
+
+const handleListRegionBlur = (event: FocusEvent) => {
+  const currentTarget = event.currentTarget;
+  const nextTarget = event.relatedTarget;
+
+  if (!(currentTarget instanceof HTMLElement)) return;
+  if (nextTarget instanceof Node && currentTarget.contains(nextTarget)) return;
+
+  showListRegionDropdown.value = false;
+};
+
+const toggleListSort = (field: ListSortField) => {
+  if (activeListSortField.value === field) {
+    activeListSortDirection.value = activeListSortDirection.value === 'asc' ? 'desc' : 'asc';
+    return;
+  }
+
+  activeListSortField.value = field;
+  activeListSortDirection.value = 'desc';
+};
+
+const goToListPage = (page: number) => {
+  const nextPage = Math.min(Math.max(page, 1), totalListPages.value);
+  currentListPage.value = nextPage;
+};
+
+const goToListJumpPage = () => {
+  const targetPage = Number.parseInt(listJumpPage.value, 10);
+
+  if (!Number.isFinite(targetPage)) {
+    listJumpPage.value = String(currentListPage.value);
+    return;
+  }
+
+  goToListPage(targetPage);
+};
+
+const getListSortLabel = (field: ListSortField) => {
+  if (activeListSortField.value !== field) return '排序';
+  return activeListSortDirection.value === 'asc' ? '正序' : '倒序';
+};
 
 const selectedBidDetail = computed<BidDetail | null>(() => {
   if (!selectedItemId.value || !currentBidData.value) return null;
@@ -348,9 +554,25 @@ const selectPolicy = (id: string) => {
   showPolicyDropdown.value = false;
 };
 
+const goToAllResults = () => {
+  if (isNewsMode.value) {
+    isFullscreen.value = true;
+    selectedItemId.value = displayListItems.value[0]?.id ?? null;
+    return;
+  }
+
+  router.push({
+    name: 'bid-info-daily',
+    query: {
+      source: 'subscription',
+      group: activePolicyId.value,
+      date: selectedDate.value,
+    },
+  });
+};
+
 const openFullscreen = () => {
-  isFullscreen.value = true;
-  selectedItemId.value = displayListItems.value[0]?.id ?? null;
+  goToAllResults();
 };
 
 const openFullscreenWithItem = (id: number) => {
@@ -436,12 +658,6 @@ const getSectionList = (section: DisplayDetailSection) => {
             <button class="dropdown-trigger" @click="showPolicyDropdown = !showPolicyDropdown">
               <Users :size="16" />
               <span>{{ activePolicyName }}</span>
-              <span
-                v-if="(isNewsMode ? activeNewsPolicy?.newCount : activeBidPolicy?.newCount)"
-                class="trigger-badge"
-              >
-                {{ isNewsMode ? activeNewsPolicy?.newCount : activeBidPolicy?.newCount }}
-              </span>
               <ChevronDown :size="14" :class="{ rotate: showPolicyDropdown }" />
             </button>
             <div v-if="showPolicyDropdown" class="dropdown-menu">
@@ -453,7 +669,6 @@ const getSectionList = (section: DisplayDetailSection) => {
                 @click="selectPolicy(group.id)"
               >
                 <span class="item-name">{{ group.name }}</span>
-                <span v-if="group.newCount" class="item-badge">{{ group.newCount }}</span>
               </div>
             </div>
           </div>
@@ -472,130 +687,157 @@ const getSectionList = (section: DisplayDetailSection) => {
       </div>
 
       <div class="main-grid">
-        <div class="left-column">
-          <section class="summary-card">
-            <div class="card-header">
-              <div class="header-title">
-                <Sparkles :size="18" class="sparkles-icon" />
-                <h2>{{ formattedDate }}{{ pageConfig.summaryTitle }}</h2>
-              </div>
-              <button class="report-link" @click="goToSummaryAction">
-                <ScrollText :size="14" />
-                {{ pageConfig.summaryActionLabel }}
-              </button>
-            </div>
-            <div class="summary-content">
-              <p>{{ currentSummary }}</p>
-            </div>
-          </section>
-
-          <section class="highlight-card">
-            <div class="card-header">
-              <div class="header-title">
-                <Star :size="18" class="star-icon" />
-                <h2>{{ pageConfig.highlightTitle }}</h2>
-                <span class="count-badge">{{ displayHighlights.length }} 条高匹配</span>
-              </div>
-            </div>
-            <div class="highlight-list">
-              <div
-                v-for="item in displayHighlights"
-                :key="item.id"
-                class="highlight-item"
-                @click="handleItemClick(item.id)"
-              >
-                <div class="highlight-content">
-                  <div class="item-top">
-                    <div class="match-score" :class="getMatchScoreClass(item.matchScore)">
-                      <TrendingUp :size="12" />
-                      {{ item.matchScore }}%
-                    </div>
-                    <div class="bid-tags">
-                      <span v-for="tag in item.tags" :key="tag" class="bid-tag">{{ tag }}</span>
-                    </div>
-                  </div>
-                  <h3 class="bid-title">{{ item.title }}</h3>
-                  <div class="item-meta">
-                    <span v-for="meta in item.metas" :key="`${item.id}-${meta.text}`" class="meta-item">
-                      <component :is="meta.icon" :size="13" />
-                      {{ meta.text }}
-                    </span>
-                  </div>
-                </div>
-                <div class="item-actions">
-                  <button class="action-btn secondary" @click.stop="handlePrimaryAction(item.id)">
-                    <component :is="isNewsMode ? BookOpen : FileSearch" :size="14" />
-                    {{ pageConfig.primaryActionLabel }}
-                  </button>
-                  <button class="action-btn primary" @click.stop="handleSecondaryAction(item.id)">
-                    <component :is="isNewsMode ? Database : FileText" :size="14" />
-                    {{ pageConfig.secondaryActionLabel }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
         <div class="right-column">
-          <div class="strategy-trigger">
-            <div class="strategy-trigger-top">
-              <div class="strategy-trigger-icon">
-                <component :is="isNewsMode ? Newspaper : Target" :size="20" />
-              </div>
-              <div class="strategy-trigger-text">
-                <span class="strategy-trigger-title">{{ pageConfig.topCardTitle }}</span>
-                <span class="strategy-trigger-desc">{{ pageConfig.topCardDesc }}</span>
-              </div>
-            </div>
-            <div v-if="topCardStats.length > 0" class="strategy-trigger-stats">
-              <template v-for="(stat, index) in topCardStats" :key="stat.label">
-                <div class="trigger-stat">
-                  <span class="trigger-stat-value">{{ stat.value }}</span>
-                  <span class="trigger-stat-label">{{ stat.label }}</span>
-                </div>
-                <div v-if="index < topCardStats.length - 1" class="trigger-stat-divider"></div>
-              </template>
-            </div>
-            <button class="strategy-cta-btn" @click="goToTopCardAction">
-              <component :is="isNewsMode ? Database : Target" :size="15" />
-              {{ pageConfig.topCardActionLabel }}
-              <ChevronRight :size="14" class="cta-arrow" />
-            </button>
-          </div>
-
           <section class="list-card">
             <div class="card-header">
               <div class="header-title">
                 <component :is="pageConfig.icon" :size="18" />
                 <h2>{{ pageConfig.listTitle }}</h2>
-                <span class="count-badge">{{ displayListItems.length }} 条</span>
+                <span class="count-badge">{{ filteredDisplayListItems.length }}条</span>
               </div>
-              <button class="view-all-btn" @click="openFullscreen">
-                <Maximize2 :size="14" />
-                查看全部
-              </button>
+              <div class="card-actions">
+                <button v-if="!isNewsMode" type="button" class="card-reset-btn" @click="resetListFilters">
+                  重置筛选
+                </button>
+                <button class="view-all-btn" @click="openFullscreen">
+                  <Maximize2 :size="14" />
+                  查看全部
+                </button>
+              </div>
             </div>
+
             <div class="bid-list">
+              <div v-if="!isNewsMode" class="bid-list-head">
+                <span>匹配度</span>
+                <span>标讯名称</span>
+                <span>发布单位</span>
+                <button
+                  type="button"
+                  :class="['head-sort-button', { active: activeListSortField === 'publishDate' }]"
+                  @click="toggleListSort('publishDate')"
+                >
+                  <span>发布时间</span>
+                  <ArrowUp v-if="activeListSortField === 'publishDate' && activeListSortDirection === 'asc'" :size="13" />
+                  <ArrowDown v-else-if="activeListSortField === 'publishDate'" :size="13" />
+                  <ArrowUpDown v-else :size="13" />
+                </button>
+                <button
+                  type="button"
+                  :class="['head-sort-button', { active: activeListSortField === 'deadline' }]"
+                  @click="toggleListSort('deadline')"
+                >
+                  <span>截止时间</span>
+                  <ArrowUp v-if="activeListSortField === 'deadline' && activeListSortDirection === 'asc'" :size="13" />
+                  <ArrowDown v-else-if="activeListSortField === 'deadline'" :size="13" />
+                  <ArrowUpDown v-else :size="13" />
+                </button>
+                <button
+                  type="button"
+                  :class="['head-sort-button', { active: activeListSortField === 'budgetAmount' }]"
+                  @click="toggleListSort('budgetAmount')"
+                >
+                  <span>预算金额</span>
+                  <ArrowUp v-if="activeListSortField === 'budgetAmount' && activeListSortDirection === 'asc'" :size="13" />
+                  <ArrowDown v-else-if="activeListSortField === 'budgetAmount'" :size="13" />
+                  <ArrowUpDown v-else :size="13" />
+                </button>
+                <div
+                  :class="['head-region-filter', { active: activeListRegion !== 'all', open: showListRegionDropdown }]"
+                  @focusout="handleListRegionBlur"
+                >
+                  <button
+                    type="button"
+                    class="head-region-trigger"
+                    aria-haspopup="listbox"
+                    :aria-expanded="showListRegionDropdown"
+                    @click.stop="showListRegionDropdown = !showListRegionDropdown"
+                  >
+                    <span>地区</span>
+                    <strong>{{ activeListRegionLabel }}</strong>
+                    <ChevronDown :size="13" />
+                  </button>
+                  <div v-if="showListRegionDropdown" class="head-region-menu" role="listbox">
+                    <button
+                      v-for="item in listRegionOptions"
+                      :key="item.value"
+                      type="button"
+                      role="option"
+                      :aria-selected="activeListRegion === item.value"
+                      :class="['head-region-option', { active: activeListRegion === item.value }]"
+                      @click="selectListRegion(item.value)"
+                    >
+                      {{ item.label }}
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div
-                v-for="item in displayListItems.slice(0, 8)"
+                v-for="item in pagedDisplayListItems"
                 :key="item.id"
-                class="bid-list-item"
+                :class="['bid-list-item', { 'bid-list-item--fields': !isNewsMode }]"
                 @click="handleItemClick(item.id)"
               >
                 <span class="match-badge" :class="getMatchScoreClass(item.matchScore)">
                   {{ item.matchScore }}%
                 </span>
                 <span class="list-title">{{ item.title }}</span>
-                <span class="list-budget">{{ item.extra }}</span>
+                <template v-if="!isNewsMode">
+                  <span class="list-publisher">{{ item.publisher }}</span>
+                  <span class="list-date">{{ item.publishDate }}</span>
+                  <span class="list-date">{{ item.deadline }}</span>
+                  <span class="list-budget">{{ item.budget }}</span>
+                  <span class="list-region">{{ item.region }}</span>
+                </template>
+                <span v-else class="list-budget">{{ item.extra }}</span>
                 <ChevronRight :size="16" class="list-arrow" />
               </div>
+              <div v-if="filteredDisplayListItems.length === 0" class="bid-list-empty">
+                暂无符合当前筛选条件的标讯
+              </div>
             </div>
-            <div v-if="displayListItems.length > 8" class="list-footer">
-              <button class="more-btn" @click="openFullscreen">
-                查看全部 {{ displayListItems.length }} 条{{ pageConfig.listUnit }}
-                <ChevronRight :size="14" />
-              </button>
+            <div v-if="filteredDisplayListItems.length > 0" class="list-pagination">
+              <span class="pagination-summary">
+                第 {{ listPageStart }}-{{ listPageEnd }} 条 / 共 {{ filteredDisplayListItems.length }} 条
+              </span>
+              <div class="pagination-actions">
+                <button
+                  type="button"
+                  class="pagination-btn"
+                  :disabled="currentListPage === 1"
+                  @click="goToListPage(currentListPage - 1)"
+                >
+                  上一页
+                </button>
+                <button
+                  v-for="page in totalListPages"
+                  :key="page"
+                  type="button"
+                  :class="['pagination-page', { active: currentListPage === page }]"
+                  @click="goToListPage(page)"
+                >
+                  {{ page }}
+                </button>
+                <button
+                  type="button"
+                  class="pagination-btn"
+                  :disabled="currentListPage === totalListPages"
+                  @click="goToListPage(currentListPage + 1)"
+                >
+                  下一页
+                </button>
+                <label class="pagination-jump-control">
+                  <span>跳至</span>
+                  <input
+                    v-model="listJumpPage"
+                    type="number"
+                    min="1"
+                    :max="totalListPages"
+                    @blur="goToListJumpPage"
+                    @keyup.enter="goToListJumpPage"
+                  />
+                  <span>页</span>
+                </label>
+              </div>
             </div>
           </section>
         </div>

@@ -9,13 +9,10 @@ import {
   Bot, // 智能体
   Network, // 知识库 (Tree structure)
   ChevronDown,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Plus,
   Users, // 团队管理
   User, // 个人中心
-  Building2,
+  ShieldCheck,
   Lock, // 隐藏知识库
   Briefcase // 企业素材库
 } from 'lucide-vue-next';
@@ -24,13 +21,9 @@ const router = useRouter();
 const route = useRoute();
 
 // State for expandable menus
-const isKnowledgeExpanded = ref(true);
+const isKnowledgeExpanded = ref(false);
 /** Collapsed rail: icons only */
 const isCollapsed = ref(false);
-
-const toggleSidebarCollapse = () => {
-  isCollapsed.value = !isCollapsed.value;
-};
 
 const knowledgeChildrenVisible = computed(
   () => isCollapsed.value || isKnowledgeExpanded.value
@@ -47,7 +40,13 @@ const isActive = (routeName: string) => {
 };
 
 const isSubscriptionActive = computed(() => {
-  return ['bid-subscription', 'bid-info-form'].includes(String(route.name ?? ''));
+  return ['bid-subscription', 'bid-info-form', 'bid-list-detail'].includes(String(route.name ?? '')) ||
+    (route.name === 'bid-info-daily' && route.query.source === 'subscription');
+});
+
+const isEnterpriseSearchActive = computed(() => {
+  return route.name === 'enterprise-search' ||
+    (route.name === 'bid-info-daily' && route.query.source !== 'subscription');
 });
 
 const toggleKnowledge = () => {
@@ -67,23 +66,12 @@ const bottomItems = [
     <!-- Logo Area -->
     <div class="sidebar-header">
       <div class="logo-area">
-        <div class="logo-icon" :title="isCollapsed ? '涌见AI' : undefined">
-          <Building2 :size="20" />
+        <div class="logo-icon" :title="isCollapsed ? '金盾检测' : undefined">
+          <ShieldCheck :size="21" />
         </div>
         <div v-show="!isCollapsed" class="logo-text">
-          <span class="logo-brand">涌见AI</span>
+          <span class="logo-brand">金盾检测</span>
         </div>
-        <button
-          type="button"
-          class="sidebar-collapse-toggle"
-          :title="isCollapsed ? '展开侧栏' : '收起侧栏'"
-          :aria-expanded="!isCollapsed"
-          aria-label="切换侧栏展开或收起"
-          @click="toggleSidebarCollapse"
-        >
-          <ChevronsLeft v-if="!isCollapsed" :size="18" />
-          <ChevronsRight v-else :size="18" />
-        </button>
       </div>
     </div>
 
@@ -113,7 +101,7 @@ const bottomItems = [
       <!-- 标讯搜索 -->
       <div
         class="nav-item"
-        :class="{ active: isActive('enterprise-search') }"
+        :class="{ active: isEnterpriseSearchActive }"
         :title="isCollapsed ? '标讯搜索' : undefined"
         @click="handleItemClick('enterprise-search')"
       >
@@ -154,7 +142,7 @@ const bottomItems = [
           <Network :size="18" class="nav-icon" />
           <span class="nav-label">知识库</span>
           <component
-            :is="isKnowledgeExpanded ? ChevronDown : ChevronRight"
+            :is="ChevronDown"
             v-show="!isCollapsed"
             :size="14"
             class="nav-chevron"
@@ -237,14 +225,14 @@ const bottomItems = [
 
 <style scoped>
 .sidebar {
-  width: 220px;
-  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  width: 160px;
+  background: linear-gradient(180deg, #eaf3ff 0%, #dce8ff 100%);
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 16px 12px;
+  padding: 16px 8px;
   flex-shrink: 0;
-  border-right: 1px solid #dbeafe;
+  border-right: 1px solid #dbe8ff;
   overflow-x: hidden;
   transition: width 0.2s ease, padding 0.2s ease;
   box-sizing: border-box;
@@ -256,8 +244,8 @@ const bottomItems = [
 }
 
 .sidebar-header {
-  margin-bottom: 24px;
-  padding: 0 8px;
+  margin-bottom: 28px;
+  padding: 0 12px;
 }
 
 .sidebar--collapsed .sidebar-header {
@@ -268,7 +256,7 @@ const bottomItems = [
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -283,64 +271,44 @@ const bottomItems = [
   min-width: 0;
 }
 
-.sidebar-collapse-toggle {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin-left: auto;
-  padding: 0;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.45);
-  color: #2563eb;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.sidebar-collapse-toggle:hover {
-  background: rgba(255, 255, 255, 0.85);
-  color: #1d4ed8;
-}
-
-.sidebar--collapsed .sidebar-collapse-toggle {
-  margin-left: 0;
-  width: 100%;
-}
-
 .sidebar--collapsed .logo-icon {
   justify-content: center;
 }
 
 .logo-icon {
-  color: #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 188, 87, 0.62);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff7e6 0%, #f1bb55 100%);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(187, 130, 33, 0.14);
 }
 
 .logo-brand {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #2563eb;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 9px 10px;
   border-radius: 8px;
   color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   font-size: 14px;
   position: relative;
   font-weight: 500;
-  min-height: 40px;
+  min-height: 38px;
 }
 
 .nav-item:hover {
@@ -349,13 +317,14 @@ const bottomItems = [
 }
 
 .nav-item.active {
-  background-color: #dbeafe;
+  background-color: rgba(255, 255, 255, 0.72);
   color: #2563eb;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.11);
 }
 
 .nav-icon {
-  margin-right: 10px;
+  margin-right: 9px;
   flex-shrink: 0;
 }
 
@@ -468,7 +437,6 @@ const bottomItems = [
 .sidebar-footer {
   padding-top: 12px;
   margin-top: auto;
-  border-top: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .footer-item {

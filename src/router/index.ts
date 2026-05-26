@@ -287,7 +287,7 @@ const routes = [
     path: '/bid/list-detail',
     name: 'bid-list-detail',
     component: BidListDetailView,
-    meta: { title: '标讯列表', fullScreen: true }
+    meta: { title: '标讯详情' }
   },
   {
     path: '/bid/industry-report',
